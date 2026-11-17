@@ -44,3 +44,24 @@ Before deploying this function:
 5. Deploy Functions only after the tests pass.
 
 The function is source code only. It has not been installed, emulator-tested, or deployed from this work session.
+
+## Super Admin account management
+
+The admin dashboard page is available at `/admin/users` for accounts whose app profile is `Admin_c`. It calls the protected `listManagedUsers` and `assignManagedRole` Functions; it does not query the Auth users collection from the browser.
+
+### App Check
+
+The browser initializes reCAPTCHA v3 App Check when `VITE_FIREBASE_APPCHECK_SITE_KEY` is present. Add the site key to the local `.env.local` and hosting environment after registering the matching site in Firebase App Check. Do not enable App Check enforcement for production callable functions until the deployed web app is correctly registered and verified.
+
+### One-time Super Admin bootstrap
+
+The callable role-management functions require the trusted boolean custom claim `superAdmin: true`. This claim must be assigned once to the intended administrator by an authorized project administrator in a trusted server-side environment. Never expose service-account credentials in the repository, browser bundle, chat, or client environment variables. Do not bootstrap by allowing public signup or by adding a client-side button. Confirm the account's email and identity independently before assigning the claim.
+
+The functions intentionally do not create or promote Admin accounts. Account roles returned to the browser are limited metadata (UID, email, display name, disabled state, role, email verification, and creation time).
+
+### Role assignment limitations
+
+- The callable function supports only `BusinessOwner_c` and `BranchManager_c`.
+- A role update writes Firebase Auth custom claims and a minimal user record.
+- The user may need to sign out and sign in again to refresh their ID token.
+- Branch-to-manager assignment and business ownership mapping remain separate workflows and are not granted by this function.
