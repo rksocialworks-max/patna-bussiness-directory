@@ -742,25 +742,38 @@ async function getActivePremiumPlan(planId) {
 exports.expirePremiumListings = onSchedule(
   { schedule: 'every day 01:15', timeZone: 'Asia/Kolkata', region: REGION },
   async () => {
-    const today = new Date().toISOString().slice(0, 10);
+    // Compare calendar dates in the configured business timezone.
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
     let expired = 0;
+    let cursor = null;
     while (true) {
-      const page = await db.collection('businesses')
-        .where('is_premium_c', '==', true)
+      let query = db.collection('businesses')
         .where('premium_expiry_c', '<', today)
-        .limit(400)
-        .get();
+        .orderBy('premium_expiry_c')
+        .limit(400);
+      if (cursor) query = query.startAfter(cursor);
+      const page = await query.get();
       if (page.empty) break;
       const batch = db.batch();
-      page.docs.forEach((document) => {
-        batch.update(document.ref, {
-          is_premium_c: false,
-          listing_type_c: 'Free',
-          ModifiedOn: FieldValue.serverTimestamp(),
-        });
-      });
-      await batch.commit();
-      expired += page.size;
+      let batchCount = 0;
+      for (const document of page.docs) {
+        if (document.data().is_premium_c === true) {
+          batch.update(document.ref, {
+            is_premium_c: false,
+            listing_type_c: 'Free',
+            ModifiedOn: FieldValue.serverTimestamp(),
+          });
+          batchCount += 1;
+        }
+      }
+      if (batchCount) await batch.commit();
+      expired += batchCount;
+      cursor = page.docs[page.docs.length - 1];
       if (page.size < 400) break;
     }
     return { expired };
