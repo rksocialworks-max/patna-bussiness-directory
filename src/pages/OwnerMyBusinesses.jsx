@@ -6,19 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ApperIcon from '@/components/ApperIcon';
 
-const FIELDS = [
-  'Id',
-  'Name',
-  'category_c',
-  'district_c',
-  'city_c',
-  'status_c',
-  'is_premium_c',
-  'is_verified_c',
-  'premium_expiry_c',
-  'CreatedOn',
-];
-
 export const route = {
   path: '/owner/businesses',
   layout: 'owner',
