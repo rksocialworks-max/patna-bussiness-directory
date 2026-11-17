@@ -21,3 +21,10 @@ export async function assignManagedRole({ uid, role }) {
   const result = await callable({ uid, role });
   return result.data;
 }
+
+/** Fetch one page of user account metadata. Backend requires superAdmin=true. */
+export async function listManagedUsers({ pageToken } = {}) {
+  const callable = httpsCallable(requireFunctions(), 'listManagedUsers');
+  const result = await callable(pageToken ? { pageToken } : {});
+  return result.data;
+}
