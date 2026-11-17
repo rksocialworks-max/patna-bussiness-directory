@@ -28,3 +28,22 @@ export async function listManagedUsers({ pageToken } = {}) {
   const result = await callable(pageToken ? { pageToken } : {});
   return result.data;
 }
+
+
+export async function submitPublicReview(payload) {
+  const callable = httpsCallable(requireFunctions(), 'submitPublicReview');
+  const result = await callable(payload);
+  return result.data;
+}
+
+export async function submitPublicEnquiry(payload) {
+  const callable = httpsCallable(requireFunctions(), 'submitPublicEnquiry');
+  const result = await callable(payload);
+  return result.data;
+}
+
+export async function submitBusinessReport(payload) {
+  const callable = httpsCallable(requireFunctions(), 'submitBusinessReport');
+  const result = await callable(payload);
+  return result.data;
+}
