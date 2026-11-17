@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { signIn, signUp } from '@/services/firebase/auth';
+import { signIn, signUp, sendCurrentEmailVerification } from '@/services/firebase/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import { setUser } from '@/store/userSlice';
 import { AUTH_PROFILES, GENERIC_AUTH } from '@/config/app.config';
@@ -65,7 +65,8 @@ export default function AuthPage({ mode }) {
       } else {
         if (password !== confirmPassword) { setError('Passwords do not match'); return; }
         await signUp({ email, password });
-        setError('Account created. Access will be enabled after administrator approval.');
+        await sendCurrentEmailVerification();
+        setError('Account created. Please verify your email using the link we sent. Directory access will be enabled after administrator approval.');
       }
     } catch (err) {
       setError(err?.message || 'Unexpected error');
