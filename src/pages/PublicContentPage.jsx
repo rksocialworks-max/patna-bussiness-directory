@@ -1,21 +1,22 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import PublicHeader from '@/components/PublicHeader';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
-
-const { eq } = window.ApperSDK.CoreSDK;
 
 export const route = { path: '/pages/:slug', layout: 'public', access: 'public' };
 
 export default function PublicContentPage() {
   const { slug } = useParams();
   const { data: page, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('content_pages_c').select(['Id', 'Name', 'slug_c', 'body_c', 'seo_title_c', 'meta_description_c', 'status_c']).where(eq('slug_c', slug)).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data[0] ?? null;
+    const rows = await listDocuments(COLLECTIONS.contentPagesPublic, {
+      filters: [{ field: 'slug_c', value: slug }],
+      pageSize: 1,
+    });
+    const row = rows[0];
+    return row ? { ...row, Id: row.Id ?? row.id } : null;
   }, [slug]);
 
   useEffect(() => {
