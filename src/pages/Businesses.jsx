@@ -45,13 +45,15 @@ export default function Businesses() {
   const [visibleCount, setVisibleCount] = useState(12);
 
   const { data: categoryRows } = useFetch(async () => {
-    const result = await sdk.table('categories_c').select(['Id', 'Name', 'status_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    return listDocuments(COLLECTIONS.categories, {
+      filters: [{ field: 'status_c', value: 'Active' }],
+      sort: 'sort_order_c',
+      pageSize: 100,
+    });
   }, []);
 
   const { data, loading, error, run } = useFetch(async () => {
-    const result = await listDocuments(COLLECTIONS.businesses, { pageSize: 100 });
+    const result = await listDocuments(COLLECTIONS.businessPublic, { pageSize: 100 });
     const normalized = result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
     const matches = (value, term) => String(value ?? '').toLocaleLowerCase().includes(term.toLocaleLowerCase());
     return normalized.filter((row) =>
