@@ -102,6 +102,18 @@ describe('Firestore private business rules', () => {
       is_verified_c: true,
     }));
   });
+
+  it('allows free owners to update Facebook and Instagram, but not premium-only website or email', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'businesses/social-shop'), ownerBusiness);
+    });
+    const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    const businessRef = doc(db, 'businesses/social-shop');
+    await assertSucceeds(updateDoc(businessRef, { facebook_c: 'https://facebook.com/example' }));
+    await assertSucceeds(updateDoc(businessRef, { instagram_c: 'https://instagram.com/example' }));
+    await assertFails(updateDoc(businessRef, { website_c: 'https://example.com' }));
+    await assertFails(updateDoc(businessRef, { email_c: 'hello@example.com' }));
+  });
 });
 
 describe('Public mirror rules', () => {
@@ -159,6 +171,15 @@ describe('Storage security rules', () => {
     const object = ref(storage, 'users/owner-read/uploads/read-check.png');
     await assertSucceeds(uploadBytes(object, new Uint8Array([4, 5, 6]), { contentType: 'image/png' }));
     await assertSucceeds(getBytes(object));
+  });
+
+  it('allows trusted Admin profile claims to read uploaded files for moderation', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      const object = ref(context.storage(), 'users/owner-docs/uploads/review.png');
+      await uploadBytes(object, new Uint8Array([7, 8, 9]), { contentType: 'image/png' });
+    });
+    const adminStorage = env.authenticatedContext('admin-1', { profile: 'Admin_c' }).storage();
+    await assertSucceeds(getBytes(ref(adminStorage, 'users/owner-docs/uploads/review.png')));
   });
 
   it('denies unauthenticated access', async () => {
