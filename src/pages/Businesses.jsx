@@ -45,8 +45,7 @@ export default function Businesses() {
   const [visibleCount, setVisibleCount] = useState(12);
 
   const { data: categoryRows } = useFetch(async () => {
-    return listDocuments(COLLECTIONS.categories, {
-      filters: [{ field: 'status_c', value: 'Active' }],
+    return listDocuments(COLLECTIONS.categoriesPublic, {
       sort: 'sort_order_c',
       pageSize: 100,
     });
