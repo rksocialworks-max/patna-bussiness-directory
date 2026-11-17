@@ -30,3 +30,17 @@ Do not use a broad `firebase deploy` command for this draft. Firestore currently
 - The app must store the returned Storage path and resolve a download URL only when the authorized user needs it.
 
 These rules are a conservative first pass, not the complete final access model for business documents, branch managers, or moderation workflows.
+
+## Cloud Functions role management draft
+
+The repository also includes a callable function named `assignManagedRole` in `functions/src/index.js`. It allows a separately bootstrapped Super Admin (custom claim `superAdmin: true`) to assign only `BusinessOwner_c` or `BranchManager_c`. It deliberately cannot create or promote an Admin account.
+
+Before deploying this function:
+
+1. Configure Firebase App Check for the web app because the callable enforces App Check.
+2. Bootstrap the single Super Admin securely using a trusted administrative process; never let public signup assign this claim.
+3. Review the role/profile claim names against the app's auth guard.
+4. Install the Functions dependencies from the `functions` directory and run the Firebase Emulator Suite.
+5. Deploy Functions only after the tests pass.
+
+The function is source code only. It has not been installed, emulator-tested, or deployed from this work session.
