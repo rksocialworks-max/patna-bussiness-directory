@@ -5,7 +5,7 @@ import { sdk } from '@/services/sdk';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
 
-const FIELDS = ['Id', 'Name', 'business_c', 'plan_c', 'amount_c', 'method_c', 'reference_c', 'status_c', 'receipt_no_c', 'CreatedOn'];
+const FIELDS = ['Id', 'Name', 'business_c', 'plan_c', 'plan_name_c', 'amount_c', 'provider_c', 'manual_utr_c', 'razorpay_payment_id_c', 'status_c', 'receipt_number_c', 'CreatedOn', 'paid_at_c', 'premium_expiry_c'];
 
 export const route = { path: '/owner/payments/:id/receipt', layout: 'owner', access: "profile === 'BusinessOwner_c' || profile === 'Admin_c'" };
 
@@ -22,8 +22,8 @@ export default function PaymentReceipt() {
   if (loading) return <div className="mx-auto max-w-3xl animate-pulse p-8"><div className="h-64 rounded-2xl bg-muted" /></div>;
   if (error || !payment) return <div className="mx-auto max-w-3xl p-8 text-center"><p className="text-sm text-destructive">{error?.message || 'Receipt not found.'}</p></div>;
 
-  const business = payment.business_c?.Name || 'Business';
-  const plan = payment.plan_c?.Name || 'Premium Plan';
+  const business = payment.business_c?.Name || payment.business_name_c || 'Business';
+  const plan = payment.plan_name_c || payment.plan_c?.Name || 'Premium Plan';
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -37,18 +37,18 @@ export default function PaymentReceipt() {
           <ApperIcon name="ReceiptText" size={34} className="text-primary" />
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div><p className="text-xs text-muted-foreground">Receipt Number</p><p className="mt-1 font-bold">{payment.receipt_no_c || 'Pending Admin Verification'}</p></div>
+          <div><p className="text-xs text-muted-foreground">Receipt Number</p><p className="mt-1 font-bold">{payment.receipt_number_c || payment.receipt_no_c || 'Pending Admin Verification'}</p></div>
           <div><p className="text-xs text-muted-foreground">Payment Date</p><p className="mt-1 font-semibold">{payment.CreatedOn ? new Date(payment.CreatedOn).toLocaleDateString('en-IN') : '—'}</p></div>
           <div><p className="text-xs text-muted-foreground">Business</p><p className="mt-1 font-semibold">{business}</p></div>
           <div><p className="text-xs text-muted-foreground">Plan</p><p className="mt-1 font-semibold">{plan}</p></div>
-          <div><p className="text-xs text-muted-foreground">Payment Method</p><p className="mt-1 font-semibold">{payment.method_c}</p></div>
-          <div><p className="text-xs text-muted-foreground">Transaction Reference</p><p className="mt-1 font-semibold">{payment.reference_c || '—'}</p></div>
+          <div><p className="text-xs text-muted-foreground">Payment Method</p><p className="mt-1 font-semibold">{payment.provider_c || payment.method_c || '—'}</p></div>
+          <div><p className="text-xs text-muted-foreground">Transaction Reference</p><p className="mt-1 font-semibold">{payment.manual_utr_c || payment.razorpay_payment_id_c || payment.reference_c || '—'}</p></div>
         </div>
         <div className="mt-8 rounded-xl bg-muted/50 p-5">
           <div className="flex items-center justify-between"><span className="text-sm font-semibold">Amount Paid</span><span className="text-2xl font-extrabold">₹{Number(payment.amount_c || 0).toLocaleString('en-IN')}</span></div>
-          <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-sm"><span className="text-muted-foreground">Payment Status</span><span className="font-bold">{payment.status_c}</span></div>
+          <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-sm"><span className="text-muted-foreground">Payment Status</span><span className="font-bold">{payment.status_c === 'Paid' || payment.status_c === 'Verified' ? 'Paid / Verified' : payment.status_c}</span></div>
         </div>
-        <p className="mt-6 text-xs leading-5 text-muted-foreground">This receipt is generated from the directory payment record. It is not a GST tax invoice. GST invoice generation requires the applicable tax configuration and billing details to be connected.</p>
+        <p className="mt-6 text-xs leading-5 text-muted-foreground">This payment receipt is generated from the verified directory payment record. It is not a GST tax invoice. GST invoice generation requires the applicable tax configuration and billing details to be connected.</p>
       </article>
     </div>
   );
