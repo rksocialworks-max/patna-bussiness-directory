@@ -126,10 +126,35 @@ function chunks(values, size) {
   return result;
 }
 
+// Collections that have a server-maintained, curated public mirror.
+// Never expose private source collections to anonymous visitors.
+const PUBLIC_READ_COLLECTIONS = Object.freeze({
+  businesses_c: 'business_public',
+  categories_c: 'categories_public',
+  branches_c: 'branches_public',
+  products_services_c: 'products_services_public',
+  reviews_c: 'reviews_public',
+  offers_c: 'offers_public',
+  coupons_c: 'coupons_public',
+  premium_plans_c: 'premium_plans_public',
+  site_settings_c: 'site_settings_public',
+  content_pages_c: 'content_pages_public',
+  homepage_banners_c: 'homepage_banners_public',
+});
+
 function mapReadCollection(tableName, role) {
-  if (role !== 'Admin_c' && tableName === 'premium_plans_c') return 'premium_plans_public';
-  if (role !== 'Admin_c' && tableName === 'site_settings_c') return 'site_settings_public';
-  return TABLES[tableName];
+  if (role === 'Admin_c') return TABLES[tableName];
+
+  // Owners and branch managers need private source records for their own
+  // dashboards. Other public-facing tables can safely use curated mirrors.
+  if (role === 'BusinessOwner_c' && ['businesses_c', 'branches_c', ...OWNER_RELATION_TABLES].includes(tableName)) {
+    return TABLES[tableName];
+  }
+  if (role === 'BranchManager_c' && ['branches_c', 'enquiries_c', 'branch_activity_c'].includes(tableName)) {
+    return TABLES[tableName];
+  }
+
+  return PUBLIC_READ_COLLECTIONS[tableName] || null;
 }
 
 function makeTable(tableName) {
@@ -163,6 +188,7 @@ function makeTable(tableName) {
       const database = requireDb();
       const scope = await getCallerScope();
       const sourceName = mapReadCollection(tableName, scope.role);
+      if (!sourceName) return { success: true, data: [], messages: [] };
       const baseRef = collection(database, sourceName);
       const serverFilters = filters.filter(({ op }) => op !== 'contains');
       const localFilters = filters.filter(({ op }) => op === 'contains');
@@ -225,7 +251,7 @@ function makeTable(tableName) {
           snapshots.push(...snapshot.docs);
         }
       } else if (['enquiries_c', 'branch_activity_c'].includes(tableName) && scope.role === 'BranchManager_c') {
-        const field = tableName === 'enquiries_c' ? 'branch_c' : 'branch_c';
+        const field = 'branch_c';
         for (const group of chunks(scope.branchIds, 30)) {
           if (!group.length) continue;
           const snapshot = await getDocs(query(
@@ -236,6 +262,18 @@ function makeTable(tableName) {
           ));
           snapshots.push(...snapshot.docs);
         }
+      } else if (PUBLIC_READ_COLLECTIONS[tableName] && (
+        !scope.uid || scope.role === 'Customer_c' ||
+        (scope.role === 'BusinessOwner_c' && !OWNER_RELATION_TABLES.has(tableName) && !['businesses_c', 'branches_c'].includes(tableName)) ||
+        (scope.role === 'BranchManager_c' && !['branches_c', 'enquiries_c', 'branch_activity_c'].includes(tableName))
+      )) {
+        // Public pages (including signed-out visitors) read only curated
+        // server-generated mirrors. Firestore rules independently enforce
+        // read-only access to these mirror collections.
+        if (sort?.field) constraints.push(orderBy(sort.field, sort.direction));
+        constraints.push(firestoreLimit(maxRows));
+        const snapshot = await getDocs(query(baseRef, ...constraints));
+        snapshots = snapshot.docs;
       } else {
         return { success: true, data: [], messages: [] };
       }
