@@ -872,22 +872,38 @@ exports.verifyPremiumPayment = onCall(
       throw new HttpsError('failed-precondition', 'Payment could not be confirmed as captured by Razorpay.');
     }
 
-    const business = await getOwnedBusiness(payment.business_c, uid);
+    const businessRef = db.collection('businesses').doc(payment.business_c);
     const now = new Date();
-    const currentExpiry = business.data.is_premium_c === true && business.data.premium_expiry_c
-      ? new Date(business.data.premium_expiry_c + 'T23:59:59.999Z') : null;
-    const start = currentExpiry && currentExpiry > now ? currentExpiry : now;
-    const expiry = new Date(start.getTime() + Number(payment.duration_days_c) * 86400000);
-    const expiryDate = expiry.toISOString().slice(0, 10);
     const receiptNumber = 'PBD-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + paymentId.slice(-6).toUpperCase();
-
-    await db.runTransaction(async (transaction) => {
-      const latest = await transaction.get(paymentRef);
+    const result = await db.runTransaction(async (transaction) => {
+      const [latest, businessSnap] = await Promise.all([
+        transaction.get(paymentRef),
+        transaction.get(businessRef),
+      ]);
       if (!latest.exists) throw new HttpsError('not-found', 'Payment record was not found.');
-      if (latest.data().status_c === 'Paid') return;
       if (latest.data().ownerUid !== uid || latest.data().razorpay_order_id_c !== orderId) {
         throw new HttpsError('permission-denied', 'Payment record changed during verification.');
       }
+      if (latest.data().status_c === 'Paid') {
+        return {
+          success: true,
+          status: 'Paid',
+          receiptNumber: latest.data().receipt_number_c || null,
+          premiumExpiry: latest.data().premium_expiry_c || null,
+        };
+      }
+      if (latest.data().status_c !== 'Pending') {
+        throw new HttpsError('failed-precondition', 'This payment is no longer pending.');
+      }
+      if (!businessSnap.exists || businessSnap.data().ownerUid !== uid || businessSnap.data().status_c !== 'Approved') {
+        throw new HttpsError('failed-precondition', 'The linked business is no longer eligible for Premium.');
+      }
+      const business = businessSnap.data();
+      const currentExpiry = business.is_premium_c === true && business.premium_expiry_c
+        ? new Date(business.premium_expiry_c + 'T23:59:59.999Z') : null;
+      const start = currentExpiry && currentExpiry > now ? currentExpiry : now;
+      const expiryDate = new Date(start.getTime() + Number(latest.data().duration_days_c) * 86400000)
+        .toISOString().slice(0, 10);
       transaction.update(paymentRef, {
         status_c: 'Paid',
         razorpay_payment_id_c: gatewayPaymentId,
@@ -896,14 +912,15 @@ exports.verifyPremiumPayment = onCall(
         premium_expiry_c: expiryDate,
         ModifiedOn: FieldValue.serverTimestamp(),
       });
-      transaction.update(business.ref, {
+      transaction.update(businessRef, {
         is_premium_c: true,
         listing_type_c: 'Premium',
         premium_expiry_c: expiryDate,
         ModifiedOn: FieldValue.serverTimestamp(),
       });
+      return { success: true, status: 'Paid', receiptNumber, premiumExpiry: expiryDate };
     });
-    return { success: true, status: 'Paid', receiptNumber, premiumExpiry: expiryDate };
+    return result;
   },
 );
 
@@ -976,27 +993,25 @@ exports.approveManualPremiumPayment = onCall(
     const paymentId = request.data?.paymentId;
     if (typeof paymentId !== 'string' || !paymentId) throw new HttpsError('invalid-argument', 'Payment ID is required.');
     const paymentRef = db.collection('payments').doc(paymentId);
-    const snap = await paymentRef.get();
-    if (!snap.exists || snap.data().provider_c !== 'UPI' || snap.data().status_c !== 'Pending Verification') {
-      throw new HttpsError('failed-precondition', 'This manual payment is not awaiting verification.');
-    }
-    const payment = snap.data();
-    const businessRef = db.collection('businesses').doc(payment.business_c);
-    const businessSnap = await businessRef.get();
-    if (!businessSnap.exists || businessSnap.data().ownerUid !== payment.ownerUid || businessSnap.data().status_c !== 'Approved') {
-      throw new HttpsError('failed-precondition', 'The linked business is not eligible for Premium.');
-    }
     const now = new Date();
-    const oldExpiry = businessSnap.data().is_premium_c && businessSnap.data().premium_expiry_c
-      ? new Date(businessSnap.data().premium_expiry_c + 'T23:59:59.999Z') : null;
-    const start = oldExpiry && oldExpiry > now ? oldExpiry : now;
-    const expiryDate = new Date(start.getTime() + Number(payment.duration_days_c) * 86400000).toISOString().slice(0, 10);
     const receiptNumber = 'PBD-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + paymentId.slice(-6).toUpperCase();
-    await db.runTransaction(async (transaction) => {
+    const result = await db.runTransaction(async (transaction) => {
       const latest = await transaction.get(paymentRef);
-      if (!latest.exists || latest.data().status_c !== 'Pending Verification') {
-        throw new HttpsError('failed-precondition', 'This payment has already been processed.');
+      if (!latest.exists || latest.data().provider_c !== 'UPI' || latest.data().status_c !== 'Pending Verification') {
+        throw new HttpsError('failed-precondition', 'This manual payment is not awaiting verification.');
       }
+      const payment = latest.data();
+      const businessRef = db.collection('businesses').doc(payment.business_c);
+      const businessSnap = await transaction.get(businessRef);
+      if (!businessSnap.exists || businessSnap.data().ownerUid !== payment.ownerUid || businessSnap.data().status_c !== 'Approved') {
+        throw new HttpsError('failed-precondition', 'The linked business is not eligible for Premium.');
+      }
+      const business = businessSnap.data();
+      const oldExpiry = business.is_premium_c === true && business.premium_expiry_c
+        ? new Date(business.premium_expiry_c + 'T23:59:59.999Z') : null;
+      const start = oldExpiry && oldExpiry > now ? oldExpiry : now;
+      const expiryDate = new Date(start.getTime() + Number(payment.duration_days_c) * 86400000)
+        .toISOString().slice(0, 10);
       transaction.update(paymentRef, {
         status_c: 'Paid', approved_by_c: request.auth.uid,
         receipt_number_c: receiptNumber, paid_at_c: FieldValue.serverTimestamp(),
@@ -1006,7 +1021,8 @@ exports.approveManualPremiumPayment = onCall(
         is_premium_c: true, listing_type_c: 'Premium',
         premium_expiry_c: expiryDate, ModifiedOn: FieldValue.serverTimestamp(),
       });
+      return { success: true, receiptNumber, premiumExpiry: expiryDate };
     });
-    return { success: true, receiptNumber, premiumExpiry: expiryDate };
+    return result;
   },
 );
