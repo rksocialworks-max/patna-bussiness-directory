@@ -58,3 +58,11 @@ export async function backfillPublicDirectory() {
   const result = await callable({});
   return result.data;
 }
+
+
+/** Return only eligible branch manager accounts for branch assignment. */
+export async function listBranchManagers() {
+  const callable = httpsCallable(requireFunctions(), 'listBranchManagers');
+  const result = await callable({});
+  return result.data.users || [];
+}
