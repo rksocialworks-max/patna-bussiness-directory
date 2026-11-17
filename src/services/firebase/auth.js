@@ -1,4 +1,5 @@
 import {
+  applyActionCode,
   confirmPasswordReset,
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -7,6 +8,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  sendEmailVerification,
   sendPasswordResetEmail,
   updateProfile,
 } from 'firebase/auth';
@@ -36,6 +38,18 @@ export async function signUp({ email, password, displayName }) {
   const credential = await createUserWithEmailAndPassword(requireAuth(), email.trim(), password);
   if (displayName) await updateProfile(credential.user, { displayName });
   return credential.user;
+}
+
+export async function sendCurrentEmailVerification() {
+  const user = requireAuth().currentUser;
+  if (!user) throw new Error('Sign in before requesting email verification.');
+  const actionCodeSettings = { url: `${window.location.origin}/verify-email`, handleCodeInApp: true };
+  return sendEmailVerification(user, actionCodeSettings);
+}
+
+export async function confirmCurrentEmailVerification(oobCode) {
+  if (!oobCode || typeof oobCode !== 'string') throw new Error('Verification link is invalid or expired.');
+  return applyActionCode(requireAuth(), oobCode);
 }
 
 export async function sendPasswordReset(email) {
