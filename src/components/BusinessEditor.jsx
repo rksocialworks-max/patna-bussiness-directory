@@ -59,10 +59,10 @@ export default function BusinessEditor({ record = null }) {
   const [preview, setPreview] = useState(false);
   const premium = Boolean(record?.is_premium_c) && (!record?.premium_expiry_c || record.premium_expiry_c >= new Date().toISOString().slice(0, 10));
   const { data: categoryRows } = useFetch(async () => {
-    return listDocuments(COLLECTIONS.categories, { pageSize: 100 });
+    return listDocuments(COLLECTIONS.categoriesPublic, { pageSize: 100 });
   }, []);
   const { data: siteSettings } = useFetch(async () => {
-    return listDocuments(COLLECTIONS.siteSettings, { pageSize: 100 });
+    return listDocuments(COLLECTIONS.siteSettingsPublic, { pageSize: 100 });
   }, []);
   const settingNumber = (key, fallback) => Number(siteSettings?.find((item) => item.setting_key_c === key)?.setting_value_c || fallback);
   const logoMaxKb = settingNumber('logo_max_kb', 1024);
@@ -105,26 +105,44 @@ export default function BusinessEditor({ record = null }) {
       payload.seo_title_c = form.seo_title_c || `${form.Name} | Patna Business Directory`;
       payload.meta_description_c = form.meta_description_c || String(form.description_c || '').slice(0, 155);
 
-      if (!record) {
-        payload.status_c = 'Pending Approval';
-        payload.listing_type_c = 'Free';
-        payload.is_premium_c = false;
-        payload.is_verified_c = false;
-        payload.rating_c = 0;
-        payload.reviews_count_c = 0;
-        payload.featured_order_c = 99;
-      }
-
       if (!user?.uid) throw new Error('Please sign in again before saving your business.');
       if (record) {
         if (record.ownerUid && record.ownerUid !== user.uid && user.profile !== 'Admin_c') {
           throw new Error('You are not allowed to edit this business.');
         }
+        // Free owners cannot write premium-only fields, even as empty values.
+        if (user.profile !== 'Admin_c' && !premium) {
+          delete payload.email_c;
+          delete payload.website_c;
+          delete payload.cover_c;
+          delete payload.photos_c;
+        }
         await updateDocument(COLLECTIONS.businesses, record.id ?? record.Id, payload);
       } else {
-        payload.ownerUid = user.uid;
-        payload.ownerEmail = user.email ?? '';
-        await createDocument(COLLECTIONS.businesses, payload);
+        // Keep the initial owner submission aligned with the strict Firestore
+        // create allowlist. Premium fields and admin-controlled fields are added later.
+        const allowedCreateFields = [
+          'Name', 'category_c', 'owner_name_c', 'phone_c', 'whatsapp_c',
+          'district_c', 'city_c', 'area_c', 'pincode_c', 'address_c',
+          'description_c', 'map_url_c', 'latitude_c', 'longitude_c',
+          'facebook_c', 'instagram_c', 'gstin_c', 'hours_c',
+          'holiday_info_c', 'seo_title_c', 'meta_description_c', 'logo_c', 'slug_c',
+        ];
+        const createPayload = Object.fromEntries(
+          allowedCreateFields.filter((field) => payload[field] !== undefined).map((field) => [field, payload[field]])
+        );
+        Object.assign(createPayload, {
+          ownerUid: user.uid,
+          ownerEmail: user.email ?? '',
+          status_c: 'Pending Approval',
+          listing_type_c: 'Free',
+          is_premium_c: false,
+          is_verified_c: false,
+          rating_c: 0,
+          reviews_count_c: 0,
+          featured_order_c: 99,
+        });
+        await createDocument(COLLECTIONS.businesses, createPayload);
       }
 
       toast.success(record ? 'Business profile updated.' : 'Business submitted for Admin approval.');
