@@ -134,7 +134,7 @@ export default function FilePicker({
       }
 
       try {
-        const result = await sdk.storage.upload(file, {
+        const result = await uploadFile(file, {
           onProgress: (p) => setBatchProgress(prev => ({ ...prev, fileProgress: p })),
         });
         uploaded.push({
