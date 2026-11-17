@@ -10,10 +10,6 @@
       "label": "Plan Name",
       "required": true
     },
-    "duration_days_c": {
-      "type": "Number",
-      "label": "Duration (Days)"
-    },
     "price_c": {
       "type": "Decimal",
       "label": "Price (INR)",
@@ -27,13 +23,16 @@
       "type": "Picklist",
       "label": "Status",
       "values": "Active,Inactive"
+    },
+    "duration_months_c": {
+      "type": "Number",
+      "label": "Duration (Months)"
     }
   },
   "records": [
     {
       "Id": "20000000-0000-4000-8000-000000000041",
       "Name": "Premium Monthly",
-      "duration_days_c": 30,
       "price_c": 499,
       "features_c": "Premium badge, priority listing, profile gallery and business insights. Plan-specific media quota controlled by Admin.",
       "status_c": "Active",
@@ -50,12 +49,12 @@
         "Name": "Demo Super Admin"
       },
       "CreatedOn": "2026-11-12T08:00:00.000Z",
-      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "duration_months_c": 1
     },
     {
       "Id": "20000000-0000-4000-8000-000000000042",
       "Name": "Premium Quarterly",
-      "duration_days_c": 90,
       "price_c": 1299,
       "features_c": "Premium badge, priority listing, profile gallery and business insights. Plan-specific media quota controlled by Admin.",
       "status_c": "Active",
@@ -72,12 +71,12 @@
         "Name": "Demo Super Admin"
       },
       "CreatedOn": "2026-11-12T08:00:00.000Z",
-      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "duration_months_c": 3
     },
     {
       "Id": "20000000-0000-4000-8000-000000000043",
       "Name": "Premium Annual",
-      "duration_days_c": 365,
       "price_c": 4499,
       "features_c": "Premium badge, priority listing, profile gallery and business insights. Plan-specific media quota controlled by Admin.",
       "status_c": "Active",
@@ -94,12 +93,12 @@
         "Name": "Demo Super Admin"
       },
       "CreatedOn": "2026-11-12T08:00:00.000Z",
-      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "duration_months_c": 12
     },
     {
       "Id": "20000000-0000-4000-8000-000000000044",
       "Name": "Starter Monthly",
-      "duration_days_c": 30,
       "price_c": 299,
       "features_c": "Premium badge, priority listing, profile gallery and business insights. Plan-specific media quota controlled by Admin.",
       "status_c": "Active",
@@ -116,12 +115,12 @@
         "Name": "Demo Super Admin"
       },
       "CreatedOn": "2026-11-12T08:00:00.000Z",
-      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "duration_months_c": 1
     },
     {
       "Id": "20000000-0000-4000-8000-000000000045",
       "Name": "Growth Quarterly",
-      "duration_days_c": 90,
       "price_c": 999,
       "features_c": "Premium badge, priority listing, profile gallery and business insights. Plan-specific media quota controlled by Admin.",
       "status_c": "Active",
@@ -138,12 +137,12 @@
         "Name": "Demo Super Admin"
       },
       "CreatedOn": "2026-11-12T08:00:00.000Z",
-      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "duration_months_c": 3
     },
     {
       "Id": "20000000-0000-4000-8000-000000000046",
       "Name": "Business Annual",
-      "duration_days_c": 365,
       "price_c": 3499,
       "features_c": "Premium badge, priority listing, profile gallery and business insights. Plan-specific media quota controlled by Admin.",
       "status_c": "Active",
@@ -160,7 +159,8 @@
         "Name": "Demo Super Admin"
       },
       "CreatedOn": "2026-11-12T08:00:00.000Z",
-      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "duration_months_c": 12
     }
   ]
 }
