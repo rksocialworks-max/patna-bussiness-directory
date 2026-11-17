@@ -18,7 +18,6 @@ before(async () => {
 
 beforeEach(async () => {
   await env.clearFirestore();
-  await env.clearStorage();
 });
 
 after(async () => {
@@ -55,6 +54,13 @@ describe('Storage security rules', () => {
     const storage = env.authenticatedContext('owner-1').storage();
     const object = ref(storage, 'users/owner-1/uploads/script.js');
     await assertFails(uploadBytes(object, new Uint8Array([1, 2, 3]), { contentType: 'application/javascript' }));
+  });
+
+  it('allows the uploader to read their own uploaded object', async () => {
+    const storage = env.authenticatedContext('owner-read').storage();
+    const object = ref(storage, 'users/owner-read/uploads/read-check.png');
+    await assertSucceeds(uploadBytes(object, new Uint8Array([4, 5, 6]), { contentType: 'image/png' }));
+    await assertSucceeds(getBytes(object));
   });
 
   it('denies unauthenticated access', async () => {
