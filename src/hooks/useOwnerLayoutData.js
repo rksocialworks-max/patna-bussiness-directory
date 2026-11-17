@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAuth } from '@/layouts/RootLayout';
 import { APP_CONFIG, AUTH_PROFILES, GENERIC_AUTH } from '@/config/app.config';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 
 // Auto-discover nav items and footer pages from page exports
 const pageMods = import.meta.glob('/src/pages/**/*.jsx', { eager: true });
@@ -19,21 +19,29 @@ const footerPages = Object.entries(pageMods)
 
 const countItems = discoveredNavItems.filter((item) => item.count?.table);
 
+const LEGACY_COUNT_COLLECTIONS = {
+  businesses_c: COLLECTIONS.businesses,
+  branches_c: COLLECTIONS.branches,
+  enquiries_c: COLLECTIONS.enquiries,
+  reviews_c: COLLECTIONS.reviews,
+  notifications_c: COLLECTIONS.notifications,
+};
+
 async function fetchCounts() {
   if (!countItems.length) return {};
-  const results = await Promise.all(countItems.map((item) =>
-    sdk.table(item.count.table)
-      .select([{ field: 'Id' }])
-      .aggregate([{ id: 'c', fields: [{ field: 'Id', fn: 'Count', alias: 'count' }], ...(item.count.where ? { where: item.count.where } : {}) }])
-      .limit(1)
-      .fetch()
-  ));
-  const counts = {};
-  countItems.forEach((item, i) => {
-    const bucket = results[i]?.aggregators?.find((a) => a.id === 'c');
-    counts[item.to] = bucket?.data?.count ?? bucket?.count ?? bucket?.value ?? 0;
-  });
-  return counts;
+  const entries = await Promise.all(countItems.map(async (item) => {
+    const collectionName = LEGACY_COUNT_COLLECTIONS[item.count.table];
+    if (!collectionName) return [item.to, 0];
+    const filters = [];
+    // Translate only the simple equality filters used by navigation counters.
+    const where = item.count.where;
+    if (where?.field && Object.prototype.hasOwnProperty.call(where, 'value')) {
+      filters.push({ field: where.field, value: where.value });
+    }
+    const rows = await listDocuments(collectionName, { filters, pageSize: 100 });
+    return [item.to, rows.length];
+  }));
+  return Object.fromEntries(entries);
 }
 
 // The single data source for OwnerLayout: auth, nav discovery, profile filtering,
