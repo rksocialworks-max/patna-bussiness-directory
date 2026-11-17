@@ -1,0 +1,216 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Enquiry",
+      "plural": "Enquiries",
+      "icon": "MessageSquare"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "customer_name_c": {
+      "type": "Text",
+      "label": "Customer Name",
+      "required": true
+    },
+    "mobile_c": {
+      "type": "Text",
+      "label": "Mobile Number",
+      "required": true
+    },
+    "message_c": {
+      "type": "MultilineText",
+      "label": "Message",
+      "required": true
+    },
+    "source_c": {
+      "type": "Picklist",
+      "label": "Source",
+      "values": "Form,Call,WhatsApp"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "New,In Progress,Resolved"
+    },
+    "branch_c": {
+      "type": "Lookup",
+      "label": "Assigned Branch",
+      "lookup": "branches_c"
+    },
+    "reply_c": {
+      "type": "MultilineText",
+      "label": "Business Reply"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000014",
+      "Name": "Need 2 kg sweets order",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "customer_name_c": "Amit Kumar",
+      "mobile_c": "9876500001",
+      "message_c": "Please share price and delivery options.",
+      "source_c": "Form",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000001",
+        "Name": "Patna Main Branch"
+      },
+      "reply_c": ""
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000015",
+      "Name": "Appointment request",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "customer_name_c": "Neha Singh",
+      "mobile_c": "9876500002",
+      "message_c": "I would like to book a consultation.",
+      "source_c": "WhatsApp",
+      "status_c": "In Progress",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000002",
+        "Name": "Bihar Sharif Branch"
+      },
+      "reply_c": ""
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000016",
+      "Name": "Course details",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "customer_name_c": "Ravi Kumar",
+      "mobile_c": "9876500003",
+      "message_c": "Please send course timings and fees.",
+      "source_c": "Form",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000003",
+        "Name": "Kankarbagh Branch"
+      },
+      "reply_c": ""
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000017",
+      "Name": "Repair estimate",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "customer_name_c": "Pooja Devi",
+      "mobile_c": "9876500004",
+      "message_c": "Need an estimate for home wiring repair.",
+      "source_c": "Form",
+      "status_c": "Resolved",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000004",
+        "Name": "Gaya Branch"
+      },
+      "reply_c": ""
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000018",
+      "Name": "Saree availability",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "customer_name_c": "Anjali Jha",
+      "mobile_c": "9876500005",
+      "message_c": "Is this design available in stock?",
+      "source_c": "Call",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000005",
+        "Name": "Rajgir Branch"
+      },
+      "reply_c": ""
+    }
+  ]
+}

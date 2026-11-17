@@ -1,0 +1,190 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Payment",
+      "plural": "Payments",
+      "icon": "Wallet"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "plan_c": {
+      "type": "Lookup",
+      "label": "Premium Plan",
+      "lookup": "premium_plans_c"
+    },
+    "amount_c": {
+      "type": "Decimal",
+      "label": "Amount (INR)",
+      "precision": 2
+    },
+    "method_c": {
+      "type": "Picklist",
+      "label": "Payment Method",
+      "values": "Razorpay,UPI"
+    },
+    "reference_c": {
+      "type": "Text",
+      "label": "Transaction Reference"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Payment Status",
+      "values": "Pending,Verified,Failed,Refunded"
+    },
+    "receipt_no_c": {
+      "type": "Text",
+      "label": "Receipt Number"
+    },
+    "screenshot_c": {
+      "type": "Files",
+      "label": "UPI Payment Screenshot",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "pdf"
+      ],
+      "maxValue": 5120
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000035",
+      "Name": "Sharma Sweets Premium Renewal",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "plan_c": {
+        "Id": "20000000-0000-4000-8000-000000000041",
+        "Name": "Premium Monthly"
+      },
+      "amount_c": 499,
+      "method_c": "UPI",
+      "reference_c": "DEMO-UPI-REF-001",
+      "status_c": "Verified",
+      "receipt_no_c": "PBD-DEMO-001",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "screenshot_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000036",
+      "Name": "Nalanda Dental Premium",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "plan_c": {
+        "Id": "20000000-0000-4000-8000-000000000042",
+        "Name": "Premium Quarterly"
+      },
+      "amount_c": 1299,
+      "method_c": "Razorpay",
+      "reference_c": "DEMO-RAZORPAY-001",
+      "status_c": "Pending",
+      "receipt_no_c": "",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "screenshot_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000037",
+      "Name": "Magadh Home Premium",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "plan_c": {
+        "Id": "20000000-0000-4000-8000-000000000041",
+        "Name": "Premium Monthly"
+      },
+      "amount_c": 499,
+      "method_c": "UPI",
+      "reference_c": "DEMO-UPI-REF-002",
+      "status_c": "Pending",
+      "receipt_no_c": "",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "screenshot_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000038",
+      "Name": "Mithila Handloom Annual Premium",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "plan_c": {
+        "Id": "20000000-0000-4000-8000-000000000043",
+        "Name": "Premium Annual"
+      },
+      "amount_c": 4499,
+      "method_c": "UPI",
+      "reference_c": "DEMO-UPI-REF-003",
+      "screenshot_c": [],
+      "status_c": "Pending",
+      "receipt_no_c": "",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

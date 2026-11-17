@@ -1,0 +1,144 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Business Document",
+      "plural": "Business Documents",
+      "icon": "FileCheck"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "document_type_c": {
+      "type": "Picklist",
+      "label": "Document Type",
+      "values": "GST Certificate,Trade License,Udyam,Address Proof,Other"
+    },
+    "file_c": {
+      "type": "Files",
+      "label": "Document File",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "pdf",
+        "jpg",
+        "jpeg",
+        "png"
+      ],
+      "maxValue": 5120
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Review Status",
+      "values": "Pending,Verified,Rejected"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000064",
+      "Name": "Sharma Sweets Address Proof",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "document_type_c": "Address Proof",
+      "file_c": [],
+      "status_c": "Verified",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000065",
+      "Name": "Nalanda Dental Trade License",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "document_type_c": "Trade License",
+      "file_c": [],
+      "status_c": "Pending",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000066",
+      "Name": "Royal Motors Udyam Certificate",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000006",
+        "Name": "Royal Motors"
+      },
+      "document_type_c": "Udyam",
+      "file_c": [],
+      "status_c": "Pending",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "50000000-0000-4000-8000-000000000012",
+      "Name": "Sample Business Address Proof",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "document_type_c": "Address Proof",
+      "file_c": [],
+      "status_c": "Pending",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T04:00:00.000Z",
+      "ModifiedOn": "2026-11-12T04:00:00.000Z"
+    }
+  ]
+}

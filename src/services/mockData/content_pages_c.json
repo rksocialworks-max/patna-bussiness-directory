@@ -1,0 +1,221 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Website Content Page",
+      "plural": "Website Content Pages",
+      "icon": "FileText"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Page Title",
+      "required": true
+    },
+    "slug_c": {
+      "type": "Text",
+      "label": "URL Slug"
+    },
+    "body_c": {
+      "type": "MultilineText",
+      "label": "Page Content"
+    },
+    "seo_title_c": {
+      "type": "Text",
+      "label": "SEO Title"
+    },
+    "meta_description_c": {
+      "type": "Text",
+      "label": "Meta Description"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "Draft,Published"
+    }
+  },
+  "records": [
+    {
+      "Id": "30000000-0000-4000-8000-000000000021",
+      "Name": "About Us",
+      "slug_c": "about-us",
+      "body_c": "About Patna Business Directory and its mission to help Bihar businesses grow.",
+      "seo_title_c": "About Us | Patna Business Directory",
+      "meta_description_c": "About Patna Business Directory and its mission to help Bihar businesses grow.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000022",
+      "Name": "Contact Us",
+      "slug_c": "contact-us",
+      "body_c": "Contact our support team for assistance.",
+      "seo_title_c": "Contact Us | Patna Business Directory",
+      "meta_description_c": "Contact our support team for assistance.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000023",
+      "Name": "Privacy Policy",
+      "slug_c": "privacy-policy",
+      "body_c": "We use only essential cookies in this demo. Data access and deletion requests can be submitted through support.",
+      "seo_title_c": "Privacy Policy | Patna Business Directory",
+      "meta_description_c": "We use only essential cookies in this demo. Data access and deletion requests can be submitted through support.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000024",
+      "Name": "Terms & Conditions",
+      "slug_c": "terms-and-conditions",
+      "body_c": "Use this directory responsibly. Business listings are subject to review and approval.",
+      "seo_title_c": "Terms & Conditions | Patna Business Directory",
+      "meta_description_c": "Use this directory responsibly. Business listings are subject to review and approval.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000025",
+      "Name": "Refund & Cancellation Policy",
+      "slug_c": "refund-cancellation",
+      "body_c": "Payment refunds are subject to plan and payment verification terms.",
+      "seo_title_c": "Refund & Cancellation Policy | Patna Business Directory",
+      "meta_description_c": "Payment refunds are subject to plan and payment verification terms.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000026",
+      "Name": "FAQ",
+      "slug_c": "faq",
+      "body_c": "Find answers about listings, verification, premium plans and enquiries.",
+      "seo_title_c": "FAQ | Patna Business Directory",
+      "meta_description_c": "Find answers about listings, verification, premium plans and enquiries.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000027",
+      "Name": "Help & Support",
+      "slug_c": "help-support",
+      "body_c": "Contact the support team for help with your account or listing.",
+      "seo_title_c": "Help & Support | Patna Business Directory",
+      "meta_description_c": "Contact the support team for help with your account or listing.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000028",
+      "Name": "Disclaimer",
+      "slug_c": "disclaimer",
+      "body_c": "Directory information is provided by businesses and may change. Verify details before making decisions.",
+      "seo_title_c": "Disclaimer | Patna Business Directory",
+      "meta_description_c": "Directory information is provided by businesses and may change. Verify details before making decisions.",
+      "status_c": "Published",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

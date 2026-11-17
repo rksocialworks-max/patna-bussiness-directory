@@ -1,0 +1,315 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Website Setting",
+      "plural": "Website Settings",
+      "icon": "Settings"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Setting Name",
+      "required": true
+    },
+    "setting_key_c": {
+      "type": "Text",
+      "label": "Setting Key"
+    },
+    "setting_value_c": {
+      "type": "MultilineText",
+      "label": "Setting Value"
+    },
+    "setting_group_c": {
+      "type": "Picklist",
+      "label": "Group",
+      "values": "General,Contact,Payments,SEO,Homepage"
+    },
+    "upi_qr_c": {
+      "type": "Files",
+      "label": "UPI QR Code",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "png",
+        "jpg",
+        "jpeg",
+        "webp"
+      ],
+      "maxValue": 2048
+    }
+  },
+  "records": [
+    {
+      "Id": "30000000-0000-4000-8000-000000000011",
+      "Name": "Website Name",
+      "setting_key_c": "site_name",
+      "setting_value_c": "Patna Business Directory",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000012",
+      "Name": "Support WhatsApp",
+      "setting_key_c": "support_whatsapp",
+      "setting_value_c": "",
+      "setting_group_c": "Contact",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000013",
+      "Name": "UPI ID",
+      "setting_key_c": "upi_id",
+      "setting_value_c": "",
+      "setting_group_c": "Payments",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "upi_qr_c": []
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000014",
+      "Name": "SEO Description",
+      "setting_key_c": "seo_description",
+      "setting_value_c": "Discover verified local businesses across Bihar.",
+      "setting_group_c": "SEO",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000015",
+      "Name": "Homepage Banner Caption",
+      "setting_key_c": "homepage_banner_caption",
+      "setting_value_c": "Discover local businesses across Bihar",
+      "setting_group_c": "Homepage",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000016",
+      "Name": "Homepage Section Order",
+      "setting_key_c": "homepage_section_order",
+      "setting_value_c": "premium,verified,popular,new,nearby,offers",
+      "setting_group_c": "Homepage",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000030",
+      "Name": "logo max kb",
+      "setting_key_c": "logo_max_kb",
+      "setting_value_c": "1024",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000031",
+      "Name": "cover max kb",
+      "setting_key_c": "cover_max_kb",
+      "setting_value_c": "5120",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000032",
+      "Name": "gallery max kb",
+      "setting_key_c": "gallery_max_kb",
+      "setting_value_c": "5120",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000033",
+      "Name": "gallery max files",
+      "setting_key_c": "gallery_max_files",
+      "setting_value_c": "10",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000034",
+      "Name": "product image max kb",
+      "setting_key_c": "product_image_max_kb",
+      "setting_value_c": "5120",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000035",
+      "Name": "business description word limit",
+      "setting_key_c": "business_description_word_limit",
+      "setting_value_c": "250",
+      "setting_group_c": "General",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000040",
+      "Name": "Support Email",
+      "setting_key_c": "support_email",
+      "setting_value_c": "",
+      "setting_group_c": "Contact",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Business Category",
+      "plural": "Business Categories",
+      "icon": "Grid3X3"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "parent_c": {
+      "type": "Text",
+      "label": "Parent Category"
+    },
+    "description_c": {
+      "type": "MultilineText",
+      "label": "Description"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "Active,Pending,Inactive"
+    },
+    "sort_order_c": {
+      "type": "Number",
+      "label": "Display Order"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000045",
+      "Name": "Restaurants & Cafes",
+      "parent_c": "",
+      "description_c": "Food, dining and cafes",
+      "status_c": "Active",
+      "sort_order_c": 1,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000046",
+      "Name": "Healthcare",
+      "parent_c": "",
+      "description_c": "Clinics and health services",
+      "status_c": "Active",
+      "sort_order_c": 2,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000047",
+      "Name": "Education",
+      "parent_c": "",
+      "description_c": "Schools, coaching and training",
+      "status_c": "Active",
+      "sort_order_c": 3,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000048",
+      "Name": "Home Services",
+      "parent_c": "",
+      "description_c": "Home maintenance and repair",
+      "status_c": "Active",
+      "sort_order_c": 4,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000049",
+      "Name": "Shopping",
+      "parent_c": "",
+      "description_c": "Retail, fashion and local products",
+      "status_c": "Active",
+      "sort_order_c": 5,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000050",
+      "Name": "Automobile",
+      "parent_c": "",
+      "description_c": "Vehicles, repair and accessories",
+      "status_c": "Active",
+      "sort_order_c": 6,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000051",
+      "Name": "Real Estate",
+      "parent_c": "",
+      "description_c": "Property and real estate services",
+      "status_c": "Active",
+      "sort_order_c": 7,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000052",
+      "Name": "Professional Services",
+      "parent_c": "",
+      "description_c": "Professional and consulting services",
+      "status_c": "Active",
+      "sort_order_c": 8,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000053",
+      "Name": "Travel & Hospitality",
+      "parent_c": "",
+      "description_c": "Travel and accommodation",
+      "status_c": "Active",
+      "sort_order_c": 9,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000054",
+      "Name": "Beauty & Wellness",
+      "parent_c": "",
+      "description_c": "Personal care and wellness",
+      "status_c": "Active",
+      "sort_order_c": 10,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000055",
+      "Name": "Finance & Legal",
+      "parent_c": "",
+      "description_c": "Finance and legal services",
+      "status_c": "Active",
+      "sort_order_c": 11,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000056",
+      "Name": "Technology",
+      "parent_c": "",
+      "description_c": "IT, electronics and technology",
+      "status_c": "Active",
+      "sort_order_c": 12,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

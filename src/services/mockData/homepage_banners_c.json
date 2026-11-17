@@ -1,0 +1,137 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Homepage Banner",
+      "plural": "Homepage Banners",
+      "icon": "Images"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Banner Title",
+      "required": true
+    },
+    "caption_c": {
+      "type": "Text",
+      "label": "Caption"
+    },
+    "image_c": {
+      "type": "Files",
+      "label": "Banner Image",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "maxValue": 5120
+    },
+    "link_url_c": {
+      "type": "Text",
+      "label": "Link URL"
+    },
+    "sort_order_c": {
+      "type": "Number",
+      "label": "Display Order"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "Active,Inactive"
+    }
+  },
+  "records": [
+    {
+      "Id": "40000000-0000-4000-8000-000000000001",
+      "Name": "Discover Local Businesses",
+      "caption_c": "Find trusted businesses across Bihar.",
+      "image_c": [],
+      "link_url_c": "/businesses",
+      "sort_order_c": 1,
+      "status_c": "Active",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "40000000-0000-4000-8000-000000000002",
+      "Name": "Add Your Business for Free",
+      "caption_c": "Grow your reach with a free business listing.",
+      "image_c": [],
+      "link_url_c": "/owner/signup",
+      "sort_order_c": 2,
+      "status_c": "Active",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "40000000-0000-4000-8000-000000000003",
+      "Name": "Explore Premium Businesses",
+      "caption_c": "Discover featured and verified local services.",
+      "image_c": [],
+      "link_url_c": "/businesses",
+      "sort_order_c": 3,
+      "status_c": "Active",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "40000000-0000-4000-8000-000000000004",
+      "Name": "Special Offers Across Bihar",
+      "caption_c": "Find local offers and discount coupons.",
+      "image_c": [],
+      "link_url_c": "/offers",
+      "sort_order_c": 4,
+      "status_c": "Active",
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

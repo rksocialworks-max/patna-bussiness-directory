@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Notification",
+      "plural": "Notifications",
+      "icon": "Bell"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "message_c": {
+      "type": "MultilineText",
+      "label": "Message",
+      "required": true
+    },
+    "notification_type_c": {
+      "type": "Picklist",
+      "label": "Type",
+      "values": "System,Enquiry,Payment,Listing,Branch"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "New,Read"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000057",
+      "Name": "New enquiry received",
+      "message_c": "You have received a new customer enquiry.",
+      "notification_type_c": "Enquiry",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000058",
+      "Name": "Listing approved",
+      "message_c": "Your business listing is now public.",
+      "notification_type_c": "Listing",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000059",
+      "Name": "Premium payment pending",
+      "message_c": "Your payment is awaiting verification.",
+      "notification_type_c": "Payment",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000060",
+      "Name": "Branch update",
+      "message_c": "Your branch profile was updated.",
+      "notification_type_c": "Branch",
+      "status_c": "Read",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

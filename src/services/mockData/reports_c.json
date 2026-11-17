@@ -1,0 +1,136 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Listing Report",
+      "plural": "Listing Reports",
+      "icon": "Flag"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "reason_c": {
+      "type": "Picklist",
+      "label": "Reason",
+      "values": "Incorrect Info,Spam,Closed,Other"
+    },
+    "description_c": {
+      "type": "MultilineText",
+      "label": "Details"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "New,Under Review,Resolved,Dismissed"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000042",
+      "Name": "Incorrect opening hours",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "reason_c": "Incorrect Info",
+      "description_c": "The hours displayed may be outdated.",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000043",
+      "Name": "Duplicate listing",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "reason_c": "Other",
+      "description_c": "This listing may duplicate another profile.",
+      "status_c": "Under Review",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000044",
+      "Name": "Business appears closed",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "reason_c": "Closed",
+      "description_c": "The location appears to have closed.",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "50000000-0000-4000-8000-000000000011",
+      "Name": "Incorrect business contact details",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "reason_c": "Incorrect Info",
+      "description_c": "Please review this sample listing information.",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T05:00:00.000Z",
+      "ModifiedOn": "2026-11-12T05:00:00.000Z"
+    }
+  ]
+}

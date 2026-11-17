@@ -1,0 +1,201 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Business Analytics",
+      "plural": "Business Analytics",
+      "icon": "ChartNoAxesCombined"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Analytics Period",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c"
+    },
+    "branch_c": {
+      "type": "Lookup",
+      "label": "Branch",
+      "lookup": "branches_c"
+    },
+    "period_c": {
+      "type": "Text",
+      "label": "Period"
+    },
+    "profile_views_c": {
+      "type": "Number",
+      "label": "Profile Views"
+    },
+    "calls_c": {
+      "type": "Number",
+      "label": "Calls"
+    },
+    "whatsapp_clicks_c": {
+      "type": "Number",
+      "label": "WhatsApp Clicks"
+    },
+    "enquiries_count_c": {
+      "type": "Number",
+      "label": "Enquiries"
+    }
+  },
+  "records": [
+    {
+      "Id": "30000000-0000-4000-8000-000000000001",
+      "Name": "Sharma Sweets - November",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000001",
+        "Name": "Patna Main Branch"
+      },
+      "period_c": "November 2026",
+      "profile_views_c": 1420,
+      "calls_c": 82,
+      "whatsapp_clicks_c": 134,
+      "enquiries_count_c": 27,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000002",
+      "Name": "Nalanda Dental - November",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000002",
+        "Name": "Bihar Sharif Branch"
+      },
+      "period_c": "November 2026",
+      "profile_views_c": 890,
+      "calls_c": 46,
+      "whatsapp_clicks_c": 71,
+      "enquiries_count_c": 19,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000003",
+      "Name": "Bright Future - November",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000003",
+        "Name": "Kankarbagh Branch"
+      },
+      "period_c": "November 2026",
+      "profile_views_c": 640,
+      "calls_c": 28,
+      "whatsapp_clicks_c": 52,
+      "enquiries_count_c": 12,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000004",
+      "Name": "Magadh Home Solutions - November",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000004",
+        "Name": "Gaya Branch"
+      },
+      "period_c": "November 2026",
+      "profile_views_c": 720,
+      "calls_c": 45,
+      "whatsapp_clicks_c": 67,
+      "enquiries_count_c": 17,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "30000000-0000-4000-8000-000000000005",
+      "Name": "Mithila Handloom House - November",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000005",
+        "Name": "Rajgir Branch"
+      },
+      "period_c": "November 2026",
+      "profile_views_c": 810,
+      "calls_c": 52,
+      "whatsapp_clicks_c": 76,
+      "enquiries_count_c": 20,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

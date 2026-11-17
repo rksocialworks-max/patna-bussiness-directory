@@ -1,0 +1,150 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Branch Activity",
+      "plural": "Branch Activity",
+      "icon": "Activity"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "branch_c": {
+      "type": "Lookup",
+      "label": "Branch",
+      "lookup": "branches_c",
+      "required": true
+    },
+    "action_c": {
+      "type": "Text",
+      "label": "Action"
+    },
+    "details_c": {
+      "type": "MultilineText",
+      "label": "Details"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000067",
+      "Name": "Profile updated",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000001",
+        "Name": "Patna Main Branch"
+      },
+      "action_c": "Profile Updated",
+      "details_c": "Branch contact details changed.",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000068",
+      "Name": "Enquiry handled",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000002",
+        "Name": "Bihar Sharif Branch"
+      },
+      "action_c": "Enquiry Managed",
+      "details_c": "A customer enquiry was marked in progress.",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000069",
+      "Name": "Business hours updated",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000003",
+        "Name": "Kankarbagh Branch"
+      },
+      "action_c": "Hours Updated",
+      "details_c": "Weekly business hours were updated.",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "50000000-0000-4000-8000-000000000004",
+      "Name": "Branch Hours Updated",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000004",
+        "Name": "Gaya Branch"
+      },
+      "action_c": "Update",
+      "details_c": "Weekly hours were changed.",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T07:00:00.000Z",
+      "ModifiedOn": "2026-11-12T07:00:00.000Z"
+    },
+    {
+      "Id": "50000000-0000-4000-8000-000000000005",
+      "Name": "Branch Enquiry Replied",
+      "branch_c": {
+        "Id": "20000000-0000-4000-8000-000000000005",
+        "Name": "Rajgir Branch"
+      },
+      "action_c": "Reply",
+      "details_c": "A customer enquiry received a reply.",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T07:00:00.000Z",
+      "ModifiedOn": "2026-11-12T07:00:00.000Z"
+    }
+  ]
+}

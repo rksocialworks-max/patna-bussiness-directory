@@ -1,0 +1,125 @@
+{
+  "_meta": {
+    "Name": {
+      "type": "Text",
+      "label": "Full Name",
+      "required": true
+    },
+    "Email": {
+      "type": "Email",
+      "label": "Email Address",
+      "required": true
+    },
+    "FirstName": {
+      "type": "Text",
+      "label": "First Name",
+      "required": true
+    },
+    "LastName": {
+      "type": "Text",
+      "label": "Last Name",
+      "required": true
+    },
+    "password": {
+      "type": "Text",
+      "label": "Password",
+      "required": true
+    },
+    "AvatarUrl": {
+      "type": "Text",
+      "label": "Avatar Url"
+    }
+  },
+  "records": [
+    {
+      "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+      "userId": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+      "companyId": "5c1d8e46-3b9a-4f27-8d64-0a2e7b91c5d3",
+      "Name": "Demo Super Admin",
+      "FirstName": "Demo",
+      "LastName": "Admin",
+      "Email": "admin@demo.app",
+      "password": "demo1234",
+      "AvatarUrl": null,
+      "IsOwner": true,
+      "accounts": [
+        {
+          "userId": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+          "companyId": "5c1d8e46-3b9a-4f27-8d64-0a2e7b91c5d3",
+          "companyName": "Patna Business Directory",
+          "companyUserId": 1,
+          "isOwner": true,
+          "profile": {
+            "id": 1,
+            "name": "Admin_c"
+          },
+          "companyOwner": {
+            "name": "Demo Super Admin",
+            "avatarUrl": null,
+            "email": "admin@demo.app"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+      "userId": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+      "companyId": "5c1d8e46-3b9a-4f27-8d64-0a2e7b91c5d3",
+      "Name": "Demo Business Owner",
+      "FirstName": "Demo",
+      "LastName": "Owner",
+      "Email": "owner@demo.app",
+      "password": "demo1234",
+      "AvatarUrl": null,
+      "IsOwner": false,
+      "accounts": [
+        {
+          "userId": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+          "companyId": "5c1d8e46-3b9a-4f27-8d64-0a2e7b91c5d3",
+          "companyName": "Patna Business Directory",
+          "companyUserId": 2,
+          "isOwner": false,
+          "profile": {
+            "id": 2,
+            "name": "BusinessOwner_c"
+          },
+          "companyOwner": {
+            "name": "Demo Super Admin",
+            "avatarUrl": null,
+            "email": "admin@demo.app"
+          }
+        }
+      ]
+    },
+    {
+      "Id": "c63e1f49-7a0b-4d28-9e3c-f9b430a86d12",
+      "userId": "c63e1f49-7a0b-4d28-9e3c-f9b430a86d12",
+      "companyId": "5c1d8e46-3b9a-4f27-8d64-0a2e7b91c5d3",
+      "Name": "Demo Branch Manager",
+      "FirstName": "Demo",
+      "LastName": "Manager",
+      "Email": "manager@demo.app",
+      "password": "demo1234",
+      "AvatarUrl": null,
+      "IsOwner": false,
+      "accounts": [
+        {
+          "userId": "c63e1f49-7a0b-4d28-9e3c-f9b430a86d12",
+          "companyId": "5c1d8e46-3b9a-4f27-8d64-0a2e7b91c5d3",
+          "companyName": "Patna Business Directory",
+          "companyUserId": 3,
+          "isOwner": false,
+          "profile": {
+            "id": 3,
+            "name": "BranchManager_c"
+          },
+          "companyOwner": {
+            "name": "Demo Business Owner",
+            "avatarUrl": null,
+            "email": "owner@demo.app"
+          }
+        }
+      ]
+    }
+  ]
+}

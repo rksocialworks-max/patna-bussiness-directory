@@ -1,0 +1,233 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Branch",
+      "plural": "Branches",
+      "icon": "Building2"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Main Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "address_c": {
+      "type": "Text",
+      "label": "Branch Address",
+      "required": true
+    },
+    "district_c": {
+      "type": "Text",
+      "label": "District",
+      "required": true
+    },
+    "city_c": {
+      "type": "Text",
+      "label": "City"
+    },
+    "phone_c": {
+      "type": "Text",
+      "label": "Branch Phone"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Branch Status",
+      "values": "Active,Inactive"
+    },
+    "manager_c": {
+      "type": "People",
+      "label": "Branch Manager",
+      "supportMultipleValues": false
+    },
+    "map_url_c": {
+      "type": "Text",
+      "label": "Google Maps Directions URL"
+    },
+    "hours_c": {
+      "type": "MultilineText",
+      "label": "Branch Business Hours"
+    },
+    "photos_c": {
+      "type": "Files",
+      "label": "Branch Photos",
+      "supportMultipleValues": true,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "maxValue": 5120
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000001",
+      "Name": "Patna Main Branch",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "address_c": "Boring Road, Patna",
+      "district_c": "Patna",
+      "city_c": "Patna",
+      "phone_c": "9876543210",
+      "status_c": "Active",
+      "manager_c": [],
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Boring%20Road%2C%20Patna%2C%20Patna%2C%20Bihar",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM\nSunday: Closed",
+      "photos_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000002",
+      "Name": "Bihar Sharif Branch",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "address_c": "Hospital Road, Bihar Sharif",
+      "district_c": "Nalanda",
+      "city_c": "Bihar Sharif",
+      "phone_c": "9876543211",
+      "status_c": "Active",
+      "manager_c": [],
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Hospital%20Road%2C%20Bihar%20Sharif%2C%20Bihar%20Sharif%2C%20Bihar",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM\nSunday: Closed",
+      "photos_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000003",
+      "Name": "Kankarbagh Branch",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "address_c": "Kankarbagh, Patna",
+      "district_c": "Patna",
+      "city_c": "Patna",
+      "phone_c": "9876543212",
+      "status_c": "Active",
+      "manager_c": [],
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Kankarbagh%2C%20Patna%2C%20Patna%2C%20Bihar",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM\nSunday: Closed",
+      "photos_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000004",
+      "Name": "Gaya Branch",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "address_c": "Civil Lines, Gaya",
+      "district_c": "Gaya",
+      "city_c": "Gaya",
+      "phone_c": "9876543213",
+      "status_c": "Active",
+      "manager_c": [],
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Civil%20Lines%2C%20Gaya%2C%20Gaya%2C%20Bihar",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM\nSunday: Closed",
+      "photos_c": []
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000005",
+      "Name": "Rajgir Branch",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000007",
+        "Name": "Green Leaf Cafe"
+      },
+      "address_c": "Main Market, Rajgir",
+      "district_c": "Nalanda",
+      "city_c": "Rajgir",
+      "phone_c": "9876543217",
+      "status_c": "Active",
+      "manager_c": [
+        {
+          "Id": "90000000-0000-4000-8000-000000000001",
+          "User": {
+            "Id": "c63e1f49-7a0b-4d28-9e3c-f9b430a86d12",
+            "Name": "Demo Branch Manager"
+          }
+        }
+      ],
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z",
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Main%20Market%2C%20Rajgir%2C%20Rajgir%2C%20Bihar",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM\nSunday: Closed",
+      "photos_c": []
+    }
+  ]
+}

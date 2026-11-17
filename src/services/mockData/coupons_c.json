@@ -1,0 +1,160 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Coupon",
+      "plural": "Coupons",
+      "icon": "TicketPercent"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Coupon Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "code_c": {
+      "type": "Text",
+      "label": "Coupon Code",
+      "required": true
+    },
+    "discount_c": {
+      "type": "Text",
+      "label": "Discount"
+    },
+    "valid_from_c": {
+      "type": "Date",
+      "label": "Valid From"
+    },
+    "valid_to_c": {
+      "type": "Date",
+      "label": "Valid To"
+    },
+    "usage_limit_c": {
+      "type": "Number",
+      "label": "Usage Limit"
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "Pending,Approved,Expired"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000031",
+      "Name": "Sharma Sweets Coupon",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "code_c": "SHARMA10",
+      "discount_c": "10%",
+      "valid_from_c": "2026-11-12",
+      "valid_to_c": "2026-11-30",
+      "usage_limit_c": 100,
+      "status_c": "Approved",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000032",
+      "Name": "Nalanda Dental Coupon",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "code_c": "NALANDA5",
+      "discount_c": "5%",
+      "valid_from_c": "2026-11-15",
+      "valid_to_c": "2026-12-15",
+      "usage_limit_c": 50,
+      "status_c": "Pending",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000033",
+      "Name": "Bright Future Coupon",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "code_c": "BRIGHT15",
+      "discount_c": "15%",
+      "valid_from_c": "2026-11-12",
+      "valid_to_c": "2026-11-25",
+      "usage_limit_c": 30,
+      "status_c": "Pending",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000034",
+      "Name": "Mithila Handloom Coupon",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "code_c": "MITHILA20",
+      "discount_c": "20%",
+      "valid_from_c": "2026-11-12",
+      "valid_to_c": "2026-11-22",
+      "usage_limit_c": 20,
+      "status_c": "Approved",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,283 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Product or Service",
+      "plural": "Products & Services",
+      "icon": "Package"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "item_type_c": {
+      "type": "Picklist",
+      "label": "Type",
+      "values": "Product,Service"
+    },
+    "price_type_c": {
+      "type": "Picklist",
+      "label": "Pricing",
+      "values": "Fixed,Range,Contact"
+    },
+    "price_c": {
+      "type": "Decimal",
+      "label": "Price",
+      "precision": 2
+    },
+    "price_to_c": {
+      "type": "Decimal",
+      "label": "Price To",
+      "precision": 2
+    },
+    "image_c": {
+      "type": "Files",
+      "label": "Image",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "maxValue": 2048
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "Active,Inactive"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000006",
+      "Name": "Assorted Sweets Box",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "item_type_c": "Product",
+      "price_type_c": "Fixed",
+      "price_c": 450,
+      "price_to_c": 450,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000007",
+      "Name": "Custom Celebration Cakes",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "item_type_c": "Service",
+      "price_type_c": "Contact",
+      "price_c": 0,
+      "price_to_c": 0,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000008",
+      "Name": "Dental Consultation",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "item_type_c": "Service",
+      "price_type_c": "Fixed",
+      "price_c": 300,
+      "price_to_c": 300,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000009",
+      "Name": "Dental Cleaning",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "item_type_c": "Service",
+      "price_type_c": "Range",
+      "price_c": 800,
+      "price_to_c": 1500,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000010",
+      "Name": "Mathematics Coaching",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "item_type_c": "Service",
+      "price_type_c": "Contact",
+      "price_c": 0,
+      "price_to_c": 0,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000011",
+      "Name": "Home Electrical Repair",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "item_type_c": "Service",
+      "price_type_c": "Range",
+      "price_c": 250,
+      "price_to_c": 1200,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000012",
+      "Name": "Madhubani Handloom Saree",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "item_type_c": "Product",
+      "price_type_c": "Fixed",
+      "price_c": 2400,
+      "price_to_c": 2400,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000013",
+      "Name": "Two-wheeler Periodic Service",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000006",
+        "Name": "Royal Motors"
+      },
+      "item_type_c": "Service",
+      "price_type_c": "Range",
+      "price_c": 700,
+      "price_to_c": 1800,
+      "image_c": [],
+      "status_c": "Active",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

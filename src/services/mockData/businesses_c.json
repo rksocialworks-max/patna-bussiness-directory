@@ -1,0 +1,707 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Business",
+      "plural": "Businesses",
+      "icon": "Store"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Business Name",
+      "required": true
+    },
+    "category_c": {
+      "type": "Text",
+      "label": "Category",
+      "required": true
+    },
+    "subcategory_c": {
+      "type": "Text",
+      "label": "Subcategory"
+    },
+    "district_c": {
+      "type": "Text",
+      "label": "District",
+      "required": true
+    },
+    "city_c": {
+      "type": "Text",
+      "label": "City"
+    },
+    "area_c": {
+      "type": "Text",
+      "label": "Area / Locality"
+    },
+    "pincode_c": {
+      "type": "Text",
+      "label": "PIN Code"
+    },
+    "address_c": {
+      "type": "Text",
+      "label": "Full Address",
+      "required": true
+    },
+    "description_c": {
+      "type": "MultilineText",
+      "label": "Business Description",
+      "required": true
+    },
+    "owner_name_c": {
+      "type": "Text",
+      "label": "Owner Name",
+      "required": true
+    },
+    "phone_c": {
+      "type": "Text",
+      "label": "Mobile Number",
+      "required": true
+    },
+    "whatsapp_c": {
+      "type": "Text",
+      "label": "WhatsApp Number"
+    },
+    "email_c": {
+      "type": "Email",
+      "label": "Business Email"
+    },
+    "website_c": {
+      "type": "Text",
+      "label": "Website"
+    },
+    "facebook_c": {
+      "type": "Text",
+      "label": "Facebook"
+    },
+    "instagram_c": {
+      "type": "Text",
+      "label": "Instagram"
+    },
+    "status_c": {
+      "type": "Text",
+      "label": "Listing Status"
+    },
+    "listing_type_c": {
+      "type": "Text",
+      "label": "Listing Type"
+    },
+    "is_premium_c": {
+      "type": "Boolean",
+      "label": "Premium Listing"
+    },
+    "is_verified_c": {
+      "type": "Boolean",
+      "label": "Verified Business"
+    },
+    "rating_c": {
+      "type": "Number",
+      "label": "Rating"
+    },
+    "reviews_count_c": {
+      "type": "Number",
+      "label": "Review Count"
+    },
+    "logo_c": {
+      "type": "Files",
+      "label": "Business Logo",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "maxValue": 1024
+    },
+    "cover_c": {
+      "type": "Files",
+      "label": "Cover Photo",
+      "supportMultipleValues": false,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "maxValue": 5120
+    },
+    "map_url_c": {
+      "type": "Text",
+      "label": "Google Maps Directions URL"
+    },
+    "hours_c": {
+      "type": "MultilineText",
+      "label": "Weekly Business Hours"
+    },
+    "featured_order_c": {
+      "type": "Number",
+      "label": "Featured Priority"
+    },
+    "business_type_c": {
+      "type": "Picklist",
+      "label": "Business Type",
+      "values": "Physical Store / Shop,Multiple Branch Business"
+    },
+    "gstin_c": {
+      "type": "Text",
+      "label": "GSTIN"
+    },
+    "youtube_c": {
+      "type": "Text",
+      "label": "YouTube"
+    },
+    "linkedin_c": {
+      "type": "Text",
+      "label": "LinkedIn"
+    },
+    "x_c": {
+      "type": "Text",
+      "label": "X (Twitter)"
+    },
+    "telegram_c": {
+      "type": "Text",
+      "label": "Telegram"
+    },
+    "pinterest_c": {
+      "type": "Text",
+      "label": "Pinterest"
+    },
+    "other_links_c": {
+      "type": "Text",
+      "label": "Other Social Links"
+    },
+    "holiday_info_c": {
+      "type": "MultilineText",
+      "label": "Weekly Off and Special Holidays"
+    },
+    "seo_title_c": {
+      "type": "Text",
+      "label": "SEO Title"
+    },
+    "meta_description_c": {
+      "type": "Text",
+      "label": "SEO Meta Description"
+    },
+    "slug_c": {
+      "type": "Text",
+      "label": "SEO Slug"
+    },
+    "premium_expiry_c": {
+      "type": "Date",
+      "label": "Premium Expiry"
+    },
+    "latitude_c": {
+      "type": "Number",
+      "label": "Latitude"
+    },
+    "longitude_c": {
+      "type": "Number",
+      "label": "Longitude"
+    },
+    "photos_c": {
+      "type": "Files",
+      "label": "Business Photos",
+      "supportMultipleValues": true,
+      "supportedExtensions": [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+      ],
+      "maxValue": 5120
+    },
+    "is_popular_c": {
+      "type": "Boolean",
+      "label": "Admin Selected Popular Business"
+    }
+  },
+  "records": [
+    {
+      "Id": "10000000-0000-4000-8000-000000000001",
+      "Name": "Sharma Sweets",
+      "category_c": "Restaurants & Cafes",
+      "subcategory_c": "Sweets & Bakery",
+      "district_c": "Patna",
+      "city_c": "Patna",
+      "area_c": "Boring Road",
+      "pincode_c": "800001",
+      "address_c": "Boring Road, Patna, Bihar, 800001",
+      "description_c": "Traditional sweets, snacks and fresh bakery products made daily.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543210",
+      "whatsapp_c": "9876543210",
+      "email_c": "hello@sharmasweets.demo",
+      "website_c": "https://sharmasweets.example",
+      "facebook_c": "https://facebook.com",
+      "instagram_c": "https://instagram.com",
+      "status_c": "Approved",
+      "listing_type_c": "Premium",
+      "is_premium_c": true,
+      "is_verified_c": true,
+      "rating_c": 4.8,
+      "reviews_count_c": 126,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Boring%20Road%2C%20Patna%2C%20Bihar%2C%20800001",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 1,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T09:00:00.000Z",
+      "ModifiedOn": "2026-11-12T09:00:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Multiple Branch Business",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Sharma Sweets | Patna Business Directory",
+      "meta_description_c": "Traditional sweets, snacks and fresh bakery products made daily.",
+      "slug_c": "sharma-sweets",
+      "premium_expiry_c": "2027-11-12",
+      "latitude_c": 25.609,
+      "longitude_c": 85.132,
+      "is_popular_c": true
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000002",
+      "Name": "Nalanda Dental Care",
+      "category_c": "Healthcare",
+      "subcategory_c": "Dental Clinic",
+      "district_c": "Nalanda",
+      "city_c": "Bihar Sharif",
+      "area_c": "Hospital Road",
+      "pincode_c": "803101",
+      "address_c": "Hospital Road, Bihar Sharif, Nalanda, 803101",
+      "description_c": "Family dental care, consultation and preventive oral health services.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543211",
+      "whatsapp_c": "9876543211",
+      "email_c": "care@nalandadental.demo",
+      "website_c": "",
+      "facebook_c": "https://facebook.com",
+      "instagram_c": "https://instagram.com",
+      "status_c": "Approved",
+      "listing_type_c": "Premium",
+      "is_premium_c": true,
+      "is_verified_c": true,
+      "rating_c": 4.7,
+      "reviews_count_c": 84,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Hospital%20Road%2C%20Bihar%20Sharif%2C%20Nalanda%2C%20803101",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 2,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-11T08:30:00.000Z",
+      "ModifiedOn": "2026-11-11T08:30:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Multiple Branch Business",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Nalanda Dental Care | Patna Business Directory",
+      "meta_description_c": "Family dental care, consultation and preventive oral health services.",
+      "slug_c": "nalanda-dental-care",
+      "premium_expiry_c": "2027-11-12",
+      "latitude_c": 25.198,
+      "longitude_c": 85.523,
+      "is_popular_c": true
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000003",
+      "Name": "Bright Future Academy",
+      "category_c": "Education",
+      "subcategory_c": "Coaching Institute",
+      "district_c": "Patna",
+      "city_c": "Patna",
+      "area_c": "Kankarbagh",
+      "pincode_c": "800020",
+      "address_c": "Kankarbagh, Patna, Bihar, 800020",
+      "description_c": "Academic coaching and learning support for school students.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543212",
+      "whatsapp_c": "9876543212",
+      "email_c": "info@brightfuture.demo",
+      "website_c": "",
+      "facebook_c": "",
+      "instagram_c": "https://instagram.com",
+      "status_c": "Approved",
+      "listing_type_c": "Free",
+      "is_premium_c": false,
+      "is_verified_c": true,
+      "rating_c": 4.6,
+      "reviews_count_c": 52,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Kankarbagh%2C%20Patna%2C%20Bihar%2C%20800020",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 3,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-10T10:00:00.000Z",
+      "ModifiedOn": "2026-11-10T10:00:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Multiple Branch Business",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Bright Future Academy | Patna Business Directory",
+      "meta_description_c": "Academic coaching and learning support for school students.",
+      "slug_c": "bright-future-academy",
+      "premium_expiry_c": null,
+      "latitude_c": 25.594,
+      "longitude_c": 85.166,
+      "is_popular_c": false
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000004",
+      "Name": "Magadh Home Solutions",
+      "category_c": "Home Services",
+      "subcategory_c": "Home Repair",
+      "district_c": "Gaya",
+      "city_c": "Gaya",
+      "area_c": "Civil Lines",
+      "pincode_c": "823001",
+      "address_c": "Civil Lines, Gaya, Bihar, 823001",
+      "description_c": "Home repair, plumbing and electrical maintenance services.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543213",
+      "whatsapp_c": "9876543213",
+      "email_c": "support@magadhhome.demo",
+      "website_c": "https://magadhhome.example",
+      "facebook_c": "",
+      "instagram_c": "",
+      "status_c": "Approved",
+      "listing_type_c": "Premium",
+      "is_premium_c": true,
+      "is_verified_c": false,
+      "rating_c": 4.5,
+      "reviews_count_c": 39,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Civil%20Lines%2C%20Gaya%2C%20Bihar%2C%20823001",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 4,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-09T07:45:00.000Z",
+      "ModifiedOn": "2026-11-09T07:45:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Multiple Branch Business",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Magadh Home Solutions | Patna Business Directory",
+      "meta_description_c": "Home repair, plumbing and electrical maintenance services.",
+      "slug_c": "magadh-home-solutions",
+      "premium_expiry_c": "2027-11-12",
+      "latitude_c": 24.791,
+      "longitude_c": 85,
+      "is_popular_c": true
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000005",
+      "Name": "Mithila Handloom House",
+      "category_c": "Shopping",
+      "subcategory_c": "Clothing & Textiles",
+      "district_c": "Darbhanga",
+      "city_c": "Darbhanga",
+      "area_c": "Laheriasarai",
+      "pincode_c": "846001",
+      "address_c": "Laheriasarai, Darbhanga, Bihar, 846001",
+      "description_c": "Handloom products, traditional textiles and locally made gifts.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543214",
+      "whatsapp_c": "9876543214",
+      "email_c": "sales@mithilahandloom.demo",
+      "website_c": "",
+      "facebook_c": "https://facebook.com",
+      "instagram_c": "https://instagram.com",
+      "status_c": "Approved",
+      "listing_type_c": "Free",
+      "is_premium_c": false,
+      "is_verified_c": true,
+      "rating_c": 4.4,
+      "reviews_count_c": 28,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Laheriasarai%2C%20Darbhanga%2C%20Bihar%2C%20846001",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 5,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-08T09:15:00.000Z",
+      "ModifiedOn": "2026-11-08T09:15:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Physical Store / Shop",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Mithila Handloom House | Patna Business Directory",
+      "meta_description_c": "Handloom products, traditional textiles and locally made gifts.",
+      "slug_c": "mithila-handloom-house",
+      "premium_expiry_c": null,
+      "latitude_c": 26.154,
+      "longitude_c": 85.891,
+      "is_popular_c": false
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000006",
+      "Name": "Royal Motors",
+      "category_c": "Automobile",
+      "subcategory_c": "Car & Bike Dealer",
+      "district_c": "Muzaffarpur",
+      "city_c": "Muzaffarpur",
+      "area_c": "Club Road",
+      "pincode_c": "842001",
+      "address_c": "Club Road, Muzaffarpur, Bihar, 842001",
+      "description_c": "Vehicle sales, servicing and genuine accessories.",
+      "owner_name_c": "Demo Super Admin",
+      "phone_c": "9876543215",
+      "whatsapp_c": "9876543215",
+      "email_c": "contact@royalmotors.demo",
+      "website_c": "https://royalmotors.example",
+      "facebook_c": "",
+      "instagram_c": "https://instagram.com",
+      "status_c": "Approved",
+      "listing_type_c": "Premium",
+      "is_premium_c": true,
+      "is_verified_c": true,
+      "rating_c": 4.6,
+      "reviews_count_c": 91,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Club%20Road%2C%20Muzaffarpur%2C%20Bihar%2C%20842001",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 6,
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-07T08:00:00.000Z",
+      "ModifiedOn": "2026-11-07T08:00:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Physical Store / Shop",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Royal Motors | Patna Business Directory",
+      "meta_description_c": "Vehicle sales, servicing and genuine accessories.",
+      "slug_c": "royal-motors",
+      "premium_expiry_c": "2027-11-12",
+      "latitude_c": 26.12,
+      "longitude_c": 85.364,
+      "is_popular_c": true
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000007",
+      "Name": "Green Leaf Cafe",
+      "category_c": "Restaurants & Cafes",
+      "subcategory_c": "Cafe",
+      "district_c": "Nalanda",
+      "city_c": "Rajgir",
+      "area_c": "Main Market",
+      "pincode_c": "803116",
+      "address_c": "Main Market, Rajgir, Nalanda, Bihar, 803116",
+      "description_c": "A relaxed cafe serving fresh food, tea and beverages.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543217",
+      "whatsapp_c": "9876543217",
+      "email_c": "hello@greenleaf.demo",
+      "website_c": "",
+      "facebook_c": "",
+      "instagram_c": "https://instagram.com",
+      "status_c": "Approved",
+      "listing_type_c": "Free",
+      "is_premium_c": false,
+      "is_verified_c": false,
+      "rating_c": 4.3,
+      "reviews_count_c": 19,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Main%20Market%2C%20Rajgir%2C%20Nalanda%2C%20Bihar%2C%20803116",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 7,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-05T07:30:00.000Z",
+      "ModifiedOn": "2026-11-05T07:30:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Multiple Branch Business",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Green Leaf Cafe | Patna Business Directory",
+      "meta_description_c": "A relaxed cafe serving fresh food, tea and beverages.",
+      "slug_c": "green-leaf-cafe",
+      "premium_expiry_c": null,
+      "latitude_c": 25.03,
+      "longitude_c": 85.42,
+      "is_popular_c": false
+    },
+    {
+      "Id": "10000000-0000-4000-8000-000000000008",
+      "Name": "Nalanda Computer Academy",
+      "category_c": "Education",
+      "subcategory_c": "Computer Training",
+      "district_c": "Nalanda",
+      "city_c": "Bihar Sharif",
+      "area_c": "Ramchandrapur",
+      "pincode_c": "803101",
+      "address_c": "Ramchandrapur, Bihar Sharif, Nalanda, 803101",
+      "description_c": "Computer education and digital skills training for learners.",
+      "owner_name_c": "Demo Business Owner",
+      "phone_c": "9876543218",
+      "whatsapp_c": "9876543218",
+      "email_c": "learn@nalandacomputer.demo",
+      "website_c": "",
+      "facebook_c": "",
+      "instagram_c": "",
+      "status_c": "Pending Approval",
+      "listing_type_c": "Free",
+      "is_premium_c": false,
+      "is_verified_c": false,
+      "rating_c": 0,
+      "reviews_count_c": 0,
+      "logo_c": [],
+      "cover_c": [],
+      "map_url_c": "https://www.google.com/maps/search/?api=1&query=Ramchandrapur%2C%20Bihar%20Sharif%2C%20Nalanda%2C%20803101",
+      "hours_c": "Mon–Sat: 9:00 AM – 8:00 PM | Sunday: Closed",
+      "featured_order_c": 8,
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T06:30:00.000Z",
+      "ModifiedOn": "2026-11-12T06:30:00.000Z",
+      "photos_c": [],
+      "business_type_c": "Physical Store / Shop",
+      "gstin_c": "",
+      "youtube_c": "",
+      "linkedin_c": "",
+      "x_c": "",
+      "telegram_c": "",
+      "pinterest_c": "",
+      "other_links_c": "",
+      "holiday_info_c": "Sunday: Weekly off. Special holiday hours may vary.",
+      "seo_title_c": "Nalanda Computer Academy | Patna Business Directory",
+      "meta_description_c": "Computer education and digital skills training for learners.",
+      "slug_c": "nalanda-computer-academy",
+      "premium_expiry_c": null,
+      "latitude_c": 25.198,
+      "longitude_c": 85.523,
+      "is_popular_c": false
+    }
+  ]
+}

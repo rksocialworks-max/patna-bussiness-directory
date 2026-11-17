@@ -1,0 +1,209 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Review",
+      "plural": "Reviews",
+      "icon": "Star"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c",
+      "required": true
+    },
+    "customer_name_c": {
+      "type": "Text",
+      "label": "Customer Name",
+      "required": true
+    },
+    "mobile_c": {
+      "type": "Text",
+      "label": "Mobile Number"
+    },
+    "rating_c": {
+      "type": "Number",
+      "label": "Rating",
+      "required": true
+    },
+    "title_c": {
+      "type": "Text",
+      "label": "Review Title"
+    },
+    "review_c": {
+      "type": "MultilineText",
+      "label": "Review",
+      "required": true
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Moderation Status",
+      "values": "Pending,Approved,Rejected"
+    },
+    "owner_reply_c": {
+      "type": "MultilineText",
+      "label": "Owner Reply"
+    },
+    "report_status_c": {
+      "type": "Picklist",
+      "label": "Report Status",
+      "values": "None,Reported,Under Review,Hidden"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000019",
+      "Name": "Great sweets and service",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "customer_name_c": "Amit Kumar",
+      "mobile_c": "9876500001",
+      "rating_c": 5,
+      "title_c": "Fresh and delicious",
+      "review_c": "Very good quality and polite staff.",
+      "status_c": "Approved",
+      "owner_reply_c": "Thank you for your kind words.",
+      "report_status_c": "None",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000020",
+      "Name": "Friendly dental team",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "customer_name_c": "Neha Singh",
+      "mobile_c": "9876500002",
+      "rating_c": 5,
+      "title_c": "Good experience",
+      "review_c": "The clinic was clean and the team explained everything clearly.",
+      "status_c": "Approved",
+      "owner_reply_c": "",
+      "report_status_c": "None",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000021",
+      "Name": "Helpful teachers",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "customer_name_c": "Ravi Kumar",
+      "mobile_c": "9876500003",
+      "rating_c": 4,
+      "title_c": "Clear explanations",
+      "review_c": "Concepts were explained in a simple way.",
+      "status_c": "Approved",
+      "owner_reply_c": "",
+      "report_status_c": "None",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000022",
+      "Name": "Quick repair visit",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000004",
+        "Name": "Magadh Home Solutions"
+      },
+      "customer_name_c": "Pooja Devi",
+      "mobile_c": "9876500004",
+      "rating_c": 4,
+      "title_c": "Professional service",
+      "review_c": "The technician arrived on time and resolved the issue.",
+      "status_c": "Pending",
+      "owner_reply_c": "",
+      "report_status_c": "None",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000023",
+      "Name": "Beautiful handloom",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "customer_name_c": "Anjali Jha",
+      "mobile_c": "9876500005",
+      "rating_c": 5,
+      "title_c": "Lovely collection",
+      "review_c": "Good quality traditional designs.",
+      "status_c": "Pending",
+      "owner_reply_c": "",
+      "report_status_c": "None",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

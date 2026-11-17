@@ -1,0 +1,160 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Advertisement",
+      "plural": "Advertisements",
+      "icon": "Megaphone"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "ad_type_c": {
+      "type": "Picklist",
+      "label": "Ad Type",
+      "values": "Homepage Banner,Category,Search Sponsored,Image Slider"
+    },
+    "description_c": {
+      "type": "MultilineText",
+      "label": "Ad Details"
+    },
+    "start_date_c": {
+      "type": "Date",
+      "label": "Start Date"
+    },
+    "end_date_c": {
+      "type": "Date",
+      "label": "End Date"
+    },
+    "amount_c": {
+      "type": "Decimal",
+      "label": "Package Amount",
+      "precision": 2
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "Pending,Approved,Rejected,Expired"
+    },
+    "business_c": {
+      "type": "Lookup",
+      "label": "Business",
+      "lookup": "businesses_c"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000038",
+      "Name": "Winter Shopping Banner",
+      "ad_type_c": "Homepage Banner",
+      "description_c": "Seasonal shopping campaign",
+      "start_date_c": "2026-11-15",
+      "end_date_c": "2026-12-15",
+      "amount_c": 5000,
+      "status_c": "Approved",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000005",
+        "Name": "Mithila Handloom House"
+      },
+      "Owner": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "ModifiedBy": {
+        "Id": "a41c9d27-5e8f-4b06-9c3a-d7f218e64b90",
+        "Name": "Demo Super Admin"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000039",
+      "Name": "Dental Care Sponsored Search",
+      "ad_type_c": "Search Sponsored",
+      "description_c": "Promote dental consultation",
+      "start_date_c": "2026-11-20",
+      "end_date_c": "2026-12-20",
+      "amount_c": 1800,
+      "status_c": "Pending",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000002",
+        "Name": "Nalanda Dental Care"
+      },
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000040",
+      "Name": "Patna Food Category Banner",
+      "ad_type_c": "Category",
+      "description_c": "Local food discovery promotion",
+      "start_date_c": "2026-11-18",
+      "end_date_c": "2026-12-18",
+      "amount_c": 2500,
+      "status_c": "Pending",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000001",
+        "Name": "Sharma Sweets"
+      },
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000041",
+      "Name": "Education Slider Campaign",
+      "ad_type_c": "Image Slider",
+      "description_c": "New batch admissions",
+      "start_date_c": "2026-11-15",
+      "end_date_c": "2026-12-01",
+      "amount_c": 3500,
+      "status_c": "Approved",
+      "business_c": {
+        "Id": "10000000-0000-4000-8000-000000000003",
+        "Name": "Bright Future Academy"
+      },
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "_table": {
+      "label": "Support Request",
+      "plural": "Support Requests",
+      "icon": "LifeBuoy"
+    },
+    "Name": {
+      "type": "Text",
+      "label": "Name",
+      "required": true
+    },
+    "email_c": {
+      "type": "Email",
+      "label": "Email"
+    },
+    "mobile_c": {
+      "type": "Text",
+      "label": "Mobile"
+    },
+    "message_c": {
+      "type": "MultilineText",
+      "label": "Message",
+      "required": true
+    },
+    "status_c": {
+      "type": "Picklist",
+      "label": "Status",
+      "values": "New,In Progress,Resolved"
+    }
+  },
+  "records": [
+    {
+      "Id": "20000000-0000-4000-8000-000000000061",
+      "Name": "Help with business registration",
+      "email_c": "help@example.demo",
+      "mobile_c": "9876500011",
+      "message_c": "Please help me complete my listing.",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000062",
+      "Name": "Premium plan question",
+      "email_c": "owner@example.demo",
+      "mobile_c": "9876500012",
+      "message_c": "Need details about premium benefits.",
+      "status_c": "In Progress",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "20000000-0000-4000-8000-000000000063",
+      "Name": "Payment receipt request",
+      "email_c": "billing@example.demo",
+      "mobile_c": "9876500013",
+      "message_c": "Please share my payment receipt.",
+      "status_c": "Resolved",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T08:00:00.000Z",
+      "ModifiedOn": "2026-11-12T08:00:00.000Z"
+    },
+    {
+      "Id": "50000000-0000-4000-8000-000000000006",
+      "Name": "Business profile assistance",
+      "email_c": "help@demo.app",
+      "mobile_c": "9876543216",
+      "message_c": "Demo support request for a business profile update.",
+      "status_c": "New",
+      "Owner": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "ModifiedBy": {
+        "Id": "b52d0e38-6f9a-4c17-8d2b-e8a329f75c01",
+        "Name": "Demo Business Owner"
+      },
+      "CreatedOn": "2026-11-12T06:00:00.000Z",
+      "ModifiedOn": "2026-11-12T06:00:00.000Z"
+    }
+  ]
+}
