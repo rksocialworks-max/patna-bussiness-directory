@@ -738,6 +738,35 @@ async function getActivePremiumPlan(planId) {
   return { id: snap.id, name: plan.Name || 'Premium Plan', days, rupees, paise: Math.round(rupees * 100) };
 }
 
+// Downgrade expired Premium listings daily; public mirrors are refreshed by the business trigger.
+exports.expirePremiumListings = onSchedule(
+  { schedule: 'every day 01:15', timeZone: 'Asia/Kolkata', region: REGION },
+  async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    let expired = 0;
+    while (true) {
+      const page = await db.collection('businesses')
+        .where('is_premium_c', '==', true)
+        .where('premium_expiry_c', '<', today)
+        .limit(400)
+        .get();
+      if (page.empty) break;
+      const batch = db.batch();
+      page.docs.forEach((document) => {
+        batch.update(document.ref, {
+          is_premium_c: false,
+          listing_type_c: 'Free',
+          ModifiedOn: FieldValue.serverTimestamp(),
+        });
+      });
+      await batch.commit();
+      expired += page.size;
+      if (page.size < 400) break;
+    }
+    return { expired };
+  },
+);
+
 exports.createPremiumPaymentOrder = onCall(
   { region: REGION, enforceAppCheck: true, secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET] },
   async (request) => {
