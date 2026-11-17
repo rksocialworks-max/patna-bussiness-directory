@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { getDocument, listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
+import { getDocument, listDocuments, createDocument, COLLECTIONS } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
 import PublicHeader from '@/components/PublicHeader';
 import { Badge } from '@/components/ui/badge';
@@ -71,35 +71,32 @@ export default function BusinessDetail() {
 
   async function submitReview(event) {
     event.preventDefault();
+    if (!business?.Name) return;
     setSaving('review');
     try {
-      const existing = await sdk.table('reviews_c')
-        .select(['Id'])
-        .where(eq('business_c', id))
-        .where(eq('mobile_c', review.mobile_c))
-        .fetch();
-      if (!existing.success) throw new Error(existing.message);
-      const payload = {
-        Name: review.title_c || `Review for ${business.Name}`,
-        business_c: id,
-        customer_name_c: review.customer_name_c,
-        mobile_c: review.mobile_c,
-        rating_c: Number(review.rating_c),
-        title_c: review.title_c,
-        review_c: review.review_c,
-        status_c: 'Pending',
-        report_status_c: 'None',
-      };
-      if (existing.data?.[0]) {
-        toast.error('A review from this mobile number already exists for this business. Secure review editing requires mobile OTP verification, which is not connected in this demo.');
+      const existing = await listDocuments(COLLECTIONS.reviews, {
+        filters: [{ field: 'business_c', value: id }, { field: 'mobile_c', value: review.mobile_c }],
+        pageSize: 1,
+      });
+      if (existing.length) {
+        toast.error('इस मोबाइल नंबर से इस बिज़नेस के लिए review पहले से मौजूद है।');
         return;
       }
-      const result = await sdk.table('reviews_c').create(payload);
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
-      toast.success('Review submitted for Admin approval.');
+      await createDocument(COLLECTIONS.reviews, {
+        Name: review.title_c || `Review for ${business.Name}`,
+        business_c: id,
+        customer_name_c: review.customer_name_c.trim(),
+        mobile_c: review.mobile_c.trim(),
+        rating_c: Number(review.rating_c),
+        title_c: review.title_c.trim(),
+        review_c: review.review_c.trim(),
+        status_c: 'Pending',
+        report_status_c: 'None',
+      });
+      toast.success('Review Admin approval के लिए भेज दिया गया है।');
       setReview({ customer_name_c: '', mobile_c: '', rating_c: '5', title_c: '', review_c: '' });
-      runReviews();
+    } catch (err) {
+      toast.error(err?.message || 'Review अभी submit नहीं हो सका। Firebase Rules और configuration जाँचें।');
     } finally {
       setSaving('');
     }
@@ -109,20 +106,20 @@ export default function BusinessDetail() {
     event.preventDefault();
     setSaving('enquiry');
     try {
-      const result = await sdk.table('enquiries_c').create({
-        Name: `Enquiry from ${enquiry.customer_name_c}`,
+      await createDocument(COLLECTIONS.enquiries, {
+        Name: `Enquiry from ${enquiry.customer_name_c.trim()}`,
         business_c: id,
-        customer_name_c: enquiry.customer_name_c,
-        mobile_c: enquiry.mobile_c,
-        message_c: enquiry.message_c,
+        customer_name_c: enquiry.customer_name_c.trim(),
+        mobile_c: enquiry.mobile_c.trim(),
+        message_c: enquiry.message_c.trim(),
         source_c: 'Form',
         branch_c: enquiry.branch_c || null,
         status_c: 'New',
       });
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
-      toast.success('Enquiry submitted to the business.');
+      toast.success('आपकी enquiry business को भेज दी गई है।');
       setEnquiry({ customer_name_c: '', mobile_c: '', message_c: '', branch_c: '' });
+    } catch (err) {
+      toast.error(err?.message || 'Enquiry अभी submit नहीं हो सकी। Firebase Rules और configuration जाँचें।');
     } finally {
       setSaving('');
     }
@@ -130,19 +127,20 @@ export default function BusinessDetail() {
 
   async function submitReport(event) {
     event.preventDefault();
+    if (!business?.Name) return;
     setSaving('report');
     try {
-      const result = await sdk.table('reports_c').create({
+      await createDocument(COLLECTIONS.reports, {
         Name: `Report: ${business.Name}`,
         business_c: id,
         reason_c: report.reason_c,
-        description_c: report.description_c,
+        description_c: report.description_c.trim(),
         status_c: 'New',
       });
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
-      toast.success('Report sent to Admin for review.');
+      toast.success('Report Admin को भेज दी गई है।');
       setReport({ reason_c: 'Incorrect Info', description_c: '' });
+    } catch (err) {
+      toast.error(err?.message || 'Report अभी submit नहीं हो सकी। Firebase Rules और configuration जाँचें।');
     } finally {
       setSaving('');
     }
