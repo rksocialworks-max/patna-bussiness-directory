@@ -65,9 +65,16 @@ export default function PremiumPurchase() {
             toast.success(\`Payment verified. Premium is active until \${verified.premiumExpiry}.\`);
           } catch (error) {
             toast.error(error.message || 'Payment verification is pending. Contact support with your Razorpay payment ID.');
+          } finally {
+            setBusy(false);
           }
         },
         modal: { ondismiss: () => setBusy(false) },
+      });
+      checkout.on('payment.failed', (event) => {
+        toast.error(event.error?.description || 'Payment failed. No Premium access was activated.');
+        setBusy(false);
+      });
       });
       checkout.open();
     } catch (error) {
