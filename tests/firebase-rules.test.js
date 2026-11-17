@@ -159,6 +159,9 @@ describe('Payment security rules', () => {
     await assertFails(updateDoc(doc(ownerDb, 'payments/payment-1'), { status_c: 'Paid' }));
     const otherOwnerDb = env.authenticatedContext('owner-2', { role: 'BusinessOwner_c' }).firestore();
     await assertFails(getDoc(doc(otherOwnerDb, 'payments/payment-1')));
+    const adminDb = env.authenticatedContext('admin-1', { role: 'Admin_c' }).firestore();
+    await assertFails(updateDoc(doc(adminDb, 'payments/payment-1'), { status_c: 'Paid' }));
+    await assertFails(setDoc(doc(adminDb, 'payments/admin-fake'), { ownerUid: 'owner-1', status_c: 'Paid' }));
   });
 });
 
