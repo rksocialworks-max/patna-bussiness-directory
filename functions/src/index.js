@@ -1,8 +1,10 @@
+const { createHash } = require('crypto');
 const { initializeApp } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { onDocumentWritten } = require('firebase-functions/v2/firestore');
+const { onSchedule } = require('firebase-functions/v2/scheduler');
 
 initializeApp();
 
@@ -357,5 +359,152 @@ exports.syncCouponPublic = onDocumentWritten(
       () => true,
       (safe, source) => ({ ...safe, business_c: referenceId(source.business_c) }),
     );
+  },
+);
+
+
+function validateCustomerSubmission(data, maxMessageLength = 2000) {
+  const customerName = typeof data?.customerName === 'string' ? data.customerName.trim() : '';
+  const mobile = typeof data?.mobile === 'string' ? data.mobile.replace(/\\D/g, '') : '';
+  const message = typeof data?.message === 'string' ? data.message.trim() : '';
+  if (customerName.length < 2 || customerName.length > 80) {
+    throw new HttpsError('invalid-argument', 'Enter a valid customer name.');
+  }
+  if (!/^\\d{10}$/.test(mobile)) {
+    throw new HttpsError('invalid-argument', 'Enter a valid 10-digit mobile number.');
+  }
+  if (!message || message.length > maxMessageLength) {
+    throw new HttpsError('invalid-argument', 'Enter a message within the allowed length.');
+  }
+  return { customerName, mobile, message };
+}
+
+async function requirePublicBusiness(businessId) {
+  if (typeof businessId !== 'string' || !businessId.trim() || businessId.length > 128) {
+    throw new HttpsError('invalid-argument', 'A valid business ID is required.');
+  }
+  const publicBusiness = await db.collection('business_public').doc(businessId).get();
+  if (!publicBusiness.exists) {
+    throw new HttpsError('not-found', 'This business listing is not publicly available.');
+  }
+  return publicBusiness;
+}
+
+exports.submitPublicReview = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    const { customerName, mobile, message } = validateCustomerSubmission(request.data, 1500);
+    const businessId = request.data?.businessId;
+    const business = await requirePublicBusiness(businessId);
+    const rating = Number(request.data?.rating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      throw new HttpsError('invalid-argument', 'Rating must be a whole number from 1 to 5.');
+    }
+    const title = typeof request.data?.title === 'string' ? request.data.title.trim().slice(0, 120) : '';
+    const reviewId = createHash('sha256').update(businessId + ':' + mobile).digest('hex');
+    const reviewRef = db.collection('reviews').doc(reviewId);
+    await db.runTransaction(async (transaction) => {
+      const existing = await transaction.get(reviewRef);
+      if (existing.exists) {
+        throw new HttpsError('already-exists', 'A review from this mobile number already exists for this business.');
+      }
+      transaction.create(reviewRef, {
+        Name: title || 'Customer review for ' + (business.data().Name || 'business'),
+        business_c: businessId,
+        customer_name_c: customerName,
+        mobile_c: mobile,
+        rating_c: rating,
+        title_c: title,
+        review_c: message,
+        status_c: 'Pending',
+        report_status_c: 'None',
+        CreatedOn: FieldValue.serverTimestamp(),
+        ModifiedOn: FieldValue.serverTimestamp(),
+      });
+    });
+    return { success: true, status: 'Pending' };
+  },
+);
+
+exports.submitPublicEnquiry = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    const { customerName, mobile, message } = validateCustomerSubmission(request.data, 2000);
+    const businessId = request.data?.businessId;
+    await requirePublicBusiness(businessId);
+    const privateBusiness = await db.collection('businesses').doc(businessId).get();
+    if (!privateBusiness.exists || privateBusiness.data().status_c !== 'Approved') {
+      throw new HttpsError('not-found', 'This business listing is no longer available.');
+    }
+
+    let branchId = null;
+    if (request.data?.branchId) {
+      branchId = String(request.data.branchId);
+      const branch = await db.collection('branches_public').doc(branchId).get();
+      if (!branch.exists || branch.data().business_c !== businessId) {
+        throw new HttpsError('invalid-argument', 'The selected branch does not belong to this business.');
+      }
+    }
+
+    const enquiry = {
+      Name: 'Enquiry from ' + customerName,
+      business_c: businessId,
+      ownerUid: privateBusiness.data().ownerUid || null,
+      customer_name_c: customerName,
+      mobile_c: mobile,
+      message_c: message,
+      source_c: 'Form',
+      branch_c: branchId,
+      status_c: 'New',
+      CreatedOn: FieldValue.serverTimestamp(),
+      ModifiedOn: FieldValue.serverTimestamp(),
+    };
+    const ref = await db.collection('enquiries').add(enquiry);
+    return { success: true, enquiryId: ref.id };
+  },
+);
+
+exports.submitBusinessReport = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    const businessId = request.data?.businessId;
+    const business = await requirePublicBusiness(businessId);
+    const allowedReasons = new Set(['Incorrect Info', 'Spam', 'Closed', 'Other']);
+    const reason = typeof request.data?.reason === 'string' ? request.data.reason : '';
+    const description = typeof request.data?.description === 'string' ? request.data.description.trim() : '';
+    if (!allowedReasons.has(reason) || description.length < 5 || description.length > 1500) {
+      throw new HttpsError('invalid-argument', 'Select a report reason and enter a short description.');
+    }
+    const ref = await db.collection('reports').add({
+      Name: 'Report: ' + (business.data().Name || 'Business listing'),
+      business_c: businessId,
+      reason_c: reason,
+      description_c: description,
+      status_c: 'New',
+      CreatedOn: FieldValue.serverTimestamp(),
+      ModifiedOn: FieldValue.serverTimestamp(),
+    });
+    return { success: true, reportId: ref.id };
+  },
+);
+
+exports.cleanupOldEnquiries = onSchedule(
+  { schedule: 'every day 03:00', timeZone: 'Asia/Kolkata', region: REGION },
+  async () => {
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    let deleted = 0;
+    while (true) {
+      const page = await db.collection('enquiries')
+        .where('CreatedOn', '<', cutoff)
+        .limit(400)
+        .get();
+      if (page.empty) break;
+      const batch = db.batch();
+      page.docs.forEach((document) => batch.delete(document.ref));
+      await batch.commit();
+      deleted += page.size;
+      if (page.size < 400) break;
+    }
+    return { deleted };
   },
 );
