@@ -787,7 +787,7 @@ exports.createPremiumPaymentOrder = onCall(
     const uid = request.auth.uid;
     const businessId = request.data?.businessId;
     const planId = request.data?.planId;
-    await getOwnedBusiness(businessId, uid);
+    const ownedBusiness = await getOwnedBusiness(businessId, uid);
     const plan = await getActivePremiumPlan(planId);
     const keyId = RAZORPAY_KEY_ID.value();
     const keySecret = RAZORPAY_KEY_SECRET.value();
@@ -813,6 +813,7 @@ exports.createPremiumPaymentOrder = onCall(
       Name: 'Premium payment - ' + plan.name,
       ownerUid: uid,
       business_c: businessId,
+      business_name_c: ownedBusiness.data.Name || 'Business',
       plan_c: plan.id,
       plan_name_c: plan.name,
       duration_days_c: plan.days,
@@ -913,7 +914,7 @@ exports.submitManualPremiumPayment = onCall(
     const uid = request.auth.uid;
     const businessId = request.data?.businessId;
     const plan = await getActivePremiumPlan(request.data?.planId);
-    await getOwnedBusiness(businessId, uid);
+    const ownedBusiness = await getOwnedBusiness(businessId, uid);
     const utr = typeof request.data?.utr === 'string' ? request.data.utr.trim() : '';
     if (!/^[A-Za-z0-9-]{8,30}$/.test(utr)) throw new HttpsError('invalid-argument', 'Enter a valid UPI UTR / transaction reference.');
     const duplicate = await db.collection('payments').where('manual_utr_c', '==', utr).limit(1).get();
@@ -921,7 +922,7 @@ exports.submitManualPremiumPayment = onCall(
     const ref = db.collection('payments').doc();
     await ref.set({
       Name: 'Manual Premium payment - ' + plan.name,
-      ownerUid: uid, business_c: businessId, plan_c: plan.id, plan_name_c: plan.name,
+      ownerUid: uid, business_c: businessId, business_name_c: ownedBusiness.data.Name || 'Business', plan_c: plan.id, plan_name_c: plan.name,
       duration_days_c: plan.days, amount_c: plan.rupees, amount_paise_c: plan.paise,
       currency_c: 'INR', provider_c: 'UPI', manual_utr_c: utr,
       status_c: 'Pending Verification',
