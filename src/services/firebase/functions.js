@@ -66,3 +66,32 @@ export async function listBranchManagers() {
   const result = await callable({});
   return result.data.users || [];
 }
+
+
+/** Create a server-priced Razorpay order for an owned, approved business. */
+export async function createPremiumPaymentOrder({ businessId, planId }) {
+  const callable = httpsCallable(requireFunctions(), 'createPremiumPaymentOrder');
+  const result = await callable({ businessId, planId });
+  return result.data;
+}
+
+/** Verify Razorpay's callback on the trusted Firebase backend. */
+export async function verifyPremiumPayment(payload) {
+  const callable = httpsCallable(requireFunctions(), 'verifyPremiumPayment');
+  const result = await callable(payload);
+  return result.data;
+}
+
+/** Submit a UPI reference for manual Admin verification. */
+export async function submitManualPremiumPayment({ businessId, planId, utr }) {
+  const callable = httpsCallable(requireFunctions(), 'submitManualPremiumPayment');
+  const result = await callable({ businessId, planId, utr });
+  return result.data;
+}
+
+/** Admin-only approval for a pending manual UPI payment. */
+export async function approveManualPremiumPayment({ paymentId }) {
+  const callable = httpsCallable(requireFunctions(), 'approveManualPremiumPayment');
+  const result = await callable({ paymentId });
+  return result.data;
+}
