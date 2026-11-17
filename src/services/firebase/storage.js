@@ -33,7 +33,7 @@ export function uploadFile(file, { onProgress } = {}) {
       async () => {
         try {
           const url = await getDownloadURL(task.snapshot.ref);
-          resolve({ Id: task.snapshot.ref.fullPath, path: task.snapshot.ref.fullPath, Name: file.name, Size: file.size, Type: file.type, url });
+          resolve({ Id: task.snapshot.ref.fullPath, path: task.snapshot.ref.fullPath, Name: file.name, Size: file.size / 1024, Type: file.type, url });
         } catch (error) { reject(error); }
       }
     );
