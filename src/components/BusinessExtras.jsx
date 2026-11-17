@@ -1,25 +1,21 @@
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
-
-const { eq } = window.ApperSDK.CoreSDK;
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 
 export default function BusinessExtras({ businessId, premiumActive = false }) {
   const { data: products } = useFetch(async () => {
-    const result = await sdk.table('products_services_c')
-      .select(['Id', 'Name', 'business_c', 'image_c', 'status_c'])
-      .where(eq('business_c', businessId))
-      .fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.filter((item) => item.status_c === 'Active');
+    const rows = await listDocuments(COLLECTIONS.productsServices, {
+      filters: [{ field: 'business_c', value: businessId }, { field: 'status_c', value: 'Active' }],
+      pageSize: 100,
+    });
+    return rows.map((item) => ({ ...item, Id: item.Id ?? item.id }));
   }, [businessId]);
 
   const { data: branches } = useFetch(async () => {
-    const result = await sdk.table('branches_c')
-      .select(['Id', 'Name', 'business_c', 'address_c', 'district_c', 'city_c', 'phone_c', 'map_url_c', 'hours_c', 'photos_c', 'status_c'])
-      .where(eq('business_c', businessId))
-      .fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.filter((branch) => branch.status_c === 'Active');
+    const rows = await listDocuments(COLLECTIONS.branches, {
+      filters: [{ field: 'business_c', value: businessId }, { field: 'status_c', value: 'Active' }],
+      pageSize: 100,
+    });
+    return rows.map((branch) => ({ ...branch, Id: branch.Id ?? branch.id }));
   }, [businessId]);
 
   return (
