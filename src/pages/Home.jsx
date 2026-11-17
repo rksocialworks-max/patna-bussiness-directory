@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import PublicHeader from '@/components/PublicHeader';
 import HomepageBannerSlider from '@/components/HomepageBannerSlider';
 import HomepageSections from '@/components/HomepageSections';
@@ -18,9 +18,8 @@ export default function Home() {
   const navigate = useNavigate();
 
   const { data: categoryData } = useFetch(async () => {
-    const result = await sdk.table('categories_c').select(['Id', 'Name', 'sort_order_c']).orderBy('sort_order_c').fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const rows = await listDocuments(COLLECTIONS.categories, { sort: 'sort_order_c', pageSize: 100 });
+    return rows.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
   const categoryCards = (categoryData ?? []).map((category) => ({
