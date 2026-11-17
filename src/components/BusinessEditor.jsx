@@ -111,6 +111,14 @@ export default function BusinessEditor({ record = null }) {
           throw new Error('You are not allowed to edit this business.');
         }
         // Free owners cannot write premium-only fields, even as empty values.
+        if (user.profile !== 'Admin_c') {
+          // The selected free/premium listing policy exposes only Facebook
+          // and Instagram social links to owners.
+          delete payload.youtube_c;
+          delete payload.linkedin_c;
+          delete payload.x_c;
+          delete payload.telegram_c;
+        }
         if (user.profile !== 'Admin_c' && !premium) {
           delete payload.email_c;
           delete payload.website_c;
