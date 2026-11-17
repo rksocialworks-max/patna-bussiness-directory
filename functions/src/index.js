@@ -701,7 +701,7 @@ const RAZORPAY_KEY_SECRET = defineSecret('RAZORPAY_KEY_SECRET');
 function requireBusinessOwner(request) {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Please sign in first.');
   const role = request.auth.token.role || request.auth.token.profile;
-  if (role !== 'BusinessOwner_c' && request.auth.token.superAdmin !== true) {
+  if (role !== 'BusinessOwner_c') {
     throw new HttpsError('permission-denied', 'Only a Business Owner can purchase a Premium plan.');
   }
 }
@@ -712,7 +712,7 @@ async function getOwnedBusiness(businessId, uid) {
   }
   const ref = db.collection('businesses').doc(businessId);
   const snap = await ref.get();
-  if (!snap.exists || (snap.data().ownerUid !== uid && uid !== '__super_admin__')) {
+  if (!snap.exists || snap.data().ownerUid !== uid) {
     throw new HttpsError('permission-denied', 'You do not own this business.');
   }
   if (snap.data().status_c !== 'Approved') {
@@ -810,7 +810,7 @@ exports.verifyPremiumPayment = onCall(
     if (payment.status_c === 'Paid') return { success: true, status: 'Paid' };
 
     const secret = RAZORPAY_KEY_SECRET.value();
-    const expected = createHash('sha256').constructor === Buffer ? '' : require('crypto')
+    const expected = require('crypto')
       .createHmac('sha256', secret).update(orderId + '|' + gatewayPaymentId).digest('hex');
     const expectedBuffer = Buffer.from(expected, 'hex');
     const suppliedBuffer = Buffer.from(signature, 'hex');
