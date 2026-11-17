@@ -293,6 +293,7 @@ function makeTable(tableName) {
     async get(id) {
       const scope = await getCallerScope();
       const collectionName = mapReadCollection(tableName, scope.role);
+      if (!collectionName) return { success: true, data: null, messages: [] };
       const snapshot = await getDoc(doc(collection(requireDb(), collectionName), id));
       return { success: true, data: normalize(snapshot), messages: [] };
     },
