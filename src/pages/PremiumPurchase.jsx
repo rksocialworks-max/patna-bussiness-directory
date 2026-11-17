@@ -75,7 +75,6 @@ export default function PremiumPurchase() {
         toast.error(event.error?.description || 'Payment failed. No Premium access was activated.');
         setBusy(false);
       });
-      });
       checkout.open();
     } catch (error) {
       toast.error(error.message || 'Could not start online payment.');
