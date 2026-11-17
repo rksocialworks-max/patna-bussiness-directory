@@ -3,15 +3,15 @@ import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 
 export default function BusinessExtras({ businessId, premiumActive = false }) {
   const { data: products } = useFetch(async () => {
-    const rows = await listDocuments(COLLECTIONS.productsServices, {
-      filters: [{ field: 'business_c', value: businessId }, { field: 'status_c', value: 'Active' }],
+    const rows = await listDocuments(COLLECTIONS.productsServicesPublic, {
+      filters: [{ field: 'business_c', value: businessId }],
       pageSize: 100,
     });
     return rows.map((item) => ({ ...item, Id: item.Id ?? item.id }));
   }, [businessId]);
 
   const { data: branches } = useFetch(async () => {
-    const rows = await listDocuments(COLLECTIONS.branches, {
+    const rows = await listDocuments(COLLECTIONS.branchesPublic, {
       filters: [{ field: 'business_c', value: businessId }, { field: 'status_c', value: 'Active' }],
       pageSize: 100,
     });
