@@ -113,7 +113,10 @@ service cloud.firestore {
     match /branches/{branchId} {
       allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
       allow create: if isAdmin() || (
-        isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+        isBusinessOwner()
+        && ownsBusiness(request.resource.data.business_c)
+        && request.resource.data.status_c == 'Pending'
+        && request.resource.data.is_homepage_featured_c == false
       );
       allow update: if isAdmin() || (
         isBusinessOwner()
@@ -151,7 +154,9 @@ service cloud.firestore {
     }
 
     match /reviews/{reviewId} {
-      allow read, write: if isAdmin();
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      // Owner replies and temporary hiding are handled by protected Functions.
+      allow create, update, delete: if isAdmin();
     }
 
     match /reviews_public/{reviewId} {
