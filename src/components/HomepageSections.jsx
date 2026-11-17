@@ -21,17 +21,17 @@ export default function HomepageSections() {
   const [locationError, setLocationError] = useState('');
 
   const { data: businesses, loading: businessLoading } = useFetch(async () => {
-    const result = await listDocuments(COLLECTIONS.businesses, { pageSize: 100 });
+    const result = await listDocuments(COLLECTIONS.businessPublic, { pageSize: 100 });
     return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
   const { data: offers } = useFetch(async () => {
-    const result = await listDocuments(COLLECTIONS.offers, { pageSize: 100 });
+    const result = await listDocuments(COLLECTIONS.offersPublic, { pageSize: 100 });
     return result.map((row) => ({ ...row, Id: row.Id ?? row.id })).filter((offer) => offer.status_c === 'Approved' && offer.is_homepage_featured_c);
   }, []);
 
   const { data: orderSetting } = useFetch(async () => {
-    const result = await listDocuments(COLLECTIONS.siteSettings, { pageSize: 100 });
+    const result = await listDocuments(COLLECTIONS.siteSettingsPublic, { pageSize: 100 });
     return result.find((item) => item.setting_key_c === 'homepage_section_order')?.setting_value_c;
   }, []);
 
