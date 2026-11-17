@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { getDocument, listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
 import PublicHeader from '@/components/PublicHeader';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,6 @@ import { Textarea } from '@/components/ui/textarea';
 import ApperIcon from '@/components/ApperIcon';
 import BusinessExtras from '@/components/BusinessExtras';
 
-const { eq } = window.ApperSDK.CoreSDK;
 const FIELDS = [
   'Id', 'Name', 'category_c', 'subcategory_c', 'district_c', 'city_c',
   'area_c', 'pincode_c', 'address_c', 'description_c', 'owner_name_c',
@@ -30,20 +29,18 @@ export default function BusinessDetail() {
   const [saving, setSaving] = useState('');
 
   const { data: business, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('businesses_c').select(FIELDS).get(id);
-    return result.data;
+    const result = await getDocument(COLLECTIONS.businesses, id);
+    return result ? { ...result, Id: result.Id ?? result.id } : null;
   }, [id]);
 
   const { data: reviews, loading: reviewsLoading, run: runReviews } = useFetch(async () => {
-    const result = await sdk.table('reviews_c').select(['Id', 'Name', 'customer_name_c', 'rating_c', 'title_c', 'review_c', 'owner_reply_c']).where(eq('business_c', id)).where(eq('status_c', 'Approved')).orderByDesc('CreatedOn').fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const result = await listDocuments(COLLECTIONS.reviews, { filters: [{ field: 'business_c', value: id }, { field: 'status_c', value: 'Approved' }], sort: 'CreatedOn', direction: 'desc', pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [id]);
 
   const { data: enquiryBranches } = useFetch(async () => {
-    const result = await sdk.table('branches_c').select(['Id', 'Name', 'business_c', 'status_c']).where(eq('business_c', id)).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.filter((branch) => branch.status_c === 'Active');
+    const result = await listDocuments(COLLECTIONS.branches, { filters: [{ field: 'business_c', value: id }, { field: 'status_c', value: 'Active' }], pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [id]);
 
   useEffect(() => {
