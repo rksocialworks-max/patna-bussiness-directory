@@ -1,90 +1,65 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { sdk } from '@/services/sdk';
-import { setUser } from '@/store/userSlice';
-import { GENERIC_AUTH } from '@/config/app.config';
-import { Input } from '@/components/ui/input';
+import { Link, useSearchParams } from 'react-router-dom';
+import { confirmCurrentEmailVerification, sendCurrentEmailVerification } from '@/services/firebase/auth';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import AuthLayout from './AuthLayout';
 
 export default function EmailVerification() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [code, setCode] = useState('');
+  const [params] = useSearchParams();
+  const oobCode = params.get('oobCode') || '';
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [verified, setVerified] = useState(false);
   const [resent, setResent] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    setError(null);
+  async function handleVerify() {
     setLoading(true);
+    setError('');
     try {
-      const result = await sdk.session.verifyEmail({ code });
-      if (result.ok) {
-        const user = await sdk.session.getUser();
-        if (user) dispatch(setUser(user));
-        navigate(GENERIC_AUTH.redirectAfterAuth);
-      } else {
-        setError(result.error?.message || 'Verification failed');
-      }
+      await confirmCurrentEmailVerification(oobCode);
+      setVerified(true);
     } catch (err) {
-      setError(err?.message || 'Unexpected error');
+      setError(err?.code === 'auth/expired-action-code' || err?.code === 'auth/invalid-action-code'
+        ? 'This verification link has expired or was already used. Sign in and request a new link.'
+        : err?.message || 'Email verification failed.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleResend = async () => {
+  async function handleResend() {
+    setLoading(true);
+    setError('');
     setResent(false);
-    const user = sdk.session.user();
-    const email = user?.emailAddress || user?.email;
-    if (!email) return;
-    await sdk.session.resendVerificationCode({ emailAddress: email });
-    setResent(true);
-  };
+    try {
+      await sendCurrentEmailVerification();
+      setResent(true);
+    } catch (err) {
+      setError(err?.message || 'Could not send a new verification email. Please sign in first.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <AuthLayout
-      title="Verify your email"
-      description="Enter the verification code sent to your email."
-      icon="MailCheck"
-    >
-      <form onSubmit={handleVerify} className="flex flex-col gap-3">
-        <div className="space-y-1">
-          <Label htmlFor="code">Verification code</Label>
-          <Input
-            id="code"
-            type="text"
-            placeholder="Enter code"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-            autoFocus
-            className="h-9 text-center text-lg tracking-widest"
-          />
+    <AuthLayout title={verified ? 'Email verified' : 'Verify your email'}
+      description={verified ? 'Your email address has been verified.' : 'Use the secure link sent to your email address.'}
+      icon={verified ? 'CheckCircle' : 'MailCheck'}>
+      {verified ? (
+        <div className="space-y-4 text-center">
+          <p className="text-sm text-muted-foreground">Your account can now be reviewed for directory access by the administrator.</p>
+          <Button asChild className="w-full"><Link to="/owner/login">Continue to sign in</Link></Button>
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        {resent && <p className="text-sm text-success">Code resent successfully.</p>}
-        <div className="pt-2">
-          <Button type="submit" disabled={loading} className="w-full h-9">
-            {loading ? 'Verifying…' : 'Verify email'}
-          </Button>
+      ) : (
+        <div className="space-y-4">
+          {oobCode ? <Button className="w-full" onClick={handleVerify} disabled={loading}>{loading ? 'Verifying…' : 'Verify email address'}</Button> :
+            <p className="text-sm text-muted-foreground">Open the verification link from your email on this device. If you need a new link, sign in and request one below.</p>}
+          <Button variant="outline" className="w-full" onClick={handleResend} disabled={loading}>Resend verification email</Button>
+          {resent && <p className="text-sm text-success">Verification email sent.</p>}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+          <p className="text-center text-sm"><Link className="text-primary underline" to="/owner/login">Back to sign in</Link></p>
         </div>
-      </form>
-
-      <p className="text-center text-sm text-muted-foreground mt-5">
-        Didn't receive the code?{' '}
-        <button
-          type="button"
-          onClick={handleResend}
-          className="text-primary hover:text-primary/80 font-medium transition-colors"
-        >
-          Resend
-        </button>
-      </p>
+      )}
     </AuthLayout>
   );
 }
