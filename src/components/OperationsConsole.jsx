@@ -84,14 +84,15 @@ const CONFIG = [
     { key: 'status_c', label: 'Status', type: 'Picklist', options: ['Active', 'Inactive'] },
   ], status: 'status_c' },
   { key: 'payments_c', label: 'Payments', icon: 'Wallet', title: 'Premium Payments', fields: [
-    { key: 'business_c', label: 'Business', type: 'Lookup', lookup: 'businesses_c' },
-    { key: 'plan_c', label: 'Premium Plan', type: 'Lookup', lookup: 'premium_plans_c' },
-    { key: 'Name', label: 'Payment Description', type: 'Text' },
+    { key: 'business_c', label: 'Business ID', type: 'Text' },
+    { key: 'plan_name_c', label: 'Premium Plan', type: 'Text' },
     { key: 'amount_c', label: 'Amount (INR)', type: 'Number' },
-    { key: 'method_c', label: 'Method', type: 'Picklist', options: ['Razorpay', 'UPI'] },
-    { key: 'reference_c', label: 'Transaction Reference', type: 'Text' },
-    { key: 'screenshot_c', label: 'UPI Payment Proof', type: 'Files' },
-    { key: 'status_c', label: 'Status', type: 'Picklist', options: ['Pending', 'Verified', 'Failed', 'Refunded'] },
+    { key: 'provider_c', label: 'Payment Method', type: 'Text' },
+    { key: 'manual_utr_c', label: 'UPI UTR', type: 'Text' },
+    { key: 'razorpay_payment_id_c', label: 'Razorpay Payment ID', type: 'Text' },
+    { key: 'status_c', label: 'Payment Status', type: 'Text' },
+    { key: 'receipt_number_c', label: 'Receipt Number', type: 'Text' },
+    { key: 'premium_expiry_c', label: 'Premium Expiry', type: 'Date' },
   ], status: 'status_c' },
   { key: 'advertisements_c', label: 'Advertisements', icon: 'Megaphone', title: 'Advertisement Management', fields: [
     { key: 'business_c', label: 'Business', type: 'Lookup', lookup: 'businesses_c' },
@@ -444,7 +445,7 @@ export default function OperationsConsole({ mode = 'owner' }) {
   const ownerCanMarkNotification = !isAdmin && !isManager && active.key === 'notifications_c';
   const ownerCanReplyReview = !isAdmin && !isManager && active.key === 'reviews_c';
   const canEdit = (isAdmin && active.key !== 'payments_c') || (isManager && active.key === 'branches_c') || (!isManager && ['branches_c', 'products_services_c', 'offers_c', 'coupons_c', 'advertisements_c'].includes(active.key));
-  const canDelete = isAdmin || (!isManager && active.key === 'products_services_c');
+  const canDelete = (isAdmin && active.key !== 'payments_c') || (!isManager && active.key === 'products_services_c');
   const count = rows.length;
 
   return (
