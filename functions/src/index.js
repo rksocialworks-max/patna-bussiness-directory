@@ -688,3 +688,247 @@ exports.listBranchManagers = onCall(
     return { users: eligible };
   },
 );
+
+
+// -----------------------------------------------------------------------------
+// Premium payments — all amounts and entitlements are calculated server-side.
+// Configure RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET with Firebase Secret Manager.
+// -----------------------------------------------------------------------------
+const { defineSecret } = require('firebase-functions/params');
+const RAZORPAY_KEY_ID = defineSecret('RAZORPAY_KEY_ID');
+const RAZORPAY_KEY_SECRET = defineSecret('RAZORPAY_KEY_SECRET');
+
+function requireBusinessOwner(request) {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Please sign in first.');
+  const role = request.auth.token.role || request.auth.token.profile;
+  if (role !== 'BusinessOwner_c' && request.auth.token.superAdmin !== true) {
+    throw new HttpsError('permission-denied', 'Only a Business Owner can purchase a Premium plan.');
+  }
+}
+
+async function getOwnedBusiness(businessId, uid) {
+  if (typeof businessId !== 'string' || !businessId.trim() || businessId.length > 128) {
+    throw new HttpsError('invalid-argument', 'Select a valid business.');
+  }
+  const ref = db.collection('businesses').doc(businessId);
+  const snap = await ref.get();
+  if (!snap.exists || (snap.data().ownerUid !== uid && uid !== '__super_admin__')) {
+    throw new HttpsError('permission-denied', 'You do not own this business.');
+  }
+  if (snap.data().status_c !== 'Approved') {
+    throw new HttpsError('failed-precondition', 'The business must be approved before purchasing Premium.');
+  }
+  return { ref, data: snap.data() };
+}
+
+async function getActivePremiumPlan(planId) {
+  if (typeof planId !== 'string' || !planId.trim() || planId.length > 128) {
+    throw new HttpsError('invalid-argument', 'Select a valid Premium plan.');
+  }
+  const snap = await db.collection('premium_plans').doc(planId).get();
+  if (!snap.exists || !['Active', 'Approved'].includes(snap.data().status_c)) {
+    throw new HttpsError('not-found', 'This Premium plan is not available.');
+  }
+  const plan = snap.data();
+  const days = Number(plan.duration_days_c);
+  const rupees = Number(plan.price_c);
+  if (![30, 90, 365].includes(days) || !Number.isFinite(rupees) || rupees <= 0 || rupees > 1000000) {
+    throw new HttpsError('failed-precondition', 'The Premium plan has invalid pricing or duration.');
+  }
+  return { id: snap.id, name: plan.Name || 'Premium Plan', days, rupees, paise: Math.round(rupees * 100) };
+}
+
+exports.createPremiumPaymentOrder = onCall(
+  { region: REGION, enforceAppCheck: true, secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET] },
+  async (request) => {
+    requireBusinessOwner(request);
+    const uid = request.auth.uid;
+    const businessId = request.data?.businessId;
+    const planId = request.data?.planId;
+    await getOwnedBusiness(businessId, uid);
+    const plan = await getActivePremiumPlan(planId);
+    const keyId = RAZORPAY_KEY_ID.value();
+    const keySecret = RAZORPAY_KEY_SECRET.value();
+    if (!keyId || !keySecret) throw new HttpsError('failed-precondition', 'Online payments are not configured yet.');
+
+    const receipt = 'pbd_' + createHash('sha256').update(uid + ':' + businessId + ':' + Date.now()).digest('hex').slice(0, 20);
+    const response = await fetch('https://api.razorpay.com/v1/orders', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Basic ' + Buffer.from(keyId + ':' + keySecret).toString('base64'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount: plan.paise, currency: 'INR', receipt, notes: { businessId, planId, ownerUid: uid } }),
+    });
+    const order = await response.json().catch(() => ({}));
+    if (!response.ok || !order.id) {
+      console.error('Razorpay order creation failed', response.status, order.error?.code || 'unknown');
+      throw new HttpsError('unavailable', 'Could not create the payment order. Please try again.');
+    }
+
+    const paymentRef = db.collection('payments').doc();
+    await paymentRef.set({
+      Name: 'Premium payment - ' + plan.name,
+      ownerUid: uid,
+      business_c: businessId,
+      plan_c: plan.id,
+      plan_name_c: plan.name,
+      duration_days_c: plan.days,
+      amount_c: plan.rupees,
+      amount_paise_c: plan.paise,
+      currency_c: 'INR',
+      provider_c: 'Razorpay',
+      razorpay_order_id_c: order.id,
+      status_c: 'Pending',
+      CreatedOn: FieldValue.serverTimestamp(),
+      ModifiedOn: FieldValue.serverTimestamp(),
+    });
+    return { keyId, orderId: order.id, paymentId: paymentRef.id, amount: plan.paise, currency: 'INR', businessName: 'Patna Business Directory' };
+  },
+);
+
+exports.verifyPremiumPayment = onCall(
+  { region: REGION, enforceAppCheck: true, secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET] },
+  async (request) => {
+    requireBusinessOwner(request);
+    const uid = request.auth.uid;
+    const paymentId = request.data?.paymentId;
+    const orderId = request.data?.razorpay_order_id;
+    const gatewayPaymentId = request.data?.razorpay_payment_id;
+    const signature = request.data?.razorpay_signature;
+    if (![paymentId, orderId, gatewayPaymentId, signature].every((v) => typeof v === 'string' && v.length > 0 && v.length < 256)) {
+      throw new HttpsError('invalid-argument', 'Payment verification details are incomplete.');
+    }
+
+    const paymentRef = db.collection('payments').doc(paymentId);
+    const paymentSnap = await paymentRef.get();
+    if (!paymentSnap.exists) throw new HttpsError('not-found', 'Payment record was not found.');
+    const payment = paymentSnap.data();
+    if (payment.ownerUid !== uid || payment.razorpay_order_id_c !== orderId) {
+      throw new HttpsError('permission-denied', 'Payment does not belong to this account.');
+    }
+    if (payment.status_c === 'Paid') return { success: true, status: 'Paid' };
+
+    const secret = RAZORPAY_KEY_SECRET.value();
+    const expected = createHash('sha256').constructor === Buffer ? '' : require('crypto')
+      .createHmac('sha256', secret).update(orderId + '|' + gatewayPaymentId).digest('hex');
+    const expectedBuffer = Buffer.from(expected, 'hex');
+    const suppliedBuffer = Buffer.from(signature, 'hex');
+    if (expectedBuffer.length !== suppliedBuffer.length || !require('crypto').timingSafeEqual(expectedBuffer, suppliedBuffer)) {
+      throw new HttpsError('permission-denied', 'Payment signature verification failed.');
+    }
+
+    const response = await fetch('https://api.razorpay.com/v1/payments/' + encodeURIComponent(gatewayPaymentId), {
+      headers: { Authorization: 'Basic ' + Buffer.from(RAZORPAY_KEY_ID.value() + ':' + secret).toString('base64') },
+    });
+    const gatewayPayment = await response.json().catch(() => ({}));
+    if (!response.ok || gatewayPayment.status !== 'captured'
+      || gatewayPayment.order_id !== orderId
+      || Number(gatewayPayment.amount) !== Number(payment.amount_paise_c)
+      || gatewayPayment.currency !== 'INR') {
+      throw new HttpsError('failed-precondition', 'Payment could not be confirmed as captured by Razorpay.');
+    }
+
+    const business = await getOwnedBusiness(payment.business_c, uid);
+    const now = new Date();
+    const currentExpiry = business.data.is_premium_c === true && business.data.premium_expiry_c
+      ? new Date(business.data.premium_expiry_c + 'T23:59:59.999Z') : null;
+    const start = currentExpiry && currentExpiry > now ? currentExpiry : now;
+    const expiry = new Date(start.getTime() + Number(payment.duration_days_c) * 86400000);
+    const expiryDate = expiry.toISOString().slice(0, 10);
+    const receiptNumber = 'PBD-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + paymentId.slice(-6).toUpperCase();
+
+    await db.runTransaction(async (transaction) => {
+      const latest = await transaction.get(paymentRef);
+      if (!latest.exists) throw new HttpsError('not-found', 'Payment record was not found.');
+      if (latest.data().status_c === 'Paid') return;
+      if (latest.data().ownerUid !== uid || latest.data().razorpay_order_id_c !== orderId) {
+        throw new HttpsError('permission-denied', 'Payment record changed during verification.');
+      }
+      transaction.update(paymentRef, {
+        status_c: 'Paid',
+        razorpay_payment_id_c: gatewayPaymentId,
+        receipt_number_c: receiptNumber,
+        paid_at_c: FieldValue.serverTimestamp(),
+        premium_expiry_c: expiryDate,
+        ModifiedOn: FieldValue.serverTimestamp(),
+      });
+      transaction.update(business.ref, {
+        is_premium_c: true,
+        listing_type_c: 'Premium',
+        premium_expiry_c: expiryDate,
+        ModifiedOn: FieldValue.serverTimestamp(),
+      });
+    });
+    return { success: true, status: 'Paid', receiptNumber, premiumExpiry: expiryDate };
+  },
+);
+
+exports.submitManualPremiumPayment = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    requireBusinessOwner(request);
+    const uid = request.auth.uid;
+    const businessId = request.data?.businessId;
+    const plan = await getActivePremiumPlan(request.data?.planId);
+    await getOwnedBusiness(businessId, uid);
+    const utr = typeof request.data?.utr === 'string' ? request.data.utr.trim() : '';
+    if (!/^[A-Za-z0-9-]{8,30}$/.test(utr)) throw new HttpsError('invalid-argument', 'Enter a valid UPI UTR / transaction reference.');
+    const duplicate = await db.collection('payments').where('manual_utr_c', '==', utr).limit(1).get();
+    if (!duplicate.empty) throw new HttpsError('already-exists', 'This UTR has already been submitted.');
+    const ref = db.collection('payments').doc();
+    await ref.set({
+      Name: 'Manual Premium payment - ' + plan.name,
+      ownerUid: uid, business_c: businessId, plan_c: plan.id, plan_name_c: plan.name,
+      duration_days_c: plan.days, amount_c: plan.rupees, amount_paise_c: plan.paise,
+      currency_c: 'INR', provider_c: 'UPI', manual_utr_c: utr,
+      status_c: 'Pending Verification',
+      CreatedOn: FieldValue.serverTimestamp(), ModifiedOn: FieldValue.serverTimestamp(),
+    });
+    return { success: true, paymentId: ref.id, status: 'Pending Verification' };
+  },
+);
+
+exports.approveManualPremiumPayment = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth || (request.auth.token.superAdmin !== true && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c')) {
+      throw new HttpsError('permission-denied', 'Only an Admin can approve manual payments.');
+    }
+    const paymentId = request.data?.paymentId;
+    if (typeof paymentId !== 'string' || !paymentId) throw new HttpsError('invalid-argument', 'Payment ID is required.');
+    const paymentRef = db.collection('payments').doc(paymentId);
+    const snap = await paymentRef.get();
+    if (!snap.exists || snap.data().provider_c !== 'UPI' || snap.data().status_c !== 'Pending Verification') {
+      throw new HttpsError('failed-precondition', 'This manual payment is not awaiting verification.');
+    }
+    const payment = snap.data();
+    const businessRef = db.collection('businesses').doc(payment.business_c);
+    const businessSnap = await businessRef.get();
+    if (!businessSnap.exists || businessSnap.data().ownerUid !== payment.ownerUid || businessSnap.data().status_c !== 'Approved') {
+      throw new HttpsError('failed-precondition', 'The linked business is not eligible for Premium.');
+    }
+    const now = new Date();
+    const oldExpiry = businessSnap.data().is_premium_c && businessSnap.data().premium_expiry_c
+      ? new Date(businessSnap.data().premium_expiry_c + 'T23:59:59.999Z') : null;
+    const start = oldExpiry && oldExpiry > now ? oldExpiry : now;
+    const expiryDate = new Date(start.getTime() + Number(payment.duration_days_c) * 86400000).toISOString().slice(0, 10);
+    const receiptNumber = 'PBD-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + paymentId.slice(-6).toUpperCase();
+    await db.runTransaction(async (transaction) => {
+      const latest = await transaction.get(paymentRef);
+      if (!latest.exists || latest.data().status_c !== 'Pending Verification') {
+        throw new HttpsError('failed-precondition', 'This payment has already been processed.');
+      }
+      transaction.update(paymentRef, {
+        status_c: 'Paid', approved_by_c: request.auth.uid,
+        receipt_number_c: receiptNumber, paid_at_c: FieldValue.serverTimestamp(),
+        premium_expiry_c: expiryDate, ModifiedOn: FieldValue.serverTimestamp(),
+      });
+      transaction.update(businessRef, {
+        is_premium_c: true, listing_type_c: 'Premium',
+        premium_expiry_c: expiryDate, ModifiedOn: FieldValue.serverTimestamp(),
+      });
+    });
+    return { success: true, receiptNumber, premiumExpiry: expiryDate };
+  },
+);
