@@ -368,12 +368,12 @@ exports.syncCouponPublic = onDocumentWritten(
 
 function validateCustomerSubmission(data, maxMessageLength = 2000) {
   const customerName = typeof data?.customerName === 'string' ? data.customerName.trim() : '';
-  const mobile = typeof data?.mobile === 'string' ? data.mobile.replace(/\\D/g, '') : '';
+  const mobile = typeof data?.mobile === 'string' ? data.mobile.replace(/\D/g, '') : '';
   const message = typeof data?.message === 'string' ? data.message.trim() : '';
   if (customerName.length < 2 || customerName.length > 80) {
     throw new HttpsError('invalid-argument', 'Enter a valid customer name.');
   }
-  if (!/^\\d{10}$/.test(mobile)) {
+  if (!/^\d{10}$/.test(mobile)) {
     throw new HttpsError('invalid-argument', 'Enter a valid 10-digit mobile number.');
   }
   if (!message || message.length > maxMessageLength) {
