@@ -138,6 +138,7 @@ function makeTable(tableName) {
   let filters = [];
   let sort = null;
   let maxRows = 100;
+  let offsetRows = 0;
 
   const builder = {
     select(_fields) { return builder; },
@@ -152,13 +153,20 @@ function makeTable(tableName) {
     orderByDesc(field) { sort = { field, direction: 'desc' }; return builder; },
     orderByAsc(field) { sort = { field, direction: 'asc' }; return builder; },
     limit(count) { maxRows = Math.min(Math.max(Number(count) || 100, 1), 100); return builder; },
+    page(pageNumber = 1, pageSize = 20) {
+      maxRows = Math.min(Math.max(Number(pageSize) || 20, 1), 100);
+      offsetRows = Math.max(0, (Math.max(1, Number(pageNumber) || 1) - 1) * maxRows);
+      return builder;
+    },
 
     async fetch() {
       const database = requireDb();
       const scope = await getCallerScope();
       const sourceName = mapReadCollection(tableName, scope.role);
       const baseRef = collection(database, sourceName);
-      const constraints = filters.map(({ field, op, value }) => where(field, op, value));
+      const serverFilters = filters.filter(({ op }) => op !== 'contains');
+      const localFilters = filters.filter(({ op }) => op === 'contains');
+      const constraints = serverFilters.map(({ field, op, value }) => where(field, op, value));
       let snapshots = [];
 
       if (scope.role === 'Admin_c') {
@@ -240,7 +248,8 @@ function makeTable(tableName) {
           return sort.direction === 'desc' ? -delta : delta;
         });
       }
-      return { success: true, data: data.slice(0, maxRows), messages: [] };
+      const searched = data.filter((row) => localFilters.every(({ field, value }) => String(row[field] ?? '').toLocaleLowerCase().includes(String(value ?? '').toLocaleLowerCase())));
+      return { success: true, data: searched.slice(offsetRows, offsetRows + maxRows), messages: [] };
     },
 
     async get(id) {
