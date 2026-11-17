@@ -1,5 +1,5 @@
 import { Sun, Moon, Monitor } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/data/contexts/ThemeContext.jsx';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 
