@@ -62,7 +62,7 @@ export default function PremiumPurchase() {
         handler: async (response) => {
           try {
             const verified = await verifyPremiumPayment({ paymentId: order.paymentId, ...response });
-            toast.success(\`Payment verified. Premium is active until \${verified.premiumExpiry}.\`);
+            toast.success('Payment verified. Premium is active until ' + verified.premiumExpiry + '.');
           } catch (error) {
             toast.error(error.message || 'Payment verification is pending. Contact support with your Razorpay payment ID.');
           } finally {
