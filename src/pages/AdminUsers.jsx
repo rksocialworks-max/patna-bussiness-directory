@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { listManagedUsers, assignManagedRole } from '@/services/firebase/functions';
+import { listManagedUsers, assignManagedRole, backfillPublicDirectory } from '@/services/firebase/functions';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ export default function AdminUsers() {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busyUid, setBusyUid] = useState('');
+  const [backfilling, setBackfilling] = useState(false);
 
   const loadUsers = useCallback(async (token) => {
     setLoading(true);
@@ -47,6 +48,19 @@ export default function AdminUsers() {
     }
   };
 
+  const rebuildPublicData = async () => {
+    setBackfilling(true);
+    try {
+      const result = await backfillPublicDirectory();
+      const published = Object.values(result.results || {}).reduce((total, item) => total + Number(item.published || 0), 0);
+      toast.success(`Public directory sync completed. ${published} records published across public collections.`);
+    } catch (error) {
+      toast.error(error?.message || 'Public directory sync failed. Check Super Admin and App Check setup.');
+    } finally {
+      setBackfilling(false);
+    }
+  };
+
   if (profile !== 'Admin_c') return <div className="p-6">Access denied.</div>;
 
   return (
@@ -56,9 +70,15 @@ export default function AdminUsers() {
           <h1 className="text-2xl font-bold tracking-tight">User Accounts</h1>
           <p className="mt-1 text-sm text-muted-foreground">Review registered accounts and assign Business Owner or Branch Manager access.</p>
         </div>
-        <Button variant="outline" onClick={() => loadUsers(pageToken)} disabled={loading}>
-          <ApperIcon name="RefreshCw" size={16} className="mr-2" /> Refresh
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => loadUsers(pageToken)} disabled={loading}>
+            <ApperIcon name="RefreshCw" size={16} className="mr-2" /> Refresh
+          </Button>
+          <Button onClick={rebuildPublicData} disabled={backfilling}>
+            <ApperIcon name="Database" size={16} className="mr-2" />
+            {backfilling ? 'Syncing public data…' : 'Sync Public Directory'}
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
