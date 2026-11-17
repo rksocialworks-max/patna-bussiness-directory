@@ -721,6 +721,16 @@ async function getOwnedBusiness(businessId, uid) {
   return { ref, data: snap.data() };
 }
 
+function addCalendarMonths(date, months) {
+  const source = new Date(date);
+  const day = source.getUTCDate();
+  const target = new Date(Date.UTC(source.getUTCFullYear(), source.getUTCMonth() + months, 1,
+    source.getUTCHours(), source.getUTCMinutes(), source.getUTCSeconds(), source.getUTCMilliseconds()));
+  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+  target.setUTCDate(Math.min(day, lastDay));
+  return target;
+}
+
 async function getActivePremiumPlan(planId) {
   if (typeof planId !== 'string' || !planId.trim() || planId.length > 128) {
     throw new HttpsError('invalid-argument', 'Select a valid Premium plan.');
@@ -730,12 +740,16 @@ async function getActivePremiumPlan(planId) {
     throw new HttpsError('not-found', 'This Premium plan is not available.');
   }
   const plan = snap.data();
-  const days = Number(plan.duration_days_c);
+  const legacyMonths = { 30: 1, 90: 3, 365: 12 };
+  const configuredMonths = Number(plan.duration_months_c);
+  const months = [1, 3, 12].includes(configuredMonths)
+    ? configuredMonths
+    : legacyMonths[Number(plan.duration_days_c)];
   const rupees = Number(plan.price_c);
-  if (![30, 90, 365].includes(days) || !Number.isFinite(rupees) || rupees <= 0 || rupees > 1000000) {
+  if (!months || !Number.isFinite(rupees) || rupees <= 0 || rupees > 1000000) {
     throw new HttpsError('failed-precondition', 'The Premium plan has invalid pricing or duration.');
   }
-  return { id: snap.id, name: plan.Name || 'Premium Plan', days, rupees, paise: Math.round(rupees * 100) };
+  return { id: snap.id, name: plan.Name || 'Premium Plan', months, rupees, paise: Math.round(rupees * 100) };
 }
 
 // Downgrade expired Premium listings daily; public mirrors are refreshed by the business trigger.
@@ -816,7 +830,7 @@ exports.createPremiumPaymentOrder = onCall(
       business_name_c: ownedBusiness.data.Name || 'Business',
       plan_c: plan.id,
       plan_name_c: plan.name,
-      duration_days_c: plan.days,
+      duration_months_c: plan.months,
       amount_c: plan.rupees,
       amount_paise_c: plan.paise,
       currency_c: 'INR',
@@ -902,7 +916,7 @@ exports.verifyPremiumPayment = onCall(
       const currentExpiry = business.is_premium_c === true && business.premium_expiry_c
         ? new Date(business.premium_expiry_c + 'T23:59:59.999Z') : null;
       const start = currentExpiry && currentExpiry > now ? currentExpiry : now;
-      const expiryDate = new Date(start.getTime() + Number(latest.data().duration_days_c) * 86400000)
+      const expiryDate = addCalendarMonths(start, Number(latest.data().duration_months_c) || ({ 30: 1, 90: 3, 365: 12 }[Number(latest.data().duration_days_c)]))
         .toISOString().slice(0, 10);
       transaction.update(paymentRef, {
         status_c: 'Paid',
@@ -945,7 +959,7 @@ exports.submitManualPremiumPayment = onCall(
       transaction.create(ref, {
         Name: 'Manual Premium payment - ' + plan.name,
         ownerUid: uid, business_c: businessId, business_name_c: ownedBusiness.data.Name || 'Business', plan_c: plan.id, plan_name_c: plan.name,
-        duration_days_c: plan.days, amount_c: plan.rupees, amount_paise_c: plan.paise,
+        duration_months_c: plan.months, amount_c: plan.rupees, amount_paise_c: plan.paise,
         currency_c: 'INR', provider_c: 'UPI', manual_utr_c: normalizedUtr,
         status_c: 'Pending Verification',
         CreatedOn: FieldValue.serverTimestamp(), ModifiedOn: FieldValue.serverTimestamp(),
@@ -1010,7 +1024,7 @@ exports.approveManualPremiumPayment = onCall(
       const oldExpiry = business.is_premium_c === true && business.premium_expiry_c
         ? new Date(business.premium_expiry_c + 'T23:59:59.999Z') : null;
       const start = oldExpiry && oldExpiry > now ? oldExpiry : now;
-      const expiryDate = new Date(start.getTime() + Number(payment.duration_days_c) * 86400000)
+      const expiryDate = addCalendarMonths(start, Number(payment.duration_months_c) || ({ 30: 1, 90: 3, 365: 12 }[Number(payment.duration_days_c)]))
         .toISOString().slice(0, 10);
       transaction.update(paymentRef, {
         status_c: 'Paid', approved_by_c: request.auth.uid,
