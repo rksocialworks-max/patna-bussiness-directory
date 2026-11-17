@@ -137,6 +137,7 @@ const BUSINESS_PUBLIC_FIELDS = [
 exports.syncBusinessPublic = onDocumentWritten(
   { document: 'businesses/{docId}', region: REGION },
   async (event) => {
+    const after = event.data?.after;
     await mirrorDocument(
       event,
       'business_public',
@@ -154,6 +155,11 @@ exports.syncBusinessPublic = onDocumentWritten(
         return safe;
       },
     );
+    if (after?.exists && after.data().status_c === 'Approved') {
+      await refreshRelatedPublicMirrors(event.params.docId);
+    } else {
+      await removeRelatedPublicMirrors(event.params.docId);
+    }
   },
 );
 
@@ -282,4 +288,74 @@ exports.syncPremiumPlanPublic = onDocumentWritten(
     ['Name', 'duration_days_c', 'price_c', 'features_c'],
     (data) => ['Active', 'Approved'].includes(data.status_c),
   ),
+);
+
+
+async function updateRelatedMirrors(businessId, removeOnly = false) {
+  const configs = [
+    {
+      source: 'branches', target: 'branches_public',
+      fields: ['Name', 'business_c', 'address_c', 'district_c', 'city_c', 'phone_c', 'map_url_c', 'hours_c', 'photos_c'],
+      publish: (data) => data.status_c === 'Active',
+    },
+    {
+      source: 'products_services', target: 'products_services_public',
+      fields: ['Name', 'business_c', 'item_type_c', 'price_type_c', 'price_c', 'price_to_c', 'image_c'],
+      publish: (data) => data.status_c === 'Active',
+    },
+    {
+      source: 'reviews', target: 'reviews_public',
+      fields: ['Name', 'business_c', 'customer_name_c', 'rating_c', 'title_c', 'review_c', 'owner_reply_c', 'CreatedOn'],
+      publish: (data) => data.status_c === 'Approved' && data.report_status_c !== 'Hidden',
+    },
+    {
+      source: 'offers', target: 'offers_public',
+      fields: ['Name', 'business_c', 'description_c', 'discount_c', 'start_date_c', 'end_date_c', 'is_homepage_featured_c'],
+      publish: (data) => data.status_c === 'Approved',
+    },
+  ];
+
+  for (const config of configs) {
+    const snapshot = await db.collection(config.source).where('business_c', '==', businessId).get();
+    for (const sourceDoc of snapshot.docs) {
+      const targetRef = db.collection(config.target).doc(sourceDoc.id);
+      const data = sourceDoc.data();
+      if (removeOnly || !config.publish(data)) {
+        await targetRef.delete();
+      } else {
+        const safe = pickFields(data, config.fields);
+        safe.business_c = referenceId(data.business_c);
+        safe.id = sourceDoc.id;
+        await targetRef.set(safe);
+      }
+    }
+  }
+}
+
+async function refreshRelatedPublicMirrors(businessId) {
+  await updateRelatedMirrors(businessId, false);
+}
+
+async function removeRelatedPublicMirrors(businessId) {
+  await updateRelatedMirrors(businessId, true);
+}
+
+
+exports.syncCouponPublic = onDocumentWritten(
+  { document: 'coupons/{docId}', region: REGION },
+  async (event) => {
+    const after = event.data?.after;
+    if (!after?.exists) return mirrorDocument(event, 'coupons_public', [], () => false);
+    const data = after.data();
+    if (data.status_c !== 'Approved' || !(await parentBusinessIsPublic(data))) {
+      await db.collection('coupons_public').doc(event.params.docId).delete();
+      return;
+    }
+    await mirrorDocument(
+      event, 'coupons_public',
+      ['Name', 'business_c', 'code_c', 'discount_c', 'valid_from_c', 'valid_to_c'],
+      () => true,
+      (safe, source) => ({ ...safe, business_c: referenceId(source.business_c) }),
+    );
+  },
 );
