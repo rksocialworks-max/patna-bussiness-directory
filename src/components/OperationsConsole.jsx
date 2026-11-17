@@ -3,7 +3,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
 import { sdk } from '@/services/sdk';
-import { approveManualPremiumPayment } from '@/services/firebase/functions';
+import { approveManualPremiumPayment, rejectManualPremiumPayment } from '@/services/firebase/functions';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -569,6 +569,7 @@ export default function OperationsConsole({ mode = 'owner' }) {
                     {active.key === 'site_settings_c' && <Button size="sm" variant="outline" asChild><Link to={`/admin/settings/${record.Id}`}>Open Setting</Link></Button>}
                     {canEdit && editingId !== record.Id && <Button size="sm" variant="outline" onClick={() => startEdit(record)}>Edit</Button>}
                     {isAdmin && active.key === 'payments_c' && record.provider_c === 'UPI' && record.status_c === 'Pending Verification' && <Button size="sm" onClick={async () => { try { const result = await approveManualPremiumPayment({ paymentId: record.Id }); toast.success(`UPI verified. Receipt: ${result.receiptNumber}`); run(); } catch (error) { toast.error(error.message || 'Could not approve this payment.'); } }}>Approve UPI</Button>}
+                    {isAdmin && active.key === 'payments_c' && record.provider_c === 'UPI' && record.status_c === 'Pending Verification' && <Button size="sm" variant="destructive" onClick={async () => { const reason = window.prompt('Reason for rejecting this UPI payment?') || ''; if (!reason.trim()) return; try { await rejectManualPremiumPayment({ paymentId: record.Id, reason }); toast.success('UPI payment rejected.'); run(); } catch (error) { toast.error(error.message || 'Could not reject this payment.'); } }}>Reject UPI</Button>}
                     {canDelete && <ConfirmDeleteButton title={`Delete ${record.Name || 'this record'}?`} description="This record will be permanently removed. This cannot be undone." onConfirm={() => deleteRecord(record)} />}
                     {isAdmin && active.key === 'reviews_c' && record.report_status_c === 'Hidden' && <Button size="sm" onClick={() => restoreReview(record)}>Restore Review</Button>}
                   </div>
