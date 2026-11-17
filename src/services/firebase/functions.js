@@ -47,3 +47,14 @@ export async function submitBusinessReport(payload) {
   const result = await callable(payload);
   return result.data;
 }
+
+
+/**
+ * Rebuild the public read-only directory mirrors from existing Firestore records.
+ * The callable enforces the Super Admin custom claim on the server.
+ */
+export async function backfillPublicDirectory() {
+  const callable = httpsCallable(requireFunctions(), 'backfillPublicDirectory');
+  const result = await callable({});
+  return result.data;
+}
