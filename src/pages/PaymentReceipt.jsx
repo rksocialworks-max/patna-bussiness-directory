@@ -5,7 +5,13 @@ import { sdk } from '@/services/sdk';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
 
-const FIELDS = ['Id', 'Name', 'business_c', 'plan_c', 'plan_name_c', 'amount_c', 'provider_c', 'manual_utr_c', 'razorpay_payment_id_c', 'status_c', 'receipt_number_c', 'CreatedOn', 'paid_at_c', 'premium_expiry_c'];
+const FIELDS = ['Id', 'Name', 'business_c', 'business_name_c', 'plan_c', 'plan_name_c', 'amount_c', 'provider_c', 'manual_utr_c', 'razorpay_payment_id_c', 'status_c', 'receipt_number_c', 'CreatedOn', 'paid_at_c', 'premium_expiry_c'];
+
+function formatPaymentDate(value) {
+  if (!value) return '—';
+  const date = typeof value?.toDate === 'function' ? value.toDate() : value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-IN');
+}
 
 export const route = { path: '/owner/payments/:id/receipt', layout: 'owner', access: "profile === 'BusinessOwner_c' || profile === 'Admin_c'" };
 
@@ -22,7 +28,8 @@ export default function PaymentReceipt() {
   if (loading) return <div className="mx-auto max-w-3xl animate-pulse p-8"><div className="h-64 rounded-2xl bg-muted" /></div>;
   if (error || !payment) return <div className="mx-auto max-w-3xl p-8 text-center"><p className="text-sm text-destructive">{error?.message || 'Receipt not found.'}</p></div>;
 
-  const business = payment.business_c?.Name || payment.business_name_c || 'Business';
+  const business = payment.business_name_c || payment.business_c?.Name || 'Business';
+  const paymentDate = formatPaymentDate(payment.paid_at_c || payment.CreatedOn);
   const plan = payment.plan_name_c || payment.plan_c?.Name || 'Premium Plan';
 
   return (
@@ -38,7 +45,7 @@ export default function PaymentReceipt() {
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <div><p className="text-xs text-muted-foreground">Receipt Number</p><p className="mt-1 font-bold">{payment.receipt_number_c || payment.receipt_no_c || 'Pending Admin Verification'}</p></div>
-          <div><p className="text-xs text-muted-foreground">Payment Date</p><p className="mt-1 font-semibold">{payment.CreatedOn ? new Date(payment.CreatedOn).toLocaleDateString('en-IN') : '—'}</p></div>
+          <div><p className="text-xs text-muted-foreground">Payment Date</p><p className="mt-1 font-semibold">{paymentDate}</p></div>
           <div><p className="text-xs text-muted-foreground">Business</p><p className="mt-1 font-semibold">{business}</p></div>
           <div><p className="text-xs text-muted-foreground">Plan</p><p className="mt-1 font-semibold">{plan}</p></div>
           <div><p className="text-xs text-muted-foreground">Payment Method</p><p className="mt-1 font-semibold">{payment.provider_c || payment.method_c || '—'}</p></div>
