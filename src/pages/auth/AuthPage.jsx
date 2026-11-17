@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { signIn, signUp, isFirebaseConfigured } from '@/services/firebase/auth';
+import { signIn, signUp } from '@/services/firebase/auth';
+import { isFirebaseConfigured } from '@/lib/firebase';
 import { setUser } from '@/store/userSlice';
 import { AUTH_PROFILES, GENERIC_AUTH } from '@/config/app.config';
 import ApperIcon from '@/components/ApperIcon';
