@@ -1,11 +1,9 @@
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listBranchManagers } from '@/services/firebase/functions';
 
 export default function BranchManagerPicker({ value = [], onChange }) {
   const { data, loading, error } = useFetch(async () => {
-    const result = await sdk.teams.getMembers(0, 100);
-    if (!result.success && result.message) throw new Error(result.message);
-    return result.data ?? [];
+    return listBranchManagers();
   }, []);
   const managers = (data ?? []).filter((member) => member.profile?.name === 'BranchManager_c');
   const selectedId = value?.[0]?.User?.Id ?? value?.[0]?.User ?? value?.[0]?.Id ?? '';
