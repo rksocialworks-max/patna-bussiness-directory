@@ -287,7 +287,7 @@ exports.syncPremiumPlanPublic = onDocumentWritten(
   { document: 'premium_plans/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'premium_plans_public',
-    ['Name', 'duration_days_c', 'price_c', 'features_c', 'status_c'],
+    ['Name', 'duration_months_c', 'duration_days_c', 'price_c', 'features_c', 'status_c'],
     (data) => ['Active', 'Approved'].includes(data.status_c),
   ),
 );
@@ -642,7 +642,7 @@ exports.backfillPublicDirectory = onCall(
     results.premiumPlans = await replacePublicMirror(
       'premium_plans', 'premium_plans_public',
       (_id, source) => ['Active', 'Approved'].includes(source.status_c)
-        ? pickFields(source, ['Name', 'duration_days_c', 'price_c', 'features_c'])
+        ? pickFields(source, ['Name', 'duration_months_c', 'duration_days_c', 'price_c', 'features_c'])
         : null,
     );
 
