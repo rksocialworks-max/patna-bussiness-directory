@@ -40,13 +40,32 @@ service cloud.firestore {
 
     function validOwnerBusinessCreate() {
       return isBusinessOwner()
+        && request.resource.data.keys().hasOnly([
+          'Name', 'category_c', 'subcategory_c', 'business_type_c',
+          'owner_name_c', 'phone_c', 'whatsapp_c', 'email_c',
+          'district_c', 'city_c', 'area_c', 'pincode_c', 'address_c',
+          'description_c', 'map_url_c', 'latitude_c', 'longitude_c',
+          'website_c', 'facebook_c', 'instagram_c', 'youtube_c',
+          'linkedin_c', 'x_c', 'telegram_c', 'gstin_c', 'hours_c',
+          'holiday_info_c', 'seo_title_c', 'meta_description_c',
+          'logo_c', 'cover_c', 'photos_c', 'slug_c',
+          'ownerUid', 'ownerEmail', 'status_c', 'listing_type_c',
+          'is_premium_c', 'is_verified_c', 'rating_c', 'reviews_count_c',
+          'featured_order_c', 'CreatedOn', 'ModifiedOn'
+        ])
+        && request.resource.data.keys().hasAll([
+          'Name', 'category_c', 'district_c', 'address_c', 'phone_c',
+          'ownerUid', 'status_c', 'listing_type_c', 'is_premium_c',
+          'is_verified_c', 'rating_c', 'reviews_count_c'
+        ])
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.status_c == 'Pending Approval'
         && request.resource.data.listing_type_c == 'Free'
         && request.resource.data.is_premium_c == false
         && request.resource.data.is_verified_c == false
         && request.resource.data.rating_c == 0
-        && request.resource.data.reviews_count_c == 0;
+        && request.resource.data.reviews_count_c == 0
+        && request.resource.data.featured_order_c == 99;
     }
 
     // Private source records: admins can moderate all records; owners can
@@ -62,6 +81,13 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(ownerEditableFields())
         && (
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['cover_c', 'photos_c'])
+          || resource.data.is_premium_c == true
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'website_c', 'email_c', 'facebook_c', 'instagram_c',
+            'youtube_c', 'linkedin_c', 'x_c', 'telegram_c'
+          ])
           || resource.data.is_premium_c == true
         )
       );
@@ -87,8 +113,16 @@ service cloud.firestore {
 
     match /branches/{branchId} {
       allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
-      allow create, update, delete: if isAdmin() || (
+      allow create: if isAdmin() || (
         isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+      );
+      allow update: if isAdmin() || (
+        isBusinessOwner()
+        && ownsBusiness(resource.data.business_c)
+        && request.resource.data.business_c == resource.data.business_c
+      );
+      allow delete: if isAdmin() || (
+        isBusinessOwner() && ownsBusiness(resource.data.business_c)
       );
     }
 
@@ -99,8 +133,16 @@ service cloud.firestore {
 
     match /products_services/{itemId} {
       allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
-      allow create, update, delete: if isAdmin() || (
+      allow create: if isAdmin() || (
         isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+      );
+      allow update: if isAdmin() || (
+        isBusinessOwner()
+        && ownsBusiness(resource.data.business_c)
+        && request.resource.data.business_c == resource.data.business_c
+      );
+      allow delete: if isAdmin() || (
+        isBusinessOwner() && ownsBusiness(resource.data.business_c)
       );
     }
 
@@ -119,7 +161,21 @@ service cloud.firestore {
     }
 
     match /offers/{offerId} {
-      allow read, write: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create: if isAdmin() || (
+        isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+      );
+      allow update: if isAdmin() || (
+        isBusinessOwner()
+        && ownsBusiness(resource.data.business_c)
+        && request.resource.data.business_c == resource.data.business_c
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'status_c', 'is_homepage_featured_c', 'Owner', 'ownerUid'
+        ])
+      );
+      allow delete: if isAdmin() || (
+        isBusinessOwner() && ownsBusiness(resource.data.business_c)
+      );
     }
 
     match /offers_public/{offerId} {
@@ -196,6 +252,11 @@ service cloud.firestore {
 
     match /coupons/{couponId} {
       allow read, write: if isAdmin();
+    }
+
+    match /coupons_public/{couponId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     match /notifications/{notificationId} {
