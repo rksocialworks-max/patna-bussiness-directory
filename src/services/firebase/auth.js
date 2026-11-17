@@ -16,7 +16,11 @@ function requireAuth() {
 }
 
 export function subscribeToAuth(callback) {
-  return onAuthStateChanged(requireAuth(), callback);
+  if (!isFirebaseConfigured || !auth) {
+    callback(null);
+    return () => {};
+  }
+  return onAuthStateChanged(auth, callback);
 }
 
 export async function signIn(email, password) {
