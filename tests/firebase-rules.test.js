@@ -57,6 +57,26 @@ describe('Firestore private business rules', () => {
     await assertSucceeds(getDoc(doc(db, 'businesses/owner-shop')));
   });
 
+  it('denies a free owner from setting premium-only fields during creation', async () => {
+    const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    await assertFails(setDoc(doc(db, 'businesses/free-with-website'), {
+      ...ownerBusiness,
+      website_c: 'https://example.com',
+    }));
+    await assertFails(setDoc(doc(db, 'businesses/free-with-email'), {
+      ...ownerBusiness,
+      email_c: 'owner@example.com',
+    }));
+    await assertFails(setDoc(doc(db, 'businesses/free-with-cover'), {
+      ...ownerBusiness,
+      cover_c: 'https://example.com/cover.jpg',
+    }));
+    await assertFails(setDoc(doc(db, 'businesses/free-with-photos'), {
+      ...ownerBusiness,
+      photos_c: ['https://example.com/photo.jpg'],
+    }));
+  });
+
   it('denies an owner from creating an already approved or premium listing', async () => {
     const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
     await assertFails(setDoc(doc(db, 'businesses/approved-shop'), {
