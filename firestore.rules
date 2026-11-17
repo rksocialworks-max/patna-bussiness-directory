@@ -182,7 +182,9 @@ service cloud.firestore {
     match /offers/{offerId} {
       allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
       allow create: if isAdmin() || (
-        isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+        isBusinessOwner()
+        && ownsBusiness(request.resource.data.business_c)
+        && request.resource.data.status_c == 'Pending'
       );
       allow update: if isAdmin() || (
         isBusinessOwner()
