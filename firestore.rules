@@ -276,14 +276,11 @@ service cloud.firestore {
     }
 
     match /payments/{paymentId} {
-      allow get, list: if isAdmin() || (signedIn() && resource.data.ownerUid == request.auth.uid) || ownsBusiness(resource.data.business_c);
-      allow create: if isAdmin() || (
-        isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
-        && request.resource.data.ownerUid == request.auth.uid
-        && request.resource.data.status_c == 'Pending'
-        && request.resource.data.amount_c is number && request.resource.data.amount_c > 0
-      );
-      allow update, delete: if isAdmin();
+      allow get, list: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || ownsBusiness(resource.data.business_c);
+      // Payment records and status changes are written only by trusted Cloud Functions.
+      allow create, update, delete: if false;
     }
 
     match /advertisements/{adId} {
