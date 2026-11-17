@@ -37,6 +37,7 @@ export const COLLECTIONS = Object.freeze({
   payments: 'payments',
   offers: 'offers',
   offersPublic: 'offers_public',
+  couponsPublic: 'coupons_public',
   coupons: 'coupons',
   advertisements: 'advertisements',
   homepageBanners: 'homepage_banners',
