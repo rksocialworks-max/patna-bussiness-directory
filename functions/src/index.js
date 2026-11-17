@@ -318,15 +318,18 @@ async function updateRelatedMirrors(businessId, removeOnly = false) {
   ];
 
   for (const config of configs) {
-    const snapshot = await db.collection(config.source).where('business_c', '==', businessId).get();
+    // Legacy records may store a reference as either a string ID or { Id, Name }.
+    // Read and normalize before matching so either representation is kept in sync.
+    const snapshot = await db.collection(config.source).get();
     for (const sourceDoc of snapshot.docs) {
-      const targetRef = db.collection(config.target).doc(sourceDoc.id);
       const data = sourceDoc.data();
+      if (referenceId(data.business_c) !== businessId) continue;
+      const targetRef = db.collection(config.target).doc(sourceDoc.id);
       if (removeOnly || !config.publish(data)) {
         await targetRef.delete();
       } else {
         const safe = pickFields(data, config.fields);
-        safe.business_c = referenceId(data.business_c);
+        safe.business_c = businessId;
         safe.id = sourceDoc.id;
         await targetRef.set(safe);
       }
@@ -506,5 +509,143 @@ exports.cleanupOldEnquiries = onSchedule(
       if (page.size < 400) break;
     }
     return { deleted };
+  },
+);
+
+
+// One-time repair for data that was already in Firestore before mirror triggers
+// were installed. Only the Super Admin can run this operation.
+async function replacePublicMirror(sourceName, targetName, project) {
+  const sourceSnapshot = await db.collection(sourceName).get();
+  const publishedIds = new Set();
+  const operations = [];
+
+  for (const sourceDoc of sourceSnapshot.docs) {
+    const record = project(sourceDoc.id, sourceDoc.data());
+    if (!record) continue;
+    publishedIds.add(sourceDoc.id);
+    operations.push({
+      type: 'set',
+      ref: db.collection(targetName).doc(sourceDoc.id),
+      data: { id: sourceDoc.id, ...record },
+    });
+  }
+
+  const currentPublic = await db.collection(targetName).get();
+  for (const publicDoc of currentPublic.docs) {
+    if (!publishedIds.has(publicDoc.id)) {
+      operations.push({ type: 'delete', ref: publicDoc.ref });
+    }
+  }
+
+  for (let index = 0; index < operations.length; index += 400) {
+    const batch = db.batch();
+    for (const operation of operations.slice(index, index + 400)) {
+      if (operation.type === 'delete') batch.delete(operation.ref);
+      else batch.set(operation.ref, operation.data);
+    }
+    await batch.commit();
+  }
+
+  return { scanned: sourceSnapshot.size, published: publishedIds.size };
+}
+
+exports.backfillPublicDirectory = onCall(
+  { region: REGION, enforceAppCheck: true, timeoutSeconds: 540, memory: '1GiB' },
+  async (request) => {
+    if (!request.auth || request.auth.token.superAdmin !== true) {
+      throw new HttpsError('permission-denied', 'Only the Super Admin can rebuild public directory data.');
+    }
+
+    const businessResult = await replacePublicMirror(
+      'businesses',
+      'business_public',
+      (_id, source) => {
+        if (source.status_c !== 'Approved') return null;
+        const safe = pickFields(source, BUSINESS_PUBLIC_FIELDS);
+        const premiumActive = source.is_premium_c === true
+          && (!source.premium_expiry_c || source.premium_expiry_c >= new Date().toISOString().slice(0, 10));
+        if (premiumActive) {
+          Object.assign(safe, pickFields(source, [
+            'website_c', 'email_c', 'facebook_c', 'instagram_c',
+            'youtube_c', 'linkedin_c', 'x_c', 'telegram_c', 'cover_c', 'photos_c',
+          ]));
+        }
+        return safe;
+      },
+    );
+
+    const publicBusinessIds = new Set(
+      (await db.collection('business_public').get()).docs.map((document) => document.id),
+    );
+    const childIsPublic = (source) => {
+      const businessId = referenceId(source.business_c);
+      return Boolean(businessId && publicBusinessIds.has(businessId));
+    };
+    const relation = (source) => ({ business_c: referenceId(source.business_c) });
+
+    const results = {};
+    results.categories = await replacePublicMirror(
+      'categories', 'categories_public',
+      (_id, source) => source.status_c === 'Active'
+        ? pickFields(source, ['Name', 'parent_c', 'description_c', 'status_c', 'sort_order_c'])
+        : null,
+    );
+    results.branches = await replacePublicMirror(
+      'branches', 'branches_public',
+      (_id, source) => source.status_c === 'Active' && childIsPublic(source)
+        ? { ...pickFields(source, ['Name', 'address_c', 'district_c', 'city_c', 'phone_c', 'map_url_c', 'hours_c', 'photos_c']), ...relation(source) }
+        : null,
+    );
+    results.productsServices = await replacePublicMirror(
+      'products_services', 'products_services_public',
+      (_id, source) => source.status_c === 'Active' && childIsPublic(source)
+        ? { ...pickFields(source, ['Name', 'item_type_c', 'price_type_c', 'price_c', 'price_to_c', 'image_c']), ...relation(source) }
+        : null,
+    );
+    results.reviews = await replacePublicMirror(
+      'reviews', 'reviews_public',
+      (_id, source) => source.status_c === 'Approved' && source.report_status_c !== 'Hidden' && childIsPublic(source)
+        ? { ...pickFields(source, ['Name', 'customer_name_c', 'rating_c', 'title_c', 'review_c', 'owner_reply_c', 'CreatedOn']), ...relation(source) }
+        : null,
+    );
+    results.offers = await replacePublicMirror(
+      'offers', 'offers_public',
+      (_id, source) => source.status_c === 'Approved' && childIsPublic(source)
+        ? { ...pickFields(source, ['Name', 'description_c', 'discount_c', 'start_date_c', 'end_date_c', 'is_homepage_featured_c']), ...relation(source) }
+        : null,
+    );
+    results.coupons = await replacePublicMirror(
+      'coupons', 'coupons_public',
+      (_id, source) => source.status_c === 'Approved' && childIsPublic(source)
+        ? { ...pickFields(source, ['Name', 'code_c', 'discount_c', 'valid_from_c', 'valid_to_c']), ...relation(source) }
+        : null,
+    );
+    results.banners = await replacePublicMirror(
+      'homepage_banners', 'homepage_banners_public',
+      (_id, source) => source.status_c === 'Active'
+        ? pickFields(source, ['Name', 'caption_c', 'image_c', 'link_url_c', 'sort_order_c'])
+        : null,
+    );
+    results.siteSettings = await replacePublicMirror(
+      'site_settings', 'site_settings_public',
+      (_id, source) => PUBLIC_SETTING_KEYS.has(source.setting_key_c)
+        ? pickFields(source, ['setting_key_c', 'setting_value_c', 'setting_group_c'])
+        : null,
+    );
+    results.contentPages = await replacePublicMirror(
+      'content_pages', 'content_pages_public',
+      (_id, source) => source.status_c === 'Published'
+        ? pickFields(source, ['Name', 'slug_c', 'body_c', 'seo_title_c', 'meta_description_c'])
+        : null,
+    );
+    results.premiumPlans = await replacePublicMirror(
+      'premium_plans', 'premium_plans_public',
+      (_id, source) => ['Active', 'Approved'].includes(source.status_c)
+        ? pickFields(source, ['Name', 'duration_days_c', 'price_c', 'features_c'])
+        : null,
+    );
+
+    return { success: true, results };
   },
 );
