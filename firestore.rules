@@ -76,8 +76,13 @@ service cloud.firestore {
     }
 
     match /categories/{categoryId} {
-      allow get, list: if isAdmin() || resource.data.status_c == 'Active';
+      allow get, list: if isAdmin();
       allow create, update, delete: if isAdmin();
+    }
+
+    match /categories_public/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     match /branches/{branchId} {
