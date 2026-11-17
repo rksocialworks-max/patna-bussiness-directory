@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { getDocument, listDocuments, createDocument, COLLECTIONS } from '@/services/firebase/firestore';
+import { getDocument, listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
+import { submitPublicReview, submitPublicEnquiry, submitBusinessReport } from '@/services/firebase/functions';
 import { toast } from 'sonner';
 import PublicHeader from '@/components/PublicHeader';
 import { Badge } from '@/components/ui/badge';
@@ -74,24 +75,13 @@ export default function BusinessDetail() {
     if (!business?.Name) return;
     setSaving('review');
     try {
-      const existing = await listDocuments(COLLECTIONS.reviews, {
-        filters: [{ field: 'business_c', value: id }, { field: 'mobile_c', value: review.mobile_c }],
-        pageSize: 1,
-      });
-      if (existing.length) {
-        toast.error('इस मोबाइल नंबर से इस बिज़नेस के लिए review पहले से मौजूद है।');
-        return;
-      }
-      await createDocument(COLLECTIONS.reviews, {
-        Name: review.title_c || `Review for ${business.Name}`,
-        business_c: id,
-        customer_name_c: review.customer_name_c.trim(),
-        mobile_c: review.mobile_c.trim(),
-        rating_c: Number(review.rating_c),
-        title_c: review.title_c.trim(),
-        review_c: review.review_c.trim(),
-        status_c: 'Pending',
-        report_status_c: 'None',
+      await submitPublicReview({
+        businessId: id,
+        customerName: review.customer_name_c.trim(),
+        mobile: review.mobile_c.trim(),
+        rating: Number(review.rating_c),
+        title: review.title_c.trim(),
+        message: review.review_c.trim(),
       });
       toast.success('Review Admin approval के लिए भेज दिया गया है।');
       setReview({ customer_name_c: '', mobile_c: '', rating_c: '5', title_c: '', review_c: '' });
@@ -106,15 +96,12 @@ export default function BusinessDetail() {
     event.preventDefault();
     setSaving('enquiry');
     try {
-      await createDocument(COLLECTIONS.enquiries, {
-        Name: `Enquiry from ${enquiry.customer_name_c.trim()}`,
-        business_c: id,
-        customer_name_c: enquiry.customer_name_c.trim(),
-        mobile_c: enquiry.mobile_c.trim(),
-        message_c: enquiry.message_c.trim(),
-        source_c: 'Form',
-        branch_c: enquiry.branch_c || null,
-        status_c: 'New',
+      await submitPublicEnquiry({
+        businessId: id,
+        branchId: enquiry.branch_c || null,
+        customerName: enquiry.customer_name_c.trim(),
+        mobile: enquiry.mobile_c.trim(),
+        message: enquiry.message_c.trim(),
       });
       toast.success('आपकी enquiry business को भेज दी गई है।');
       setEnquiry({ customer_name_c: '', mobile_c: '', message_c: '', branch_c: '' });
@@ -130,12 +117,10 @@ export default function BusinessDetail() {
     if (!business?.Name) return;
     setSaving('report');
     try {
-      await createDocument(COLLECTIONS.reports, {
-        Name: `Report: ${business.Name}`,
-        business_c: id,
-        reason_c: report.reason_c,
-        description_c: report.description_c.trim(),
-        status_c: 'New',
+      await submitBusinessReport({
+        businessId: id,
+        reason: report.reason_c,
+        description: report.description_c.trim(),
       });
       toast.success('Report Admin को भेज दी गई है।');
       setReport({ reason_c: 'Incorrect Info', description_c: '' });
