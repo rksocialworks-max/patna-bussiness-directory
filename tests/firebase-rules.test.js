@@ -140,6 +140,28 @@ describe('Firestore private business rules', () => {
   });
 });
 
+describe('Payment security rules', () => {
+  it('allows an owner to read their payment record but denies client-side creation or status changes', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'payments/payment-1'), {
+        ownerUid: 'owner-1',
+        business_c: 'owner-business',
+        amount_c: 999,
+        status_c: 'Pending',
+      });
+      await setDoc(doc(context.firestore(), 'businesses/owner-business'), ownerBusiness);
+    });
+    const ownerDb = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    await assertSucceeds(getDoc(doc(ownerDb, 'payments/payment-1')));
+    await assertFails(setDoc(doc(ownerDb, 'payments/fake-payment'), {
+      ownerUid: 'owner-1', business_c: 'owner-business', amount_c: 999, status_c: 'Paid',
+    }));
+    await assertFails(updateDoc(doc(ownerDb, 'payments/payment-1'), { status_c: 'Paid' }));
+    const otherOwnerDb = env.authenticatedContext('owner-2', { role: 'BusinessOwner_c' }).firestore();
+    await assertFails(getDoc(doc(otherOwnerDb, 'payments/payment-1')));
+  });
+});
+
 describe('Public mirror rules', () => {
   it('allows public reads of curated business documents', async () => {
     await env.withSecurityRulesDisabled(async (context) => {
