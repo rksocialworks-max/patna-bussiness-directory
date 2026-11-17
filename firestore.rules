@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Admin access must be granted through trusted Firebase custom claims,
+    // never through a role value supplied by the browser.
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function ownsBusiness(businessId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/businesses/$(businessId))
+        && get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerUid == request.auth.uid;
+    }
+
+    function approvedBusiness(businessId) {
+      return exists(/databases/$(database)/documents/businesses/$(businessId))
+        && get(/databases/$(database)/documents/businesses/$(businessId)).data.status == 'Approved';
+    }
+
+    match /users/{uid} {
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'BusinessOwner';
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['displayName', 'phone', 'photoURL', 'preferredLanguage', 'updatedAt']);
+      allow delete: if isAdmin();
+    }
+
+    match /businesses/{businessId} {
+      allow read: if isAdmin()
+        || (resource.data.status == 'Approved')
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'Pending Approval'
+        && request.resource.data.isPremium == false
+        && request.resource.data.isVerified == false;
+      allow update: if isAdmin()
+        || (signedIn()
+          && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'name', 'category', 'subcategory', 'district', 'city', 'area', 'pincode',
+            'address', 'description', 'ownerName', 'phone', 'whatsapp', 'email',
+            'website', 'facebook', 'instagram', 'logoUrl', 'coverUrl', 'photos',
+            'mapUrl', 'hours', 'holidayInfo', 'productsServices', 'updatedAt'
+          ]));
+      allow delete: if isAdmin();
+    }
+
+    match /branches/{branchId} {
+      allow read: if isAdmin() || (resource.data.businessId is string && (approvedBusiness(resource.data.businessId) || ownsBusiness(resource.data.businessId)));
+      allow create: if signedIn() && request.resource.data.businessId is string && ownsBusiness(request.resource.data.businessId);
+      allow update: if isAdmin() || (signedIn() && ownsBusiness(resource.data.businessId)
+        && request.resource.data.businessId == resource.data.businessId);
+      allow delete: if isAdmin() || (signedIn() && ownsBusiness(resource.data.businessId));
+    }
+
+    match /productsServices/{itemId} {
+      allow read: if isAdmin() || (resource.data.businessId is string && (approvedBusiness(resource.data.businessId) || ownsBusiness(resource.data.businessId)));
+      allow create: if signedIn() && request.resource.data.businessId is string && ownsBusiness(request.resource.data.businessId);
+      allow update, delete: if isAdmin() || (signedIn() && ownsBusiness(resource.data.businessId));
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if isAdmin()
+        || resource.data.status == 'Approved'
+        || (signedIn() && (resource.data.userId == request.auth.uid || ownsBusiness(resource.data.businessId)));
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && approvedBusiness(request.resource.data.businessId);
+      allow update: if isAdmin()
+        || (signedIn()
+          && ownsBusiness(resource.data.businessId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ownerReply', 'ownerReplyAt']));
+      allow delete: if isAdmin();
+    }
+
+    match /enquiries/{enquiryId} {
+      allow create: if request.resource.data.status == 'New'
+        && request.resource.data.keys().hasOnly(['businessId', 'customerName', 'phone', 'message', 'status', 'createdAt']);
+      allow read: if isAdmin() || (signedIn() && ownsBusiness(resource.data.businessId));
+      allow update, delete: if isAdmin();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAdmin() || (signedIn() && ownsBusiness(resource.data.businessId));
+      // Payment creation and premium activation must happen on a trusted server
+      // after verifying the payment provider signature.
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /premiumPlans/{planId} {
+      allow read: if resource.data.isActive == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
