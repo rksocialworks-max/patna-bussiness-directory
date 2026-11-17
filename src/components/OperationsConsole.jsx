@@ -13,7 +13,7 @@ import { toPeopleWrite } from '@/components/PeoplePicker';
 import BranchManagerPicker from '@/components/BranchManagerPicker';
 import FilePicker from '@/components/FilePicker';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
-const { eq } = window.ApperSDK.CoreSDK;
+const eq = (field, value) => ({ field, op: '==', value });
 
 const CONFIG = [
   { key: 'branches_c', label: 'Branches', icon: 'Building2', title: 'Branch Management', fields: [
