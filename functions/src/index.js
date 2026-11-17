@@ -287,7 +287,7 @@ exports.syncPremiumPlanPublic = onDocumentWritten(
   { document: 'premium_plans/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'premium_plans_public',
-    ['Name', 'duration_days_c', 'price_c', 'features_c'],
+    ['Name', 'duration_days_c', 'price_c', 'features_c', 'status_c'],
     (data) => ['Active', 'Approved'].includes(data.status_c),
   ),
 );
@@ -928,6 +928,35 @@ exports.submitManualPremiumPayment = onCall(
       CreatedOn: FieldValue.serverTimestamp(), ModifiedOn: FieldValue.serverTimestamp(),
     });
     return { success: true, paymentId: ref.id, status: 'Pending Verification' };
+  },
+);
+
+exports.rejectManualPremiumPayment = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth || (request.auth.token.superAdmin !== true && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c')) {
+      throw new HttpsError('permission-denied', 'Only an Admin can reject manual payments.');
+    }
+    const paymentId = request.data?.paymentId;
+    const reason = typeof request.data?.reason === 'string' ? request.data.reason.trim().slice(0, 300) : '';
+    if (typeof paymentId !== 'string' || !paymentId) {
+      throw new HttpsError('invalid-argument', 'Payment ID is required.');
+    }
+    const paymentRef = db.collection('payments').doc(paymentId);
+    await db.runTransaction(async (transaction) => {
+      const snap = await transaction.get(paymentRef);
+      if (!snap.exists || snap.data().provider_c !== 'UPI' || snap.data().status_c !== 'Pending Verification') {
+        throw new HttpsError('failed-precondition', 'This manual payment is not awaiting verification.');
+      }
+      transaction.update(paymentRef, {
+        status_c: 'Rejected',
+        rejection_reason_c: reason || 'Payment could not be verified by Admin.',
+        rejected_by_c: request.auth.uid,
+        rejected_at_c: FieldValue.serverTimestamp(),
+        ModifiedOn: FieldValue.serverTimestamp(),
+      });
+    });
+    return { success: true, status: 'Rejected' };
   },
 );
 
