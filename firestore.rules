@@ -85,8 +85,7 @@ service cloud.firestore {
         )
         && (
           !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-            'website_c', 'email_c', 'facebook_c', 'instagram_c',
-            'youtube_c', 'linkedin_c', 'x_c', 'telegram_c'
+            'website_c', 'email_c'
           ])
           || resource.data.is_premium_c == true
         )
