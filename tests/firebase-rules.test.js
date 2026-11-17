@@ -133,6 +133,8 @@ describe('Firestore private business rules', () => {
     await assertSucceeds(updateDoc(businessRef, { instagram_c: 'https://instagram.com/example' }));
     await assertFails(updateDoc(businessRef, { website_c: 'https://example.com' }));
     await assertFails(updateDoc(businessRef, { email_c: 'hello@example.com' }));
+    await assertFails(updateDoc(businessRef, { youtube_c: 'https://youtube.com/example' }));
+    await assertFails(updateDoc(businessRef, { linkedin_c: 'https://linkedin.com/example' }));
   });
 });
 
