@@ -1,4 +1,4 @@
-name: Firebase Emulator Tests
+name: Firebase Emulator and Build Tests
 
 on:
   push:
@@ -9,8 +9,11 @@ on:
       - firebase-integration/draft
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  emulator-tests:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,7 +23,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Set up Java for Firebase emulators
         uses: actions/setup-java@v4
@@ -28,12 +30,18 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Install app and test dependencies
+      - name: Install application dependencies
         run: npm install
+
+      - name: Build web application
+        run: npm run build
+
+      - name: Check Cloud Functions syntax
+        run: node --check functions/src/index.js
 
       - name: Install Cloud Functions dependencies
         run: npm install
         working-directory: functions
 
       - name: Run Firestore and Storage rules tests in emulators
-        run: npx firebase-tools emulators:exec --project patnabiz-emulator-tests --only firestore,storage "npm test"
+        run: npx --yes firebase-tools@latest emulators:exec --project patnabiz-emulator-tests --only firestore,storage "npm test"
