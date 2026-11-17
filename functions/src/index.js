@@ -661,8 +661,8 @@ exports.listBranchManagers = onCall(
       throw new HttpsError('unauthenticated', 'Sign in to view available branch managers.');
     }
     const role = request.auth.token.role || request.auth.token.profile;
-    if (request.auth.token.superAdmin !== true && role !== 'BusinessOwner_c') {
-      throw new HttpsError('permission-denied', 'Only a Business Owner or Super Admin can view branch managers.');
+    if (request.auth.token.superAdmin !== true && !['Admin_c', 'BusinessOwner_c'].includes(role)) {
+      throw new HttpsError('permission-denied', 'Only an Admin or Business Owner can view branch managers.');
     }
 
     const eligible = [];
