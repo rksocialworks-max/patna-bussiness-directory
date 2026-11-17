@@ -109,6 +109,8 @@ describe('Firestore private business rules', () => {
     await assertSucceeds(updateDoc(businessRef, { description_c: 'Updated description' }));
     await assertFails(updateDoc(businessRef, { status_c: 'Approved' }));
     await assertFails(updateDoc(businessRef, { is_premium_c: true }));
+    await assertFails(updateDoc(businessRef, { cover_c: [{ url: 'https://example.com/cover.jpg' }] }));
+    await assertFails(updateDoc(businessRef, { photos_c: [{ url: 'https://example.com/photo.jpg' }] }));
     await assertFails(updateDoc(businessRef, { ownerUid: 'owner-2' }));
   });
 
