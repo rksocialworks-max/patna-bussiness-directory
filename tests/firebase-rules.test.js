@@ -1,8 +1,12 @@
 import { after, before, beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  initializeTestEnvironment,
+  assertFails,
+  assertSucceeds,
+} from '@firebase/rules-unit-testing';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getBytes } from 'firebase/storage';
 
 const projectId = 'patnabiz-emulator-tests';
@@ -24,16 +28,110 @@ after(async () => {
   await env?.cleanup();
 });
 
-describe('Firestore security rules (current deny-all baseline)', () => {
-  it('denies unauthenticated reads and writes', async () => {
+const ownerBusiness = {
+  Name: 'Test Shop',
+  category_c: 'Retail',
+  district_c: 'Patna',
+  address_c: 'Test Road',
+  phone_c: '9000000000',
+  ownerUid: 'owner-1',
+  status_c: 'Pending Approval',
+  listing_type_c: 'Free',
+  is_premium_c: false,
+  is_verified_c: false,
+  rating_c: 0,
+  reviews_count_c: 0,
+  featured_order_c: 99,
+};
+
+describe('Firestore private business rules', () => {
+  it('denies unauthenticated reads and writes to private business records', async () => {
     const db = env.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(db, 'businesses/demo')));
     await assertFails(setDoc(doc(db, 'businesses/demo'), { Name: 'Demo' }));
   });
 
-  it('denies authenticated client writes until collection rules are implemented', async () => {
+  it('allows an owner to create a pending free listing linked to their UID', async () => {
     const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
-    await assertFails(setDoc(doc(db, 'businesses/demo'), { Name: 'Demo', ownerUid: 'owner-1' }));
+    await assertSucceeds(setDoc(doc(db, 'businesses/owner-shop'), ownerBusiness));
+    await assertSucceeds(getDoc(doc(db, 'businesses/owner-shop')));
+  });
+
+  it('denies an owner from creating an already approved or premium listing', async () => {
+    const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    await assertFails(setDoc(doc(db, 'businesses/approved-shop'), {
+      ...ownerBusiness,
+      status_c: 'Approved',
+    }));
+    await assertFails(setDoc(doc(db, 'businesses/premium-shop'), {
+      ...ownerBusiness,
+      is_premium_c: true,
+    }));
+  });
+
+  it('denies one owner from reading another owner business record', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'businesses/private-shop'), {
+        ...ownerBusiness,
+        ownerUid: 'owner-2',
+      });
+    });
+    const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    await assertFails(getDoc(doc(db, 'businesses/private-shop')));
+  });
+
+  it('allows an owner to edit normal fields but not moderation or premium fields', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'businesses/owner-shop'), ownerBusiness);
+    });
+    const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    const businessRef = doc(db, 'businesses/owner-shop');
+    await assertSucceeds(updateDoc(businessRef, { description_c: 'Updated description' }));
+    await assertFails(updateDoc(businessRef, { status_c: 'Approved' }));
+    await assertFails(updateDoc(businessRef, { is_premium_c: true }));
+    await assertFails(updateDoc(businessRef, { ownerUid: 'owner-2' }));
+  });
+
+  it('allows an Admin to approve a business listing', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'businesses/pending-shop'), ownerBusiness);
+    });
+    const adminDb = env.authenticatedContext('admin-1', { role: 'Admin_c' }).firestore();
+    await assertSucceeds(updateDoc(doc(adminDb, 'businesses/pending-shop'), {
+      status_c: 'Approved',
+      is_verified_c: true,
+    }));
+  });
+});
+
+describe('Public mirror rules', () => {
+  it('allows public reads of curated business documents', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'business_public/public-shop'), {
+        id: 'public-shop',
+        Name: 'Public Shop',
+        status_c: 'Approved',
+      });
+    });
+    const db = env.unauthenticatedContext().firestore();
+    const result = await assertSucceeds(getDoc(doc(db, 'business_public/public-shop')));
+    assert.equal(result.data().Name, 'Public Shop');
+  });
+
+  it('denies clients from creating or editing public mirror documents', async () => {
+    const db = env.authenticatedContext('owner-1', { role: 'BusinessOwner_c' }).firestore();
+    await assertFails(setDoc(doc(db, 'business_public/fake-shop'), {
+      id: 'fake-shop',
+      Name: 'Fake approved shop',
+    }));
+  });
+
+  it('denies public access to private business source records', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'businesses/private-shop'), ownerBusiness);
+    });
+    const db = env.unauthenticatedContext().firestore();
+    await assertFails(getDoc(doc(db, 'businesses/private-shop')));
   });
 });
 
