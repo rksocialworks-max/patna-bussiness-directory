@@ -575,6 +575,7 @@ exports.backfillPublicDirectory = onCall(
       },
     );
 
+    const results = { businesses: businessResult };
     const publicBusinessIds = new Set(
       (await db.collection('business_public').get()).docs.map((document) => document.id),
     );
@@ -584,7 +585,6 @@ exports.backfillPublicDirectory = onCall(
     };
     const relation = (source) => ({ business_c: referenceId(source.business_c) });
 
-    const results = {};
     results.categories = await replacePublicMirror(
       'categories', 'categories_public',
       (_id, source) => source.status_c === 'Active'
