@@ -59,7 +59,7 @@ service cloud.firestore {
           'website_c', 'facebook_c', 'instagram_c', 'youtube_c',
           'linkedin_c', 'x_c', 'telegram_c', 'gstin_c', 'hours_c',
           'holiday_info_c', 'seo_title_c', 'meta_description_c',
-          'logo_c', 'cover_c', 'photos_c', 'slug_c',
+          'logo_c', 'slug_c',
           'ownerUid', 'ownerEmail', 'status_c', 'listing_type_c',
           'is_premium_c', 'is_verified_c', 'rating_c', 'reviews_count_c',
           'featured_order_c', 'CreatedOn', 'ModifiedOn'
