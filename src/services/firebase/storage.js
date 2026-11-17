@@ -9,8 +9,8 @@ function requireStorage() {
 
 export function validateUpload(file, config = {}) {
   const allowed = Array.isArray(config.supportedExtensions)
-    ? config.supportedExtensions.map((value) => String(value).toLowerCase().replace(/^\\./, ''))
-    : String(config.supportedExtensions || '').split(',').map((value) => value.trim().toLowerCase().replace(/^\\./, '')).filter(Boolean);
+    ? config.supportedExtensions.map((value) => String(value).toLowerCase().replace(/^\./, ''))
+    : String(config.supportedExtensions || '').split(',').map((value) => value.trim().toLowerCase().replace(/^\./, '')).filter(Boolean);
   const extension = file.name.split('.').pop()?.toLowerCase() || '';
   if (allowed.length && !allowed.includes(extension)) return { valid: false, error: 'File type is not allowed.' };
   const maxBytes = Number(config.maxValue || 0) * 1024;
