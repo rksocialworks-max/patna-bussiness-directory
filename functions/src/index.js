@@ -917,16 +917,22 @@ exports.submitManualPremiumPayment = onCall(
     const ownedBusiness = await getOwnedBusiness(businessId, uid);
     const utr = typeof request.data?.utr === 'string' ? request.data.utr.trim() : '';
     if (!/^[A-Za-z0-9-]{8,30}$/.test(utr)) throw new HttpsError('invalid-argument', 'Enter a valid UPI UTR / transaction reference.');
-    const duplicate = await db.collection('payments').where('manual_utr_c', '==', utr).limit(1).get();
-    if (!duplicate.empty) throw new HttpsError('already-exists', 'This UTR has already been submitted.');
-    const ref = db.collection('payments').doc();
-    await ref.set({
-      Name: 'Manual Premium payment - ' + plan.name,
-      ownerUid: uid, business_c: businessId, business_name_c: ownedBusiness.data.Name || 'Business', plan_c: plan.id, plan_name_c: plan.name,
-      duration_days_c: plan.days, amount_c: plan.rupees, amount_paise_c: plan.paise,
-      currency_c: 'INR', provider_c: 'UPI', manual_utr_c: utr,
-      status_c: 'Pending Verification',
-      CreatedOn: FieldValue.serverTimestamp(), ModifiedOn: FieldValue.serverTimestamp(),
+    // A deterministic reference document makes duplicate UTR submissions atomic,
+    // including simultaneous requests that would race a query-before-write check.
+    const normalizedUtr = utr.toUpperCase();
+    const paymentId = 'upi_' + createHash('sha256').update(normalizedUtr).digest('hex').slice(0, 40);
+    const ref = db.collection('payments').doc(paymentId);
+    await db.runTransaction(async (transaction) => {
+      const existing = await transaction.get(ref);
+      if (existing.exists) throw new HttpsError('already-exists', 'This UTR has already been submitted.');
+      transaction.create(ref, {
+        Name: 'Manual Premium payment - ' + plan.name,
+        ownerUid: uid, business_c: businessId, business_name_c: ownedBusiness.data.Name || 'Business', plan_c: plan.id, plan_name_c: plan.name,
+        duration_days_c: plan.days, amount_c: plan.rupees, amount_paise_c: plan.paise,
+        currency_c: 'INR', provider_c: 'UPI', manual_utr_c: normalizedUtr,
+        status_c: 'Pending Verification',
+        CreatedOn: FieldValue.serverTimestamp(), ModifiedOn: FieldValue.serverTimestamp(),
+      });
     });
     return { success: true, paymentId: ref.id, status: 'Pending Verification' };
   },
