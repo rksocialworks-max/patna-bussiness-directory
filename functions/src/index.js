@@ -51,3 +51,26 @@ exports.assignManagedRole = onCall({ region: 'asia-south1', enforceAppCheck: tru
 
   return { success: true, uid, role };
 });
+
+
+// Return a limited page of account metadata to the Super Admin only.
+exports.listManagedUsers = onCall({ region: 'asia-south1', enforceAppCheck: true }, async (request) => {
+  if (!request.auth || request.auth.token.superAdmin !== true) {
+    throw new HttpsError('permission-denied', 'Only the Super Admin can view account management.');
+  }
+
+  const pageToken = typeof request.data?.pageToken === 'string' ? request.data.pageToken : undefined;
+  const page = await getAuth().listUsers(100, pageToken);
+  return {
+    users: page.users.map((user) => ({
+      uid: user.uid,
+      email: user.email || null,
+      displayName: user.displayName || null,
+      disabled: user.disabled,
+      role: user.customClaims?.role || user.customClaims?.profile || 'Pending approval',
+      emailVerified: user.emailVerified,
+      createdAt: user.metadata.creationTime || null,
+    })),
+    nextPageToken: page.pageToken || null,
+  };
+});
