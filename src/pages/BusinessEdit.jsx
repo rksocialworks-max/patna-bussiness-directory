@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
 import { useAuth } from '@/layouts/RootLayout';
-import { sdk } from '@/services/sdk';
+import { getDocument, COLLECTIONS } from '@/services/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import BusinessEditor from '@/components/BusinessEditor';
 import ApperIcon from '@/components/ApperIcon';
@@ -15,9 +15,13 @@ export default function BusinessEdit() {
   const { user } = useAuth();
   const backRoute = user?.profile === 'Admin_c' ? '/admin/businesses' : '/owner/businesses';
   const { data: record, loading, error } = useFetch(async () => {
-    const result = await sdk.table('businesses_c').select(FIELDS).get(id);
-    return result.data;
-  }, [id]);
+    const result = await getDocument(COLLECTIONS.businesses, id);
+    if (!result) return null;
+    if (user?.profile !== 'Admin_c' && result.ownerUid !== user?.uid) {
+      throw new Error('You are not allowed to edit this business.');
+    }
+    return { ...result, Id: result.Id ?? result.id };
+  }, [id, user?.uid, user?.profile]);
 
   return (
     <div className="mx-auto max-w-4xl">
