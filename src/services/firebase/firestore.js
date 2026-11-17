@@ -21,6 +21,7 @@ export const COLLECTIONS = Object.freeze({
   businesses: 'businesses',
   businessPublic: 'business_public',
   categories: 'categories',
+  categoriesPublic: 'categories_public',
   branches: 'branches',
   branchesPublic: 'branches_public',
   productsServices: 'products_services',
