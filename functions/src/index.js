@@ -649,3 +649,42 @@ exports.backfillPublicDirectory = onCall(
     return { success: true, results };
   },
 );
+
+
+// Expose only the names of eligible Branch Manager accounts to an authenticated
+// business owner or Super Admin, so branches can be assigned without exposing
+// the full user directory.
+exports.listBranchManagers = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Sign in to view available branch managers.');
+    }
+    const role = request.auth.token.role || request.auth.token.profile;
+    if (request.auth.token.superAdmin !== true && role !== 'BusinessOwner_c') {
+      throw new HttpsError('permission-denied', 'Only a Business Owner or Super Admin can view branch managers.');
+    }
+
+    const eligible = [];
+    let pageToken;
+    do {
+      const page = await getAuth().listUsers(1000, pageToken);
+      for (const user of page.users) {
+        const userRole = user.customClaims?.role || user.customClaims?.profile;
+        if (userRole !== 'BranchManager_c' || user.disabled) continue;
+        eligible.push({
+          id: user.uid,
+          Id: user.uid,
+          name: user.displayName || user.email || 'Branch Manager',
+          Name: user.displayName || user.email || 'Branch Manager',
+          email: user.email || '',
+          Email: user.email || '',
+          profile: { name: 'BranchManager_c' },
+        });
+      }
+      pageToken = page.pageToken;
+    } while (pageToken);
+
+    return { users: eligible };
+  },
+);
