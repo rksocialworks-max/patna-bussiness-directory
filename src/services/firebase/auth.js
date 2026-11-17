@@ -1,4 +1,5 @@
 import {
+  confirmPasswordReset,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -36,6 +37,12 @@ export async function signUp({ email, password, displayName }) {
 
 export async function sendPasswordReset(email) {
   return sendPasswordResetEmail(requireAuth(), email.trim());
+}
+
+export async function confirmUserPasswordReset(oobCode, newPassword) {
+  if (!oobCode || typeof oobCode !== 'string') throw new Error('Password reset link is invalid or expired.');
+  if (typeof newPassword !== 'string' || newPassword.length < 6) throw new Error('Password must contain at least 6 characters.');
+  return confirmPasswordReset(requireAuth(), oobCode, newPassword);
 }
 
 export async function signOutCurrentUser() {
