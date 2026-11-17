@@ -42,8 +42,7 @@ service cloud.firestore {
         'owner_name_c', 'phone_c', 'whatsapp_c', 'email_c',
         'district_c', 'city_c', 'area_c', 'pincode_c', 'address_c',
         'description_c', 'map_url_c', 'latitude_c', 'longitude_c',
-        'website_c', 'facebook_c', 'instagram_c', 'youtube_c',
-        'linkedin_c', 'x_c', 'telegram_c', 'gstin_c', 'hours_c',
+        'website_c', 'facebook_c', 'instagram_c', 'gstin_c', 'hours_c',
         'holiday_info_c', 'seo_title_c', 'meta_description_c',
         'slug_c', 'logo_c', 'cover_c', 'photos_c', 'ModifiedOn'
       ];
