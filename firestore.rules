@@ -2,8 +2,229 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Secure default: deny all client access until collection-specific rules
-    // are implemented and tested in the Firebase Emulator Suite.
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.superAdmin == true
+        || request.auth.token.role == 'Admin_c'
+        || request.auth.token.profile == 'Admin_c'
+      );
+    }
+
+    function isBusinessOwner() {
+      return signedIn() && request.auth.token.role == 'BusinessOwner_c';
+    }
+
+    function ownsBusiness(businessId) {
+      return signedIn()
+        && businessId is string
+        && exists(/databases/$(database)/documents/businesses/$(businessId))
+        && get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerUid == request.auth.uid;
+    }
+
+    function ownerEditableFields() {
+      return [
+        'Name', 'category_c', 'subcategory_c', 'business_type_c',
+        'owner_name_c', 'phone_c', 'whatsapp_c', 'email_c',
+        'district_c', 'city_c', 'area_c', 'pincode_c', 'address_c',
+        'description_c', 'map_url_c', 'latitude_c', 'longitude_c',
+        'website_c', 'facebook_c', 'instagram_c', 'youtube_c',
+        'linkedin_c', 'x_c', 'telegram_c', 'gstin_c', 'hours_c',
+        'holiday_info_c', 'seo_title_c', 'meta_description_c',
+        'slug_c', 'logo_c', 'cover_c', 'photos_c', 'ModifiedOn'
+      ];
+    }
+
+    function validOwnerBusinessCreate() {
+      return isBusinessOwner()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status_c == 'Pending Approval'
+        && request.resource.data.listing_type_c == 'Free'
+        && request.resource.data.is_premium_c == false
+        && request.resource.data.is_verified_c == false
+        && request.resource.data.rating_c == 0
+        && request.resource.data.reviews_count_c == 0;
+    }
+
+    // Private source records: admins can moderate all records; owners can
+    // read and edit only records explicitly linked to their Firebase UID.
+    match /businesses/{businessId} {
+      allow get, list: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if validOwnerBusinessCreate();
+      allow update: if isAdmin() || (
+        signedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(ownerEditableFields())
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['cover_c', 'photos_c'])
+          || resource.data.is_premium_c == true
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Public business documents are curated server-side mirrors. They never
+    // contain owner UID/email, private verification data, or internal notes.
+    match /business_public/{businessId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /categories/{categoryId} {
+      allow get, list: if isAdmin() || resource.data.status_c == 'Active';
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /branches/{branchId} {
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create, update, delete: if isAdmin() || (
+        isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+      );
+    }
+
+    match /branches_public/{branchId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /products_services/{itemId} {
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create, update, delete: if isAdmin() || (
+        isBusinessOwner() && ownsBusiness(request.resource.data.business_c)
+      );
+    }
+
+    match /products_services_public/{itemId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /reviews_public/{reviewId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /offers/{offerId} {
+      allow read, write: if isAdmin() || ownsBusiness(resource.data.business_c);
+    }
+
+    match /offers_public/{offerId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /homepage_banners/{bannerId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /homepage_banners_public/{bannerId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /site_settings/{settingId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /site_settings_public/{settingId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /content_pages/{pageId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /content_pages_public/{pageId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /premium_plans/{planId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /premium_plans_public/{planId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /business_documents/{documentId} {
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /business_analytics/{analyticsId} {
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /branch_activity/{activityId} {
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /enquiries/{enquiryId} {
+      allow get, list: if isAdmin() || ownsBusiness(resource.data.business_c);
+      allow create, update, delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow get, list: if isAdmin() || (
+        signedIn() && resource.data.ownerUid == request.auth.uid
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /advertisements/{adId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /coupons/{couponId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow get, list: if isAdmin() || (
+        signedIn() && resource.data.ownerUid == request.auth.uid
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow get: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      allow list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /support_requests/{requestId} {
+      allow get, list: if isAdmin() || (
+        signedIn() && resource.data.ownerUid == request.auth.uid
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /reports/{reportId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /privacy_requests/{requestId} {
+      allow get, list: if isAdmin() || (
+        signedIn() && resource.data.ownerUid == request.auth.uid
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Any collection not explicitly opened above is closed by default.
     match /{document=**} {
       allow read, write: if false;
     }
