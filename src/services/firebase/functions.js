@@ -95,3 +95,11 @@ export async function approveManualPremiumPayment({ paymentId }) {
   const result = await callable({ paymentId });
   return result.data;
 }
+
+
+/** Admin-only rejection for a manual UPI payment that could not be verified. */
+export async function rejectManualPremiumPayment({ paymentId, reason }) {
+  const callable = httpsCallable(requireFunctions(), 'rejectManualPremiumPayment');
+  const result = await callable({ paymentId, reason });
+  return result.data;
+}
