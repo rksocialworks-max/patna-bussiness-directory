@@ -13,10 +13,8 @@ export const select = (record, user, store) => {
   return isAdmin(user) || ownsBusiness(record, user, store);
 };
 
-export const insert = (record, user) => {
-  return !!user && (isAdmin(user) || user.profile === 'BusinessOwner_c');
-};
-
-export const update = (record, user) => !!user && isAdmin(user);
-
-export const remove = (record, user) => !!user && isAdmin(user);
+// Payment creation and state transitions must go through trusted Firebase
+// callable functions. Client-side CRUD is intentionally disabled.
+export const insert = () => false;
+export const update = () => false;
+export const remove = () => false;
