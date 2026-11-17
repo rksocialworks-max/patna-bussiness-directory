@@ -18,7 +18,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   const { data: categoryData } = useFetch(async () => {
-    const rows = await listDocuments(COLLECTIONS.categories, { sort: 'sort_order_c', pageSize: 100 });
+    const rows = await listDocuments(COLLECTIONS.categories, { filters: [{ field: 'status_c', value: 'Active' }], sort: 'sort_order_c', pageSize: 100 });
     return rows.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
