@@ -7,8 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ApperIcon from '@/components/ApperIcon';
 
-const FIELDS = ['Id', 'Name', 'category_c', 'district_c', 'status_c', 'is_premium_c', 'is_verified_c', 'premium_expiry_c'];
-
 export const route = { path: '/admin', layout: 'owner', access: "profile === 'Admin_c'" };
 export const nav = { icon: 'LayoutDashboard', label: 'Admin Overview', section: 'Administration', profiles: ['Admin_c'], order: 1 };
 
