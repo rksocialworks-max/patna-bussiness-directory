@@ -1,5 +1,8 @@
 import {
   confirmPasswordReset,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -43,6 +46,17 @@ export async function confirmUserPasswordReset(oobCode, newPassword) {
   if (!oobCode || typeof oobCode !== 'string') throw new Error('Password reset link is invalid or expired.');
   if (typeof newPassword !== 'string' || newPassword.length < 6) throw new Error('Password must contain at least 6 characters.');
   return confirmPasswordReset(requireAuth(), oobCode, newPassword);
+}
+
+export async function changeCurrentPassword(currentPassword, newPassword) {
+  const activeAuth = requireAuth();
+  const user = activeAuth.currentUser;
+  if (!user || !user.email) throw new Error('Please sign in again before changing your password.');
+  if (typeof currentPassword !== 'string' || !currentPassword) throw new Error('Enter your current password.');
+  if (typeof newPassword !== 'string' || newPassword.length < 6) throw new Error('New password must contain at least 6 characters.');
+  const credential = EmailAuthProvider.credential(user.email, currentPassword);
+  await reauthenticateWithCredential(user, credential);
+  return updatePassword(user, newPassword);
 }
 
 export async function signOutCurrentUser() {
