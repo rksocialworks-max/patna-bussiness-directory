@@ -8,7 +8,7 @@ service firebase.storage {
 
     function isAdmin() {
       return signedIn() && (
-        request.auth.token.superAdmin == true
+        (request.auth.token.keys().hasAny(['superAdmin']) && request.auth.token.superAdmin == true)
         || request.auth.token.role in ['Admin_c', 'admin', 'super_admin']
         || request.auth.token.profile == 'Admin_c'
       );
