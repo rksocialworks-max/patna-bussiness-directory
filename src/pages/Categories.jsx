@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import PublicHeader from '@/components/PublicHeader';
 import { CATEGORIES } from '@/data/directoryOptions';
 import ApperIcon from '@/components/ApperIcon';
@@ -9,9 +9,8 @@ export const route = { path: '/categories', layout: 'public', access: 'public' }
 
 export default function Categories() {
   const { data, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('categories_c').select(['Id', 'Name', 'parent_c', 'description_c', 'status_c', 'sort_order_c']).orderBy('sort_order_c').fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const rows = await listDocuments(COLLECTIONS.categoriesPublic, { sort: 'sort_order_c', pageSize: 100 });
+    return rows.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
   const categoryRows = data ?? [];
 
