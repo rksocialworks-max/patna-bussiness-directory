@@ -29,17 +29,17 @@ export default function BusinessDetail() {
   const [saving, setSaving] = useState('');
 
   const { data: business, loading, error, run } = useFetch(async () => {
-    const result = await getDocument(COLLECTIONS.businesses, id);
+    const result = await getDocument(COLLECTIONS.businessPublic, id);
     return result ? { ...result, Id: result.Id ?? result.id } : null;
   }, [id]);
 
   const { data: reviews, loading: reviewsLoading, run: runReviews } = useFetch(async () => {
-    const result = await listDocuments(COLLECTIONS.reviews, { filters: [{ field: 'business_c', value: id }, { field: 'status_c', value: 'Approved' }], sort: 'CreatedOn', direction: 'desc', pageSize: 100 });
+    const result = await listDocuments(COLLECTIONS.reviewsPublic, { filters: [{ field: 'business_c', value: id }], sort: 'CreatedOn', direction: 'desc', pageSize: 100 });
     return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [id]);
 
   const { data: enquiryBranches } = useFetch(async () => {
-    const result = await listDocuments(COLLECTIONS.branches, { filters: [{ field: 'business_c', value: id }, { field: 'status_c', value: 'Active' }], pageSize: 100 });
+    const result = await listDocuments(COLLECTIONS.branchesPublic, { filters: [{ field: 'business_c', value: id }], pageSize: 100 });
     return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [id]);
 
