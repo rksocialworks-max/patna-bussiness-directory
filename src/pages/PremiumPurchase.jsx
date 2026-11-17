@@ -35,9 +35,9 @@ export default function PremiumPurchase() {
   }, [user?.uid]);
 
   const { data: plans = [], loading: plansLoading } = useFetch(async () => {
-    const result = await sdk.table('premium_plans_c').select(['Id', 'Name', 'duration_days_c', 'price_c', 'features_c', 'status_c']).fetch();
+    const result = await sdk.table('premium_plans_c').select(['Id', 'Name', 'duration_months_c', 'duration_days_c', 'price_c', 'features_c', 'status_c']).fetch();
     if (!result.success) throw new Error(result.message);
-    return (result.data || []).filter((plan) => ['Active', 'Approved'].includes(plan.status_c) && [30,  90, 365].includes(Number(plan.duration_days_c)));
+    return (result.data || []).filter((plan) => ['Active', 'Approved'].includes(plan.status_c) && ([1, 3, 12].includes(Number(plan.duration_months_c)) || [30, 90, 365].includes(Number(plan.duration_days_c))));
   }, []);
 
   const eligibleBusinesses = useMemo(() => businesses.filter((item) => item.status_c === 'Approved'), [businesses]);
@@ -121,7 +121,7 @@ export default function PremiumPurchase() {
             </select>
           </label>
         </div>
-        {selectedPlan && <div className="mt-4 rounded-xl bg-muted/50 p-4"><div className="flex items-center justify-between gap-3"><strong>{selectedPlan.Name}</strong><strong className="text-xl">₹{Number(selectedPlan.price_c).toLocaleString('en-IN')}</strong></div><p className="mt-1 text-xs text-muted-foreground">{selectedPlan.duration_days_c} days</p>{selectedPlan.features_c && <p className="mt-2 text-sm">{selectedPlan.features_c}</p>}</div>}
+        {selectedPlan && <div className="mt-4 rounded-xl bg-muted/50 p-4"><div className="flex items-center justify-between gap-3"><strong>{selectedPlan.Name}</strong><strong className="text-xl">₹{Number(selectedPlan.price_c).toLocaleString('en-IN')}</strong></div><p className="mt-1 text-xs text-muted-foreground">{selectedPlan.duration_months_c || ({ 30: 1, 90: 3, 365: 12 }[Number(selectedPlan.duration_days_c)])} month(s)</p>{selectedPlan.features_c && <p className="mt-2 text-sm">{selectedPlan.features_c}</p>}</div>}
         {!businessesLoading && eligibleBusinesses.length === 0 && <p className="mt-3 text-sm text-amber-700">Premium खरीदने के लिए पहले आपका Business Admin द्वारा Approved होना चाहिए।</p>}
         {!plansLoading && plans.length === 0 && <p className="mt-3 text-sm text-amber-700">अभी कोई Active Premium Plan उपलब्ध नहीं है। Admin से plan configuration जाँचें।</p>}
       </section>
