@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sdk } from '@/services/sdk';
+import { useAuth } from '@/layouts/RootLayout';
+import { createDocument, updateDocument, listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
 import { useFetch } from '@/hooks/useFetch';
 import { Button } from '@/components/ui/button';
@@ -52,19 +53,16 @@ const galleryConfig = { supportedExtensions: ['jpg', 'jpeg', 'png', 'webp'], sup
 
 export default function BusinessEditor({ record = null }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form, setForm] = useState(blank);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
   const premium = Boolean(record?.is_premium_c) && (!record?.premium_expiry_c || record.premium_expiry_c >= new Date().toISOString().slice(0, 10));
   const { data: categoryRows } = useFetch(async () => {
-    const result = await sdk.table('categories_c').select(['Id', 'Name', 'status_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    return listDocuments(COLLECTIONS.categories, { pageSize: 100 });
   }, []);
   const { data: siteSettings } = useFetch(async () => {
-    const result = await sdk.table('site_settings_c').select(['setting_key_c', 'setting_value_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    return listDocuments(COLLECTIONS.siteSettings, { pageSize: 100 });
   }, []);
   const settingNumber = (key, fallback) => Number(siteSettings?.find((item) => item.setting_key_c === key)?.setting_value_c || fallback);
   const logoMaxKb = settingNumber('logo_max_kb', 1024);
@@ -95,9 +93,7 @@ export default function BusinessEditor({ record = null }) {
       editableFields.forEach((field) => {
         const value = form[field];
         if (['logo_c', 'cover_c', 'photos_c'].includes(field)) {
-          payload[field] = record
-            ? sdk.storage.toUpdateFormat(value ?? [])
-            : sdk.storage.toCreateFormat(value ?? []);
+          payload[field] = Array.isArray(value) ? value : (value ? [value] : []);
         } else if (['latitude_c', 'longitude_c'].includes(field)) {
           payload[field] = value === '' ? null : Number(value);
         } else {
@@ -119,12 +115,17 @@ export default function BusinessEditor({ record = null }) {
         payload.featured_order_c = 99;
       }
 
-      const result = record
-        ? await sdk.table('businesses_c').update({ Id: record.Id, ...payload })
-        : await sdk.table('businesses_c').create(payload);
-
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
+      if (!user?.uid) throw new Error('Please sign in again before saving your business.');
+      if (record) {
+        if (record.ownerUid && record.ownerUid !== user.uid && user.profile !== 'Admin_c') {
+          throw new Error('You are not allowed to edit this business.');
+        }
+        await updateDocument(COLLECTIONS.businesses, record.id ?? record.Id, payload);
+      } else {
+        payload.ownerUid = user.uid;
+        payload.ownerEmail = user.email ?? '';
+        await createDocument(COLLECTIONS.businesses, payload);
+      }
 
       toast.success(record ? 'Business profile updated.' : 'Business submitted for Admin approval.');
       navigate('/owner/businesses');
@@ -152,7 +153,7 @@ export default function BusinessEditor({ record = null }) {
           <div className="mb-5"><h2 className="text-lg font-bold">Business Information</h2><p className="mt-1 text-xs text-muted-foreground">Required fields पर * लगा है। Registration बिल्कुल Free है।</p></div>
           <div className="grid gap-4 md:grid-cols-2">
             <label className={fieldClass}><span className={labelClass}>Business Name *</span><Input required value={form.Name} onChange={(event) => change('Name', event.target.value)} placeholder="जैसे Sharma Sweets" /></label>
-            <label className={fieldClass}><span className={labelClass}>Category *</span><select required value={form.category_c} onChange={(event) => change('category_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Select category</option>{(categoryRows ?? []).map((item) => <option key={item.Id} value={item.Name}>{item.Name}</option>) }</select></label>
+            <label className={fieldClass}><span className={labelClass}>Category *</span><select required value={form.category_c} onChange={(event) => change('category_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Select category</option>{(categoryRows ?? []).map((item) => <option key={item.id ?? item.Id} value={item.Name}>{item.Name}</option>) }</select></label>
             <label className={fieldClass}><span className={labelClass}>Subcategory</span><Input value={form.subcategory_c} onChange={(event) => change('subcategory_c', event.target.value)} placeholder="Subcategory" /></label>
             <label className={fieldClass}><span className={labelClass}>Business Type</span><select value={form.business_type_c} onChange={(event) => change('business_type_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option>Physical Store / Shop</option><option>Multiple Branch Business</option></select></label>
             <label className={fieldClass}><span className={labelClass}>Owner Name *</span><Input required value={form.owner_name_c} onChange={(event) => change('owner_name_c', event.target.value)} placeholder="Owner full name" /></label>
