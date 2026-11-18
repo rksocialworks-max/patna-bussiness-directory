@@ -215,6 +215,19 @@ describe('Storage security rules', () => {
     await assertFails(uploadBytes(object, new Uint8Array([1, 2, 3]), { contentType: 'application/javascript' }));
   });
 
+  it('allows PDF documents in the authenticated uploader folder', async () => {
+    const storage = env.authenticatedContext('owner-pdf').storage();
+    const object = ref(storage, 'users/owner-pdf/uploads/verification.pdf');
+    await assertSucceeds(uploadBytes(object, new Uint8Array([37, 80, 68, 70]), { contentType: 'application/pdf' }));
+  });
+
+  it('rejects uploads larger than the 10 MB limit', async () => {
+    const storage = env.authenticatedContext('owner-large').storage();
+    const object = ref(storage, 'users/owner-large/uploads/oversized.png');
+    const oversizedFile = new Uint8Array(10 * 1024 * 1024 + 1);
+    await assertFails(uploadBytes(object, oversizedFile, { contentType: 'image/png' }));
+  });
+
   it('allows the uploader to read their own uploaded object', async () => {
     const storage = env.authenticatedContext('owner-read').storage();
     const object = ref(storage, 'users/owner-read/uploads/read-check.png');
