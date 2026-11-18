@@ -54,7 +54,29 @@ Run this only in a trusted Node.js environment where Firebase Admin SDK is insta
 
 After bootstrap, the Super Admin can assign only Business Owner and Branch Manager roles through the protected account-management flow. Admin roles cannot be granted by that callable.
 
-## 4. Deploy backend services
+## 4. Configure GitHub Actions authentication for Hosting
+
+The manual workflow `.github/workflows/firebase-hosting-deploy.yml` deploys **Hosting only** to `patnabiz-b2fcb`. It can run only from `firebase-integration/draft`, requires the manual confirmation input, and uses Google Cloud Workload Identity Federation (WIF). It does not deploy Firestore rules, Storage rules, or Functions.
+
+Before using it, configure a WIF provider for GitHub Actions in Google Cloud and grant its deploy service account the minimum Firebase Hosting deployment permissions for this project. Add these repository settings under Settings → Secrets and variables → Actions:
+
+**Repository Variables**
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID` (must be `patnabiz-b2fcb`)
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- `VITE_FIREBASE_MEASUREMENT_ID`
+- `VITE_FIREBASE_APPCHECK_SITE_KEY` (the Enterprise site key registered for this Web App)
+
+**Repository Secrets**
+- `FIREBASE_WORKLOAD_IDENTITY_PROVIDER`
+- `FIREBASE_DEPLOY_SERVICE_ACCOUNT`
+
+Do not create or upload a service-account private key JSON file. Use WIF. Verify the App Check key is the Enterprise site key for the registered Firebase Web App and that its allowed domains include the Firebase Hosting domains. A successful workflow run publishes the site publicly; run it only when intentionally approving a live Hosting release.
+
+## 5. Deploy backend services
 
 From the repository root, after verifying the selected Firebase project and reviewing security rules:
 
@@ -69,7 +91,7 @@ firebase deploy --only firestore:rules,storage,functions
 
 Deploying Functions may require the Firebase project to be on the Blaze plan and may create billable resources. Review current Firebase pricing and project billing before deployment.
 
-## 5. Build and host the frontend
+## 6. Build and host the frontend
 
 Set the same `VITE_FIREBASE_*` values in the hosting provider's build environment, including `VITE_FIREBASE_APPCHECK_SITE_KEY`. Then:
 
@@ -83,7 +105,7 @@ The generated static site is in `dist/`. Configure the hosting provider to serve
 firebase deploy --only hosting
 ```
 
-## 6. Post-deployment checks
+## 7. Post-deployment checks
 
 - Confirm sign-up and sign-in with a test account.
 - Assign the appropriate non-admin role from the Super Admin account.
