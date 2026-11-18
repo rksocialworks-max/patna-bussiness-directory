@@ -601,7 +601,7 @@ export default function OperationsConsole({ mode = 'owner' }) {
         </div>
       )}
 
-      <p className="mt-7 text-xs text-muted-foreground">Demo mode: payment, OTP, email, WhatsApp, document verification and push-notification providers are not connected. Status changes and records here are sample workspace data.</p>
+      <p className="mt-7 text-xs text-muted-foreground">Records and status changes are saved through the connected Firebase backend. External delivery still needs setup: SMS OTP, email, WhatsApp and push notifications. Razorpay online payments also need the live payment keys configured before they can be used.</p>
     </div>
   );
 }
