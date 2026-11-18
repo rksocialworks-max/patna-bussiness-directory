@@ -130,7 +130,8 @@ export default function BusinessEditor({ record = null }) {
         // Keep the initial owner submission aligned with the strict Firestore
         // create allowlist. Premium fields and admin-controlled fields are added later.
         const allowedCreateFields = [
-          'Name', 'category_c', 'owner_name_c', 'phone_c', 'whatsapp_c',
+          'Name', 'category_c', 'subcategory_c', 'business_type_c',
+          'owner_name_c', 'phone_c', 'whatsapp_c',
           'district_c', 'city_c', 'area_c', 'pincode_c', 'address_c',
           'description_c', 'map_url_c', 'latitude_c', 'longitude_c',
           'facebook_c', 'instagram_c', 'gstin_c', 'hours_c',
