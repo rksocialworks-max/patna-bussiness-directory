@@ -1,0 +1,88 @@
+name: Deploy Firebase Hosting
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_live_deploy:
+        description: "Enable only when you intentionally approve publishing this branch to Firebase Hosting"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: firebase-hosting-live
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/firebase-integration/draft' && inputs.confirm_live_deploy == true
+    runs-on: ubuntu-latest
+    environment: firebase-production
+    steps:
+      - name: Checkout deployment branch
+        uses: actions/checkout@v4
+        with:
+          ref: firebase-integration/draft
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify required Firebase build variables
+        shell: bash
+        env:
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_APPCHECK_SITE_KEY: ${{ vars.VITE_FIREBASE_APPCHECK_SITE_KEY }}
+        run: |
+          set -euo pipefail
+          for name in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID VITE_FIREBASE_APPCHECK_SITE_KEY; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing GitHub Actions repository variable: $name"
+              exit 1
+            fi
+          done
+          if [ "$VITE_FIREBASE_PROJECT_ID" != "patnabiz-b2fcb" ]; then
+            echo "::error::Unexpected Firebase project ID. Refusing to deploy."
+            exit 1
+          fi
+
+      - name: Build web application
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ vars.VITE_FIREBASE_MEASUREMENT_ID }}
+          VITE_FIREBASE_APPCHECK_SITE_KEY: ${{ vars.VITE_FIREBASE_APPCHECK_SITE_KEY }}
+
+      - name: Authenticate to Google Cloud with Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.FIREBASE_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.FIREBASE_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Deploy Hosting only
+        run: firebase deploy --only hosting --project patnabiz-b2fcb --non-interactive
