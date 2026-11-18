@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { sdk } from '@/services/sdk';
 import { useFetch } from '@/hooks/useFetch';
+import { getDocument, updateDocument, deleteDocument, COLLECTIONS } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,19 +9,17 @@ import { Textarea } from '@/components/ui/textarea';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import ApperIcon from '@/components/ApperIcon';
 
-const FIELDS = ['Id', 'Name', 'setting_key_c', 'setting_value_c', 'setting_group_c', 'upi_qr_c'];
-
 export const route = { path: '/admin/settings/:id', layout: 'owner', access: "profile === 'Admin_c'" };
 
 export default function SiteSettingDetail() {
   const { id } = useParams();
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ Name: '', setting_key_c: '', setting_value_c: '', setting_group_c: 'General' });
-  const { data: setting, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('site_settings_c').select(FIELDS).get(id);
-    if (!result.success) throw new Error(result.message);
-    return result.data;
-  }, [id]);
+  const { data: setting, loading, error, run } = useFetch(
+    () => getDocument(COLLECTIONS.siteSettings, id),
+    [id],
+  );
 
   useEffect(() => {
     if (!setting) return;
@@ -35,19 +33,27 @@ export default function SiteSettingDetail() {
 
   async function save(event) {
     event.preventDefault();
-    const result = await sdk.table('site_settings_c').update({ Id: id, ...form });
-    if (result.messages?.length) toast.error(result.messages[0]);
-    if (result.data?.length) {
+    setSaving(true);
+    try {
+      await updateDocument(COLLECTIONS.siteSettings, id, form);
       toast.success('Website setting updated.');
       setEditing(false);
-      run();
+      await run();
+    } catch (err) {
+      toast.error(err?.message || 'Website setting could not be updated.');
+    } finally {
+      setSaving(false);
     }
   }
 
   async function removeSetting() {
-    const result = await sdk.table('site_settings_c').remove(id);
-    if (result.messages?.length) toast.error(result.messages[0]);
-    if (result.data?.length) window.location.assign('/admin/operations');
+    try {
+      await deleteDocument(COLLECTIONS.siteSettings, id);
+      toast.success('Website setting deleted.');
+      window.location.assign('/admin/operations');
+    } catch (err) {
+      toast.error(err?.message || 'Website setting could not be deleted.');
+    }
   }
 
   if (loading) return <div className="mx-auto max-w-3xl animate-pulse p-8"><div className="h-48 rounded-2xl bg-muted" /></div>;
@@ -75,7 +81,7 @@ export default function SiteSettingDetail() {
             <label className="block space-y-1"><span className="text-xs font-semibold">Setting Key</span><Input required placeholder="e.g. support_email" value={form.setting_key_c} onChange={(event) => setForm((current) => ({ ...current, setting_key_c: event.target.value }))} /></label>
             <label className="block space-y-1"><span className="text-xs font-semibold">Setting Value</span><Textarea rows={5} placeholder="Enter the setting value..." value={form.setting_value_c} onChange={(event) => setForm((current) => ({ ...current, setting_value_c: event.target.value }))} /></label>
             <label className="block space-y-1"><span className="text-xs font-semibold">Group</span><select value={form.setting_group_c} onChange={(event) => setForm((current) => ({ ...current, setting_group_c: event.target.value }))} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><option>General</option><option>Contact</option><option>Payments</option><option>SEO</option><option>Homepage</option></select></label>
-            <div className="flex gap-2"><Button type="submit">Save Setting</Button><Button type="button" variant="outline" onClick={() => setEditing(false)}>Cancel</Button></div>
+            <div className="flex gap-2"><Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save Setting'}</Button><Button type="button" variant="outline" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button></div>
           </form>
         )}
       </section>

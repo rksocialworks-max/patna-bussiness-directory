@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import { CATEGORIES, BIHAR_DISTRICTS } from '@/data/directoryOptions';
 import BusinessCard from '@/components/BusinessCard';
 import { Button } from '@/components/ui/button';
@@ -21,21 +21,18 @@ export default function HomepageSections() {
   const [locationError, setLocationError] = useState('');
 
   const { data: businesses, loading: businessLoading } = useFetch(async () => {
-    const result = await sdk.table('businesses_c').select(['Id', 'Name', 'category_c', 'district_c', 'city_c', 'area_c', 'description_c', 'phone_c', 'whatsapp_c', 'logo_c', 'is_premium_c', 'premium_expiry_c', 'is_verified_c', 'is_popular_c', 'featured_order_c', 'rating_c', 'reviews_count_c', 'CreatedOn', 'latitude_c', 'longitude_c', 'slug_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const result = await listDocuments(COLLECTIONS.businessPublic, { pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
   const { data: offers } = useFetch(async () => {
-    const result = await sdk.table('offers_c').select(['Id', 'Name', 'business_c', 'description_c', 'discount_c', 'start_date_c', 'end_date_c', 'status_c', 'is_homepage_featured_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.filter((offer) => offer.status_c === 'Approved' && offer.is_homepage_featured_c);
+    const result = await listDocuments(COLLECTIONS.offersPublic, { pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id })).filter((offer) => offer.status_c === 'Approved' && offer.is_homepage_featured_c);
   }, []);
 
   const { data: orderSetting } = useFetch(async () => {
-    const result = await sdk.table('site_settings_c').select(['setting_key_c', 'setting_value_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.find((item) => item.setting_key_c === 'homepage_section_order')?.setting_value_c;
+    const result = await listDocuments(COLLECTIONS.siteSettingsPublic, { pageSize: 100 });
+    return result.find((item) => item.setting_key_c === 'homepage_section_order')?.setting_value_c;
   }, []);
 
   const rows = businesses ?? [];

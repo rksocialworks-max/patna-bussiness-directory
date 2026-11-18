@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useCallback } from 'react';
 import { Outlet, useLocation, useMatches, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { sdk } from '@/services/sdk';
+import { subscribeToAuth, signOutCurrentUser } from '@/services/firebase/auth';
 import { setUser, clearUser, setInitialized } from '@/store/userSlice';
 import { verifyRouteAccess } from '@/router/route.utils';
 import { APP_CONFIG, AUTH_PROFILES, GENERIC_AUTH } from '@/config/app.config';
@@ -27,39 +27,36 @@ export default function RootLayout() {
 
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
-  const hasInitRef = useRef(false);
-
   useEffect(() => {
-    if (hasInitRef.current) return;
-    hasInitRef.current = true;
-
     let isMounted = true;
-    const init = async () => {
+    const unsubscribe = subscribeToAuth(async (firebaseUser) => {
+      if (!isMounted) return;
+      if (!firebaseUser) {
+        dispatch(clearUser());
+        return;
+      }
       try {
-        const currentUser = sdk.session.user();
+        const token = await firebaseUser.getIdTokenResult();
         if (!isMounted) return;
-        if (currentUser) {
-          dispatch(setUser(currentUser));
-          handlePostAuthNavigation();
-        } else {
-          dispatch(setInitialized());
-        }
+        const profile = token.claims.role || token.claims.profile || '';
+        dispatch(setUser({
+          uid: firebaseUser.uid,
+          emailAddress: firebaseUser.email,
+          firstName: firebaseUser.displayName?.split(' ')[0] || '',
+          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          profile,
+        }));
+        if (profile) handlePostAuthNavigation();
       } catch {
         if (isMounted) dispatch(setInitialized());
       }
-    };
-    init();
-
-    const unsub = sdk.session.subscribe((state) => {
-      if (state.status === 'authenticated' && state.user) {
-        dispatch(setUser(state.user));
-        handlePostAuthNavigation();
-      } else if (state.status === 'anonymous') {
-        dispatch(clearUser());
-      }
+    }, () => {
+      if (isMounted) dispatch(setInitialized());
     });
-
-    return () => { isMounted = false; unsub(); };
+    return () => {
+      isMounted = false;
+      unsubscribe?.();
+    };
   }, [dispatch]);
 
   function handlePostAuthNavigation() {
@@ -98,7 +95,7 @@ export default function RootLayout() {
   }, [location.pathname, isInitialized, allowed, user]);
 
   const handleLogout = useCallback(async () => {
-    await sdk.session.logout();
+    await signOutCurrentUser();
     dispatch(clearUser());
     navigateRef.current(APP_CONFIG.defaultLoginRoute ?? '/login', { replace: true });
   }, [dispatch]);

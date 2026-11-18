@@ -3,6 +3,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
 import { sdk } from '@/services/sdk';
+import { approveManualPremiumPayment, rejectManualPremiumPayment } from '@/services/firebase/functions';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,7 @@ import { toPeopleWrite } from '@/components/PeoplePicker';
 import BranchManagerPicker from '@/components/BranchManagerPicker';
 import FilePicker from '@/components/FilePicker';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
-const { eq } = window.ApperSDK.CoreSDK;
+const eq = (field, value) => ({ field, op: '==', value });
 
 const CONFIG = [
   { key: 'branches_c', label: 'Branches', icon: 'Building2', title: 'Branch Management', fields: [
@@ -83,14 +84,15 @@ const CONFIG = [
     { key: 'status_c', label: 'Status', type: 'Picklist', options: ['Active', 'Inactive'] },
   ], status: 'status_c' },
   { key: 'payments_c', label: 'Payments', icon: 'Wallet', title: 'Premium Payments', fields: [
-    { key: 'business_c', label: 'Business', type: 'Lookup', lookup: 'businesses_c' },
-    { key: 'plan_c', label: 'Premium Plan', type: 'Lookup', lookup: 'premium_plans_c' },
-    { key: 'Name', label: 'Payment Description', type: 'Text' },
+    { key: 'business_c', label: 'Business ID', type: 'Text' },
+    { key: 'plan_name_c', label: 'Premium Plan', type: 'Text' },
     { key: 'amount_c', label: 'Amount (INR)', type: 'Number' },
-    { key: 'method_c', label: 'Method', type: 'Picklist', options: ['Razorpay', 'UPI'] },
-    { key: 'reference_c', label: 'Transaction Reference', type: 'Text' },
-    { key: 'screenshot_c', label: 'UPI Payment Proof', type: 'Files' },
-    { key: 'status_c', label: 'Status', type: 'Picklist', options: ['Pending', 'Verified', 'Failed', 'Refunded'] },
+    { key: 'provider_c', label: 'Payment Method', type: 'Text' },
+    { key: 'manual_utr_c', label: 'UPI UTR', type: 'Text' },
+    { key: 'razorpay_payment_id_c', label: 'Razorpay Payment ID', type: 'Text' },
+    { key: 'status_c', label: 'Payment Status', type: 'Text' },
+    { key: 'receipt_number_c', label: 'Receipt Number', type: 'Text' },
+    { key: 'premium_expiry_c', label: 'Premium Expiry', type: 'Date' },
   ], status: 'status_c' },
   { key: 'advertisements_c', label: 'Advertisements', icon: 'Megaphone', title: 'Advertisement Management', fields: [
     { key: 'business_c', label: 'Business', type: 'Lookup', lookup: 'businesses_c' },
@@ -419,6 +421,10 @@ export default function OperationsConsole({ mode = 'owner' }) {
   }
 
   async function updateStatus(record, nextStatus) {
+    if (active.key === 'payments_c') {
+      toast.error('Payment status can only be changed through verified Razorpay callbacks or Admin UPI approval.');
+      return;
+    }
     if (!active.status) return;
     const result = await tableFor(active.key).update({ Id: record.Id, [active.status]: nextStatus });
     if (result.messages?.length) toast.error(result.messages[0]);
@@ -428,36 +434,18 @@ export default function OperationsConsole({ mode = 'owner' }) {
       if (active.key === 'reviews_c') {
         await refreshBusinessRating(record.business_c?.Id ?? record.business_c);
       }
-      if (active.key === 'payments_c' && nextStatus === 'Verified') {
-        const businessId = record.business_c?.Id ?? record.business_c;
-        const planId = record.plan_c?.Id ?? record.plan_c;
-        const planResult = planId ? await sdk.table('premium_plans_c').select(['Id', 'duration_days_c']).get(planId) : null;
-        const days = Number(planResult?.data?.duration_days_c || 30);
-        const expiry = new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
-        const businessResult = businessId ? await sdk.table('businesses_c').update({
-          Id: businessId,
-          is_premium_c: true,
-          listing_type_c: 'Premium',
-          premium_expiry_c: expiry,
-        }) : null;
-        const receipt = `PBD-${Date.now().toString().slice(-8)}`;
-        await sdk.table('payments_c').update({ Id: record.Id, receipt_no_c: receipt });
-        if (businessResult?.data?.length) toast.success(`Payment verified. Premium expiry: ${expiry}. Receipt: ${receipt}`);
-        else toast.success(`Payment verified. Receipt: ${receipt}`);
-      } else {
-        toast.success('Status updated.');
-      }
+      toast.success('Status updated.');
       run();
     }
   }
 
-  const canCreate = isAdmin || (!isManager && ['branches_c', 'products_services_c', 'offers_c', 'coupons_c', 'payments_c', 'advertisements_c', 'categories_c', 'support_requests_c', 'privacy_requests_c', 'business_documents_c'].includes(active.key));
+  const canCreate = isAdmin || (!isManager && ['branches_c', 'products_services_c', 'offers_c', 'coupons_c', 'advertisements_c', 'categories_c', 'support_requests_c', 'privacy_requests_c', 'business_documents_c'].includes(active.key));
   const canModerate = isAdmin;
   const ownerCanUpdateEnquiry = !isAdmin && active.key === 'enquiries_c';
   const ownerCanMarkNotification = !isAdmin && !isManager && active.key === 'notifications_c';
   const ownerCanReplyReview = !isAdmin && !isManager && active.key === 'reviews_c';
-  const canEdit = isAdmin || (isManager && active.key === 'branches_c') || (!isManager && ['branches_c', 'products_services_c', 'offers_c', 'coupons_c', 'advertisements_c'].includes(active.key));
-  const canDelete = isAdmin || (!isManager && active.key === 'products_services_c');
+  const canEdit = (isAdmin && active.key !== 'payments_c') || (isManager && active.key === 'branches_c') || (!isManager && ['branches_c', 'products_services_c', 'offers_c', 'coupons_c', 'advertisements_c'].includes(active.key));
+  const canDelete = (isAdmin && active.key !== 'payments_c') || (!isManager && active.key === 'products_services_c');
   const count = rows.length;
 
   return (
@@ -484,10 +472,10 @@ export default function OperationsConsole({ mode = 'owner' }) {
           <p className="font-semibold">Premium Payment Instructions</p>
           <p className="mt-1 text-xs text-muted-foreground">UPI ID: {paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.setting_value_c || 'Please contact the Super Admin for UPI details.'}</p>
           {(() => { const qr = paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.upi_qr_c?.[0]?.url; return qr ? <img src={qr} alt="UPI payment QR code" className="mt-3 size-36 rounded-xl border border-border bg-white object-contain p-2" /> : null; })()}
-          <p className="mt-1 text-xs text-muted-foreground">Razorpay checkout is not connected in this demo. UPI references and screenshots are submitted for manual Admin verification.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Razorpay checkout and UPI submission are handled through the secure payment flow. This screen shows your payment history only.</p>
         </div>
       )}
-      {showCreate && canCreate && (
+      {showCreate && canCreate && active.key !== 'payments_c' && (
         <form onSubmit={createRecord} className="mt-5 rounded-2xl border border-primary/20 bg-card p-5 shadow-sm">
           <h2 className="font-bold">Create {active.label}</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -578,9 +566,11 @@ export default function OperationsConsole({ mode = 'owner' }) {
                     </form>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {active.key === 'payments_c' && record.receipt_no_c && <Button size="sm" variant="outline" asChild><Link to={`/owner/payments/${record.Id}/receipt`}>View Receipt</Link></Button>}
+                    {active.key === 'payments_c' && (record.receipt_number_c || record.receipt_no_c) && <Button size="sm" variant="outline" asChild><Link to={`/owner/payments/${record.Id}/receipt`}>View Receipt</Link></Button>}
                     {active.key === 'site_settings_c' && <Button size="sm" variant="outline" asChild><Link to={`/admin/settings/${record.Id}`}>Open Setting</Link></Button>}
                     {canEdit && editingId !== record.Id && <Button size="sm" variant="outline" onClick={() => startEdit(record)}>Edit</Button>}
+                    {isAdmin && active.key === 'payments_c' && record.provider_c === 'UPI' && record.status_c === 'Pending Verification' && <Button size="sm" onClick={async () => { try { const result = await approveManualPremiumPayment({ paymentId: record.Id }); toast.success(`UPI verified. Receipt: ${result.receiptNumber}`); run(); } catch (error) { toast.error(error.message || 'Could not approve this payment.'); } }}>Approve UPI</Button>}
+                    {isAdmin && active.key === 'payments_c' && record.provider_c === 'UPI' && record.status_c === 'Pending Verification' && <Button size="sm" variant="destructive" onClick={async () => { const reason = window.prompt('Reason for rejecting this UPI payment?') || ''; if (!reason.trim()) return; try { await rejectManualPremiumPayment({ paymentId: record.Id, reason }); toast.success('UPI payment rejected.'); run(); } catch (error) { toast.error(error.message || 'Could not reject this payment.'); } }}>Reject UPI</Button>}
                     {canDelete && <ConfirmDeleteButton title={`Delete ${record.Name || 'this record'}?`} description="This record will be permanently removed. This cannot be undone." onConfirm={() => deleteRecord(record)} />}
                     {isAdmin && active.key === 'reviews_c' && record.report_status_c === 'Hidden' && <Button size="sm" onClick={() => restoreReview(record)}>Restore Review</Button>}
                   </div>

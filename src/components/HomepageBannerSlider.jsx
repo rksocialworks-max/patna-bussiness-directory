@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
 
 export default function HomepageBannerSlider() {
   const { data, loading } = useFetch(async () => {
-    const result = await sdk.table('homepage_banners_c').select(['Id', 'Name', 'caption_c', 'image_c', 'link_url_c', 'sort_order_c', 'status_c']).orderBy('sort_order_c').fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.filter((banner) => banner.status_c === 'Active');
+    const rows = await listDocuments(COLLECTIONS.homepageBannersPublic, {
+      sort: 'sort_order_c',
+      pageSize: 20,
+    });
+    return rows.map((banner) => ({ ...banner, Id: banner.Id ?? banner.id }));
   }, []);
   const banners = data ?? [];
   const [index, setIndex] = useState(0);

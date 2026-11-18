@@ -1,25 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { sdk } from '@/services/sdk';
+import { sendPasswordReset } from '@/services/firebase/auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import ApperIcon from '@/components/ApperIcon';
-import ProviderAuthPage from './ProviderAuthPage';
 import AuthLayout from './AuthLayout';
 
 export default function ForgotPassword() {
-  const hasUI = Boolean(sdk.session.ui);
-
-  if (hasUI) {
-    return (
-      <ProviderAuthPage
-        targetId="forgot-password-target"
-        mount={(t) => sdk.session.ui.showLogin(t)}
-      />
-    );
-  }
-
   return <HeadlessForgotPassword />;
 }
 
@@ -34,12 +22,8 @@ function HeadlessForgotPassword() {
     setError(null);
     setLoading(true);
     try {
-      const result = await sdk.session.sendResetLink({ email });
-      if (result.ok) {
-        setSent(true);
-      } else {
-        setError(result.error?.message || 'Failed to send reset link');
-      }
+      await sendPasswordReset(email);
+      setSent(true);
     } catch (err) {
       setError(err?.message || 'Unexpected error');
     } finally {

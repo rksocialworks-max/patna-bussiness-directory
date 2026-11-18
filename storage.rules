@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        (request.auth.token.keys().hasAny(['superAdmin']) && request.auth.token.superAdmin == true)
+        || request.auth.token.role in ['Admin_c', 'admin', 'super_admin']
+        || request.auth.token.profile == 'Admin_c'
+      );
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function allowedUploadType() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp)')
+        || request.resource.contentType == 'application/pdf';
+    }
+
+    // User uploads are private by default. A file is readable only by its
+    // uploader or a trusted administrator custom claim.
+    match /users/{uid}/uploads/{fileName} {
+      allow read: if isOwner(uid) || isAdmin();
+
+      allow create, update: if isOwner(uid)
+        && request.resource.size <= 10 * 1024 * 1024
+        && allowedUploadType();
+
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    // No public access and no unreviewed upload paths.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef, useMemo, useCallback, useId } from 'react';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listBranchManagers } from '@/services/firebase/functions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import ApperIcon from '@/components/ApperIcon';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { cn } from '@/lib/utils';
-
-const PAGE_SIZE = 20;
 
 function getUserId(person) {
   return String(person?.User?.Id ?? person?.Id ?? '');
@@ -29,6 +27,7 @@ function getUserId(person) {
 export function toPeopleWrite(value) {
   // Inside the function on purpose: peopleWriteShape.test.mjs evaluates this function in isolation.
   const UUID_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const FIREBASE_UID = /^[A-Za-z0-9]{20,128}$/;
   if (!Array.isArray(value)) return [];
   return value
     .map((p) => {
@@ -42,7 +41,8 @@ export function toPeopleWrite(value) {
         const n = Number(id);
         return n > 0 ? { User: n } : null;
       }
-      return UUID_ID.test(id) ? { User: id.toLowerCase() } : null;
+      if (UUID_ID.test(id)) return { User: id.toLowerCase() };
+      return FIREBASE_UID.test(id) ? { User: id } : null;
     })
     .filter(Boolean);
 }
@@ -76,16 +76,7 @@ export default function PeoplePicker({
   const selected = Array.isArray(value) ? value : [];
 
   const { data: users = [] } = useFetch(
-    () => sdk.admin.fetch('user', {
-      pagingInfo: { limit: PAGE_SIZE, offset: 0 },
-      fields: [
-        { field: { Name: 'FirstName' } },
-        { field: { Name: 'LastName' } },
-        { field: { Name: 'Email' } },
-        { field: { Name: 'Name' } },
-        { field: { Name: 'AvatarUrl' } },
-      ],
-    }).then(r => r.data ?? []),
+    () => listBranchManagers(),
     { initialLoading: true }
   );
 

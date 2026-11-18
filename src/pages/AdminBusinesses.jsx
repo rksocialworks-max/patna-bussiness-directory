@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS, updateDocument, deleteDocument } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 
-const FIELDS = ['Id', 'Name', 'category_c', 'district_c', 'city_c', 'owner_name_c', 'status_c', 'is_premium_c', 'is_verified_c', 'is_popular_c', 'featured_order_c'];
 
 export const route = { path: '/admin/businesses', layout: 'owner', access: "profile === 'Admin_c'" };
 export const nav = { icon: 'ClipboardCheck', label: 'Business Listings', section: 'Administration', profiles: ['Admin_c'], order: 2 };
@@ -16,28 +15,19 @@ export const nav = { icon: 'ClipboardCheck', label: 'Business Listings', section
 export default function AdminBusinesses() {
   const [priorityDrafts, setPriorityDrafts] = useState({});
   const { data, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('businesses_c').select(FIELDS).orderByDesc('CreatedOn').fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const result = await listDocuments(COLLECTIONS.businesses, { sort: 'CreatedOn', direction: 'desc', pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
   async function setStatus(record, status) {
-    const result = await sdk.table('businesses_c').update({ Id: record.Id, status_c: status });
-    if (result.messages?.length) toast.error(result.messages[0]);
-    if (result.data?.length) {
-      toast.success(`${record.Name}: ${status}`);
-      run();
-    }
+    try { await updateDocument(COLLECTIONS.businesses, record.Id, { status_c: status }); toast.success(`${record.Name}: ${status}`); run(); }
+    catch (error) { toast.error(error.message || 'Could not update listing status.'); }
   }
 
   async function toggleFlag(record, field, label) {
     const nextValue = !record[field];
-    const result = await sdk.table('businesses_c').update({ Id: record.Id, [field]: nextValue });
-    if (result.messages?.length) toast.error(result.messages[0]);
-    if (result.data?.length) {
-      toast.success(`${record.Name}: ${label} ${nextValue ? 'enabled' : 'disabled'}.`);
-      run();
-    }
+    try { await updateDocument(COLLECTIONS.businesses, record.Id, { [field]: nextValue }); toast.success(`${record.Name}: ${label} ${nextValue ? 'enabled' : 'disabled'}.`); run(); }
+    catch (error) { toast.error(error.message || 'Could not update listing.'); }
   }
 
   async function updatePriority(record) {
@@ -46,21 +36,13 @@ export default function AdminBusinesses() {
       toast.error('Priority must be a positive number.');
       return;
     }
-    const result = await sdk.table('businesses_c').update({ Id: record.Id, featured_order_c: value });
-    if (result.messages?.length) toast.error(result.messages[0]);
-    if (result.data?.length) {
-      toast.success('Homepage priority saved.');
-      run();
-    }
+    try { await updateDocument(COLLECTIONS.businesses, record.Id, { featured_order_c: value }); toast.success('Homepage priority saved.'); run(); }
+    catch (error) { toast.error(error.message || 'Could not save priority.'); }
   }
 
   async function deleteBusiness(record) {
-    const result = await sdk.table('businesses_c').remove(record.Id);
-    if (result.messages?.length) toast.error(result.messages[0]);
-    if (result.data?.length) {
-      toast.success(`${record.Name} deleted.`);
-      run();
-    }
+    try { await deleteDocument(COLLECTIONS.businesses, record.Id); toast.success(`${record.Name} deleted.`); run(); }
+    catch (error) { toast.error(error.message || 'Could not delete listing.'); }
   }
 
   return (

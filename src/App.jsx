@@ -1,7 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { router } from '@/router';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ThemeProvider } from '@/data/contexts/ThemeContext.jsx';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 export default function App() {

@@ -1,22 +1,19 @@
 import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ApperIcon from '@/components/ApperIcon';
 
-const FIELDS = ['Id', 'Name', 'category_c', 'district_c', 'status_c', 'is_premium_c', 'is_verified_c', 'premium_expiry_c'];
-
 export const route = { path: '/admin', layout: 'owner', access: "profile === 'Admin_c'" };
 export const nav = { icon: 'LayoutDashboard', label: 'Admin Overview', section: 'Administration', profiles: ['Admin_c'], order: 1 };
 
 export default function AdminDashboard() {
   const { data, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('businesses_c').select(FIELDS).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const result = await listDocuments(COLLECTIONS.businesses, { pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
   const businesses = data ?? [];
@@ -26,22 +23,8 @@ export default function AdminDashboard() {
   const premium = businesses.filter((item) => item.is_premium_c && (!item.premium_expiry_c || item.premium_expiry_c >= today));
   const verified = businesses.filter((item) => item.is_verified_c);
 
-  async function runExpiryCheck() {
-    if (!expiredPremiums.length) {
-      toast.success('No expired Premium listings found.');
-      return;
-    }
-    let updated = 0;
-    for (const item of expiredPremiums) {
-      const result = await sdk.table('businesses_c').update({
-        Id: item.Id,
-        is_premium_c: false,
-        listing_type_c: 'Free',
-      });
-      if (result.data?.length) updated += 1;
-    }
-    toast.success(`${updated} expired Premium listing(s) returned to Free status.`);
-    run();
+  function runExpiryCheck() {
+    toast.info('Premium expiry automation will be enabled through a trusted Cloud Function. No client-side moderation changes are made.');
   }
 
   const stats = [
@@ -71,7 +54,7 @@ export default function AdminDashboard() {
       <Card className="mt-6">
         <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div><h2 className="font-bold">Premium Expiry Monitor</h2><p className="mt-1 text-sm text-muted-foreground">{expiredPremiums.length} expired Premium listing(s) need to return to Free status.</p></div>
-          <Button variant="outline" onClick={runExpiryCheck} disabled={loading}><ApperIcon name="RefreshCw" size={15} /> Run Expiry Check</Button>
+          <Button variant="outline" onClick={runExpiryCheck} disabled={loading || expiredPremiums.length === 0}><ApperIcon name="RefreshCw" size={15} /> Run Expiry Check</Button>
         </CardContent>
       </Card>
 

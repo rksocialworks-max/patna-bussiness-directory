@@ -1,23 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/layouts/RootLayout';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ApperIcon from '@/components/ApperIcon';
-
-const FIELDS = [
-  'Id',
-  'Name',
-  'category_c',
-  'district_c',
-  'city_c',
-  'status_c',
-  'is_premium_c',
-  'is_verified_c',
-  'premium_expiry_c',
-  'CreatedOn',
-];
 
 export const route = {
   path: '/owner/businesses',
@@ -37,14 +24,17 @@ export default function OwnerMyBusinesses() {
   const { user } = useAuth();
 
   const { data, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('businesses_c')
-      .select(FIELDS)
-      .orderByDesc('CreatedOn')
-      .fetch();
-
-    if (!result.success) throw new Error(result.message);
-    return result.data;
-  }, [user?.Id]);
+    if (!user?.uid) return [];
+    // Only query records explicitly linked to this authenticated UID.
+    // Legacy Owner names must be linked to ownerUid by a trusted migration before appearing here.
+    const result = await listDocuments(COLLECTIONS.businesses, {
+      filters: [{ field: 'ownerUid', value: user.uid }],
+      sort: 'CreatedOn',
+      direction: 'desc',
+      pageSize: 100,
+    });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
+  }, [user?.uid]);
 
   const businesses = data ?? [];
   const approvedCount = businesses.filter((item) => item.status_c === 'Approved').length;

@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import PublicHeader from '@/components/PublicHeader';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
 
-const { isIn } = window.ApperSDK.CoreSDK;
 const FIELDS = ['Id', 'Name', 'category_c', 'district_c', 'city_c', 'address_c', 'description_c', 'rating_c', 'reviews_count_c', 'is_verified_c', 'is_premium_c', 'premium_expiry_c', 'hours_c', 'phone_c', 'whatsapp_c', 'website_c', 'slug_c'];
 
 function readCompare() {
@@ -23,9 +22,11 @@ export default function Compare() {
   const [ids, setIds] = useState(readCompare);
   const { data, loading, error, run } = useFetch(async () => {
     if (!ids.length) return [];
-    const result = await sdk.table('businesses_c').select(FIELDS).where(isIn('Id', ids)).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const rows = await listDocuments(COLLECTIONS.businessPublic, {
+      filters: [{ field: 'id', op: 'in', value: ids }],
+      pageSize: 4,
+    });
+    return rows.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [ids.join('|')]);
 
   function remove(id) {

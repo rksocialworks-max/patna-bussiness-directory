@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import BusinessCard from '@/components/BusinessCard';
 import PublicHeader from '@/components/PublicHeader';
 import { CATEGORIES, BIHAR_DISTRICTS } from '@/data/directoryOptions';
@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
 
-const { contains, eq } = window.ApperSDK.CoreSDK;
 const FIELDS = [
   'Id', 'Name', 'category_c', 'subcategory_c', 'district_c', 'city_c', 'area_c', 'pincode_c',
   'description_c', 'phone_c', 'whatsapp_c', 'logo_c', 'is_premium_c', 'is_verified_c', 'rating_c',
@@ -46,23 +45,25 @@ export default function Businesses() {
   const [visibleCount, setVisibleCount] = useState(12);
 
   const { data: categoryRows } = useFetch(async () => {
-    const result = await sdk.table('categories_c').select(['Id', 'Name', 'status_c']).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    return listDocuments(COLLECTIONS.categoriesPublic, {
+      sort: 'sort_order_c',
+      pageSize: 100,
+    });
   }, []);
 
   const { data, loading, error, run } = useFetch(async () => {
-    let query = sdk.table('businesses_c').select(FIELDS);
-    if (search.trim()) query = query.where(contains('Name', search.trim()));
-    if (category) query = query.where(eq('category_c', category));
-    if (district) query = query.where(eq('district_c', district));
-    if (city.trim()) query = query.where(contains('city_c', city.trim()));
-    if (area.trim()) query = query.where(contains('area_c', area.trim()));
-    if (pincode.trim()) query = query.where(eq('pincode_c', pincode.trim()));
-    if (subcategory.trim()) query = query.where(contains('subcategory_c', subcategory.trim()));
-    const result = await query.fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const result = await listDocuments(COLLECTIONS.businessPublic, { pageSize: 100 });
+    const normalized = result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
+    const matches = (value, term) => String(value ?? '').toLocaleLowerCase().includes(term.toLocaleLowerCase());
+    return normalized.filter((row) =>
+      (!search.trim() || matches(row.Name, search.trim())) &&
+      (!category || row.category_c === category) &&
+      (!district || row.district_c === district) &&
+      (!city.trim() || matches(row.city_c, city.trim())) &&
+      (!area.trim() || matches(row.area_c, area.trim())) &&
+      (!pincode.trim() || String(row.pincode_c ?? '') === pincode.trim()) &&
+      (!subcategory.trim() || matches(row.subcategory_c, subcategory.trim()))
+    );
   }, [search, category, district, city, area, pincode, subcategory]);
 
   const rows = useMemo(() => {

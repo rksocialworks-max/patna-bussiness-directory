@@ -1,5 +1,5 @@
 import { useState, useRef, useId, useCallback } from 'react';
-import { sdk } from '@/services/sdk';
+import { validateUpload, uploadFile, getStoredFileUrl } from '@/services/firebase/storage';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
@@ -127,14 +127,14 @@ export default function FilePicker({
       const file = deduped[i];
       setBatchProgress(prev => ({ ...prev, current: i + 1, fileProgress: 0, fileName: file.name }));
 
-      const validation = sdk.storage.validate(file, config);
+      const validation = validateUpload(file, config);
       if (!validation.valid) {
         toast.error(`${file.name}: ${validation.error}`);
         continue;
       }
 
       try {
-        const result = await sdk.storage.upload(file, {
+        const result = await uploadFile(file, {
           onProgress: (p) => setBatchProgress(prev => ({ ...prev, fileProgress: p })),
         });
         uploaded.push({
@@ -169,7 +169,7 @@ export default function FilePicker({
   const handlePreview = useCallback(async (file) => {
     if (!file.Id) return;
     try {
-      const { url } = await sdk.storage.preview(file);
+      const url = await getStoredFileUrl(file);
       const win = window.open(url, '_blank', 'noopener,noreferrer');
       if (win) win.addEventListener('load', () => setTimeout(() => URL.revokeObjectURL(url), 1000));
     } catch {
@@ -180,7 +180,8 @@ export default function FilePicker({
   const handleDownload = useCallback(async (file) => {
     if (!file.Id) return;
     try {
-      const { url, name } = await sdk.storage.download(file);
+      const url = await getStoredFileUrl(file);
+      const name = file.Name ?? file.name ?? 'download';
       const link = document.createElement('a');
       link.href = url;
       link.download = name;

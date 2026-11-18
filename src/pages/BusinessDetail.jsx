@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
-import { sdk } from '@/services/sdk';
+import { getDocument, listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
+import { submitPublicReview, submitPublicEnquiry, submitBusinessReport } from '@/services/firebase/functions';
 import { toast } from 'sonner';
 import PublicHeader from '@/components/PublicHeader';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import ApperIcon from '@/components/ApperIcon';
 import BusinessExtras from '@/components/BusinessExtras';
 
-const { eq } = window.ApperSDK.CoreSDK;
 const FIELDS = [
   'Id', 'Name', 'category_c', 'subcategory_c', 'district_c', 'city_c',
   'area_c', 'pincode_c', 'address_c', 'description_c', 'owner_name_c',
@@ -30,20 +30,18 @@ export default function BusinessDetail() {
   const [saving, setSaving] = useState('');
 
   const { data: business, loading, error, run } = useFetch(async () => {
-    const result = await sdk.table('businesses_c').select(FIELDS).get(id);
-    return result.data;
+    const result = await getDocument(COLLECTIONS.businessPublic, id);
+    return result ? { ...result, Id: result.Id ?? result.id } : null;
   }, [id]);
 
   const { data: reviews, loading: reviewsLoading, run: runReviews } = useFetch(async () => {
-    const result = await sdk.table('reviews_c').select(['Id', 'Name', 'customer_name_c', 'rating_c', 'title_c', 'review_c', 'owner_reply_c']).where(eq('business_c', id)).where(eq('status_c', 'Approved')).orderByDesc('CreatedOn').fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data;
+    const result = await listDocuments(COLLECTIONS.reviewsPublic, { filters: [{ field: 'business_c', value: id }], sort: 'CreatedOn', direction: 'desc', pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [id]);
 
   const { data: enquiryBranches } = useFetch(async () => {
-    const result = await sdk.table('branches_c').select(['Id', 'Name', 'business_c', 'status_c']).where(eq('business_c', id)).fetch();
-    if (!result.success) throw new Error(result.message);
-    return result.data.filter((branch) => branch.status_c === 'Active');
+    const result = await listDocuments(COLLECTIONS.branchesPublic, { filters: [{ field: 'business_c', value: id }], pageSize: 100 });
+    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, [id]);
 
   useEffect(() => {
@@ -74,35 +72,21 @@ export default function BusinessDetail() {
 
   async function submitReview(event) {
     event.preventDefault();
+    if (!business?.Name) return;
     setSaving('review');
     try {
-      const existing = await sdk.table('reviews_c')
-        .select(['Id'])
-        .where(eq('business_c', id))
-        .where(eq('mobile_c', review.mobile_c))
-        .fetch();
-      if (!existing.success) throw new Error(existing.message);
-      const payload = {
-        Name: review.title_c || `Review for ${business.Name}`,
-        business_c: id,
-        customer_name_c: review.customer_name_c,
-        mobile_c: review.mobile_c,
-        rating_c: Number(review.rating_c),
-        title_c: review.title_c,
-        review_c: review.review_c,
-        status_c: 'Pending',
-        report_status_c: 'None',
-      };
-      if (existing.data?.[0]) {
-        toast.error('A review from this mobile number already exists for this business. Secure review editing requires mobile OTP verification, which is not connected in this demo.');
-        return;
-      }
-      const result = await sdk.table('reviews_c').create(payload);
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
-      toast.success('Review submitted for Admin approval.');
+      await submitPublicReview({
+        businessId: id,
+        customerName: review.customer_name_c.trim(),
+        mobile: review.mobile_c.trim(),
+        rating: Number(review.rating_c),
+        title: review.title_c.trim(),
+        message: review.review_c.trim(),
+      });
+      toast.success('Review Admin approval के लिए भेज दिया गया है।');
       setReview({ customer_name_c: '', mobile_c: '', rating_c: '5', title_c: '', review_c: '' });
-      runReviews();
+    } catch (err) {
+      toast.error(err?.message || 'Review अभी submit नहीं हो सका। Firebase Rules और configuration जाँचें।');
     } finally {
       setSaving('');
     }
@@ -112,20 +96,17 @@ export default function BusinessDetail() {
     event.preventDefault();
     setSaving('enquiry');
     try {
-      const result = await sdk.table('enquiries_c').create({
-        Name: `Enquiry from ${enquiry.customer_name_c}`,
-        business_c: id,
-        customer_name_c: enquiry.customer_name_c,
-        mobile_c: enquiry.mobile_c,
-        message_c: enquiry.message_c,
-        source_c: 'Form',
-        branch_c: enquiry.branch_c || null,
-        status_c: 'New',
+      await submitPublicEnquiry({
+        businessId: id,
+        branchId: enquiry.branch_c || null,
+        customerName: enquiry.customer_name_c.trim(),
+        mobile: enquiry.mobile_c.trim(),
+        message: enquiry.message_c.trim(),
       });
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
-      toast.success('Enquiry submitted to the business.');
+      toast.success('आपकी enquiry business को भेज दी गई है।');
       setEnquiry({ customer_name_c: '', mobile_c: '', message_c: '', branch_c: '' });
+    } catch (err) {
+      toast.error(err?.message || 'Enquiry अभी submit नहीं हो सकी। Firebase Rules और configuration जाँचें।');
     } finally {
       setSaving('');
     }
@@ -133,19 +114,18 @@ export default function BusinessDetail() {
 
   async function submitReport(event) {
     event.preventDefault();
+    if (!business?.Name) return;
     setSaving('report');
     try {
-      const result = await sdk.table('reports_c').create({
-        Name: `Report: ${business.Name}`,
-        business_c: id,
-        reason_c: report.reason_c,
-        description_c: report.description_c,
-        status_c: 'New',
+      await submitBusinessReport({
+        businessId: id,
+        reason: report.reason_c,
+        description: report.description_c.trim(),
       });
-      if (result.messages?.length) toast.error(result.messages[0]);
-      if (!result.data?.length) return;
-      toast.success('Report sent to Admin for review.');
+      toast.success('Report Admin को भेज दी गई है।');
       setReport({ reason_c: 'Incorrect Info', description_c: '' });
+    } catch (err) {
+      toast.error(err?.message || 'Report अभी submit नहीं हो सकी। Firebase Rules और configuration जाँचें।');
     } finally {
       setSaving('');
     }
