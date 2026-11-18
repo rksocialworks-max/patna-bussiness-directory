@@ -24,9 +24,9 @@ In Firebase Console for the same project:
 - Authentication → Sign-in method: enable Email/Password.
 - Firestore Database: create the production database in the intended region and review `firestore.rules`.
 - Storage: initialize the bucket and review `storage.rules`.
-- App Check: register the web app with reCAPTCHA v3, put the site key in `VITE_FIREBASE_APPCHECK_SITE_KEY`, and configure the matching provider in Firebase Console.
+- App Check: register the matching web app with **Fraud Defense (reCAPTCHA Enterprise)**. Create a reCAPTCHA Enterprise website site key for the deployed domains, then put that site key in `VITE_FIREBASE_APPCHECK_SITE_KEY` in `.env.local` and the hosting provider's build environment. The frontend uses Firebase's `ReCaptchaEnterpriseProvider`.
 
-Callable Functions in this project enforce App Check. Do not enforce App Check in production until the web app is registered and the correct site key is configured; otherwise public review/enquiry/report and protected admin calls will be rejected.
+Callable Functions in this project enforce App Check. Do not enforce App Check in production until the web app is registered and the correct Enterprise site key is configured in every deployed frontend environment; otherwise protected callable requests will be rejected.
 
 ## 3. First Super Admin setup (trusted operator only)
 
@@ -71,7 +71,7 @@ Deploying Functions may require the Firebase project to be on the Blaze plan and
 
 ## 5. Build and host the frontend
 
-Set the same `VITE_FIREBASE_*` values in the hosting provider's build environment. Then:
+Set the same `VITE_FIREBASE_*` values in the hosting provider's build environment, including `VITE_FIREBASE_APPCHECK_SITE_KEY`. Then:
 
 ```bash
 npm run build
