@@ -51,7 +51,7 @@ The admin dashboard page is available at `/admin/users` for accounts whose app p
 
 ### App Check
 
-The browser initializes reCAPTCHA v3 App Check when `VITE_FIREBASE_APPCHECK_SITE_KEY` is present. Add the site key to the local `.env.local` and hosting environment after registering the matching site in Firebase App Check. Do not enable App Check enforcement for production callable functions until the deployed web app is correctly registered and verified.
+The browser initializes Firebase App Check with the reCAPTCHA Enterprise provider when `VITE_FIREBASE_APPCHECK_SITE_KEY` is present. Use the Enterprise site key registered for the same Firebase Web App. Add the site key to the local `.env.local` and hosting environment after registering the matching site in Firebase App Check. Do not enable App Check enforcement for production callable functions until the deployed web app is correctly registered and verified.
 
 ### One-time Super Admin bootstrap
 
