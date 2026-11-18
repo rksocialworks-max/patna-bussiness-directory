@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import ConfirmActionButton from '@/components/ConfirmActionButton';
 import ApperIcon from '@/components/ApperIcon';
 
-const { eq } = window.ApperSDK.CoreSDK;
 const FIELDS = [
   'Id', 'Name', 'category_c', 'subcategory_c', 'district_c', 'city_c',
   'area_c', 'pincode_c', 'address_c', 'description_c', 'phone_c',
@@ -46,7 +45,7 @@ export default function OwnerBusinessDetail() {
     if (!result.data?.length) return;
 
     const [reviews, enquiries, analytics] = await Promise.all([
-      sdk.table('reviews_c').select(['Id']).where(eq('business_c', id)).fetch(),
+      sdk.table('reviews_c').select(['Id']).where('business_c', '==', id).fetch(),
       sdk.table('enquiries_c').select(['Id']).where(eq('business_c', id)).fetch(),
       sdk.table('business_analytics_c').select(['Id']).where(eq('business_c', id)).fetch(),
     ]);
