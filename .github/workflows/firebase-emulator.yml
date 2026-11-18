@@ -3,9 +3,11 @@ name: Firebase Emulator and Build Tests
 on:
   push:
     branches:
+      - main
       - firebase-integration/draft
   pull_request:
     branches:
+      - main
       - firebase-integration/draft
   workflow_dispatch:
 
