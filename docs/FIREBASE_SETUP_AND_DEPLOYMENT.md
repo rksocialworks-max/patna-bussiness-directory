@@ -56,7 +56,7 @@ After bootstrap, the Super Admin can assign only Business Owner and Branch Manag
 
 ## 4. Configure GitHub Actions authentication for Hosting
 
-The manual workflow `.github/workflows/firebase-hosting-deploy.yml` deploys **Hosting only** to `patnabiz-b2fcb`. It can run only from `firebase-integration/draft`, requires the manual confirmation input, and uses Google Cloud Workload Identity Federation (WIF). It does not deploy Firestore rules, Storage rules, or Functions.
+The manual workflow `.github/workflows/firebase-hosting-deploy.yml` deploys **Hosting only** to `patnabiz-b2fcb`. It can run only from `main`, requires the manual confirmation input, and uses Google Cloud Workload Identity Federation (WIF). It does not deploy Firestore rules, Storage rules, or Functions.
 
 Before using it, configure a WIF provider for GitHub Actions in Google Cloud and grant its deploy service account the minimum Firebase Hosting deployment permissions for this project. Add these repository settings under Settings → Secrets and variables → Actions:
 
