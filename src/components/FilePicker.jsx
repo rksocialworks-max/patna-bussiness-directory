@@ -219,7 +219,12 @@ export default function FilePicker({
   return (
     <div className="space-y-3">
       {/* Drop zone — hidden in readOnly mode */}
-      {!readOnly && (
+      {!readOnly && !FILE_UPLOADS_ENABLED && (
+        <p className="text-xs text-muted-foreground" role="status">
+          File uploads are temporarily unavailable. Existing attachments remain visible.
+        </p>
+      )}
+      {!readOnly && FILE_UPLOADS_ENABLED && (
         <div
           role="button"
           tabIndex={canAdd ? 0 : -1}
