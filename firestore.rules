@@ -9,8 +9,8 @@ service cloud.firestore {
     function isAdmin() {
       return signedIn() && (
         (request.auth.token.keys().hasAny(['superAdmin']) && request.auth.token.superAdmin == true)
-        || request.auth.token.role == 'Admin_c'
-        || request.auth.token.profile == 'Admin_c'
+        || (request.auth.token.keys().hasAny(['role']) && request.auth.token.role == 'Admin_c')
+        || (request.auth.token.keys().hasAny(['profile']) && request.auth.token.profile == 'Admin_c')
       );
     }
 
