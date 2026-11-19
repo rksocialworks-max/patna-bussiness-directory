@@ -6,6 +6,8 @@ import ApperIcon from '@/components/ApperIcon';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { cn } from '@/lib/utils';
 
+const FILE_UPLOADS_ENABLED = false;
+
 const DEFAULT_CONFIG = {
   supportedExtensions: '',
   supportMultipleValues: true,
@@ -91,7 +93,7 @@ export default function FilePicker({
   const config = normalizeConfig(fieldConfig);
   const multiple = config.supportMultipleValues;
   const effectiveMaxFiles = maxFiles ?? (multiple ? Infinity : 1);
-  const canAdd = !readOnly && !disabled && files.length < effectiveMaxFiles;
+  const canAdd = FILE_UPLOADS_ENABLED && !readOnly && !disabled && files.length < effectiveMaxFiles;
 
   const openFilePicker = useCallback(() => {
     if (!canAdd || uploading) return;
