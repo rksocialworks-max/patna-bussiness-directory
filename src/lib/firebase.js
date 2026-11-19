@@ -1,14 +1,12 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 const requiredEnv = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
   'VITE_FIREBASE_PROJECT_ID',
-  'VITE_FIREBASE_STORAGE_BUCKET',
   'VITE_FIREBASE_APP_ID',
 ];
 
@@ -21,7 +19,10 @@ const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  // Optional while Storage uploads are disabled for the Spark-plan deployment.
+  ...(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET
+    ? { storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET }
+    : {}),
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
@@ -33,7 +34,10 @@ export const firebaseApp = isFirebaseConfigured
 
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 export const db = firebaseApp ? getFirestore(firebaseApp) : null;
-export const storage = firebaseApp ? getStorage(firebaseApp) : null;
+
+// Storage is intentionally not initialized. File uploads remain unavailable
+// until a separately approved Storage plan and security review are completed.
+export const storage = null;
 
 // Firebase App Check uses the reCAPTCHA Enterprise site key registered for this Web App.
 // Leave the key unset until it is configured in the hosting environment.

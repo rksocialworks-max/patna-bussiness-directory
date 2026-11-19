@@ -1,6 +1,6 @@
 # Firebase setup and deployment checklist
 
-This project uses Firebase project `patnabiz-b2fcb`, Firebase Authentication, Cloud Firestore, Cloud Storage and Cloud Functions (region `asia-south1`). The frontend is a Vite SPA and can also be hosted on another static hosting provider.
+This project uses Firebase project `patnabiz-b2fcb`, Firebase Authentication and Cloud Firestore. The frontend is a Vite SPA and can also be hosted on another static hosting provider. For the Spark-plan configuration, Firebase Storage is not initialized and file uploads are disabled. Cloud Functions are included in the source but production deployment requires a compatible billing plan; do not deploy them while keeping the project on Spark.
 
 ## 1. Configure the web app
 
@@ -23,7 +23,7 @@ In Firebase Console for the same project:
 
 - Authentication → Sign-in method: enable Email/Password.
 - Firestore Database: create the production database in the intended region and review `firestore.rules`.
-- Storage: initialize the bucket and review `storage.rules`.
+- Storage: intentionally leave uninitialized while using the Spark-plan configuration. The web app does not initialize Storage and file-upload controls remain disabled. The Storage rules are retained for a future separately approved activation.
 - App Check: register the matching web app with **Fraud Defense (reCAPTCHA Enterprise)**. Create a reCAPTCHA Enterprise website site key for the deployed domains, then put that site key in `VITE_FIREBASE_APPCHECK_SITE_KEY` in `.env.local` and the hosting provider's build environment. The frontend uses Firebase's `ReCaptchaEnterpriseProvider`.
 
 Callable Functions in this project enforce App Check. Do not enforce App Check in production until the web app is registered and the correct Enterprise site key is configured in every deployed frontend environment; otherwise protected callable requests will be rejected.
@@ -56,7 +56,7 @@ After bootstrap, the Super Admin can assign only Business Owner and Branch Manag
 
 ## 4. Configure GitHub Actions authentication for Hosting
 
-The manual workflow `.github/workflows/firebase-hosting-deploy.yml` deploys **Hosting only** to `patnabiz-b2fcb`. It can run only from `firebase-integration/draft`, requires the manual confirmation input, and uses Google Cloud Workload Identity Federation (WIF). It does not deploy Firestore rules, Storage rules, or Functions.
+The manual workflow `.github/workflows/firebase-hosting-deploy.yml` deploys **Hosting only** to `patnabiz-b2fcb`. It can run only from `main`, requires the manual confirmation input, and uses Google Cloud Workload Identity Federation (WIF). It does not deploy Firestore rules, Storage rules, or Functions.
 
 Before using it, configure a WIF provider for GitHub Actions in Google Cloud and grant its deploy service account the minimum Firebase Hosting deployment permissions for this project. Add these repository settings under Settings → Secrets and variables → Actions:
 
@@ -64,7 +64,6 @@ Before using it, configure a WIF provider for GitHub Actions in Google Cloud and
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
 - `VITE_FIREBASE_PROJECT_ID` (must be `patnabiz-b2fcb`)
-- `VITE_FIREBASE_STORAGE_BUCKET`
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
 - `VITE_FIREBASE_MEASUREMENT_ID`
@@ -76,20 +75,16 @@ Before using it, configure a WIF provider for GitHub Actions in Google Cloud and
 
 Do not create or upload a service-account private key JSON file. Use WIF. Verify the App Check key is the Enterprise site key for the registered Firebase Web App and that its allowed domains include the Firebase Hosting domains. A successful workflow run publishes the site publicly; run it only when intentionally approving a live Hosting release.
 
-## 5. Deploy backend services
+## 5. Deploy backend services on the Spark plan
 
-From the repository root, after verifying the selected Firebase project and reviewing security rules:
+For the current free-plan configuration, deploy only Firestore rules after verifying the selected project and reviewing the rules:
 
 ```bash
-npm install
-cd functions
-npm install
-cd ..
 firebase use patnabiz-b2fcb
-firebase deploy --only firestore:rules,storage,functions
+firebase deploy --only firestore:rules
 ```
 
-Deploying Functions may require the Firebase project to be on the Blaze plan and may create billable resources. Review current Firebase pricing and project billing before deployment.
+Do not deploy Storage or Cloud Functions as part of the Spark-only release. Storage uploads are disabled in the frontend. Cloud Functions are required by some protected workflows (including server-side review/enquiry submissions and premium payment processing); those workflows are not production-operational until Functions are deployed on a compatible billing plan and their required secrets, App Check, and payment settings are configured. Review current Firebase pricing and project billing before enabling them.
 
 ## 6. Build and host the frontend
 
@@ -113,10 +108,10 @@ firebase deploy --only hosting
 - Approve a test listing and verify it appears in the public directory mirror.
 - Verify a visitor can submit a review/enquiry/report after App Check is configured.
 - Verify owners cannot read another owner's private records or write premium/moderation fields.
-- Verify uploads are limited by Storage Rules to the authenticated user's own upload path and allowed file types.
+- Confirm file-upload controls remain disabled in the Spark-plan release.
 - Confirm public mirrors do not contain private owner or verification data.
 - Run the emulator suite and inspect GitHub Actions before production deployment.
 
 ## Important
 
-GitHub Actions passing means the code builds and the current Firestore/Storage emulator tests pass. It does not prove that production Firebase services, App Check, billing, custom claims, real user flows, or hosting are configured. No production deployment should be treated as complete until the checks above are performed against the intended project.
+GitHub Actions passing means the code builds and the current Firestore/Storage emulator tests pass. It does not prove that production Firebase services, App Check, billing, custom claims, Cloud Functions, real user flows, or hosting are configured. The current Spark-plan configuration intentionally disables Storage uploads and does not deploy Cloud Functions. No production deployment should be treated as complete until the applicable checks above are performed against the intended project.
