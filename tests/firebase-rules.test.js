@@ -57,6 +57,11 @@ describe('Firestore private business rules', () => {
 
   it('allows an already assigned Branch Manager to access only their assigned branch', async () => {
     await env.withSecurityRulesDisabled(async (context) => {
+      // Branch reads also evaluate the owner path; seed the parent business
+      // so the test isolates Branch Manager assignment rather than a missing doc.
+      await setDoc(doc(context.firestore(), 'businesses/business-1'), {
+        ownerUid: 'business-owner-1',
+      });
       await setDoc(doc(context.firestore(), 'branches/assigned-branch'), {
         business_c: 'business-1',
         manager_c: [{ User: 'manager-1' }],
