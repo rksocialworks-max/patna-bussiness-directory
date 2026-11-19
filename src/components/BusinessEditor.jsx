@@ -130,7 +130,8 @@ export default function BusinessEditor({ record = null }) {
         // Keep the initial owner submission aligned with the strict Firestore
         // create allowlist. Premium fields and admin-controlled fields are added later.
         const allowedCreateFields = [
-          'Name', 'category_c', 'owner_name_c', 'phone_c', 'whatsapp_c',
+          'Name', 'category_c', 'subcategory_c', 'business_type_c',
+          'owner_name_c', 'phone_c', 'whatsapp_c',
           'district_c', 'city_c', 'area_c', 'pincode_c', 'address_c',
           'description_c', 'map_url_c', 'latitude_c', 'longitude_c',
           'facebook_c', 'instagram_c', 'gstin_c', 'hours_c',
@@ -185,7 +186,7 @@ export default function BusinessEditor({ record = null }) {
             <label className={fieldClass}><span className={labelClass}>Owner Name *</span><Input required value={form.owner_name_c} onChange={(event) => change('owner_name_c', event.target.value)} placeholder="Owner full name" /></label>
             <label className={fieldClass}><span className={labelClass}>Mobile Number *</span><Input required value={form.phone_c} onChange={(event) => change('phone_c', event.target.value)} placeholder="10-digit mobile number" /></label>
             <label className={fieldClass}><span className={labelClass}>WhatsApp Number</span><Input value={form.whatsapp_c} onChange={(event) => change('whatsapp_c', event.target.value)} placeholder="WhatsApp number" /></label>
-            <label className={fieldClass}><span className={labelClass}>Email</span><Input type="email" value={form.email_c} onChange={(event) => change('email_c', event.target.value)} placeholder="business@example.com" /></label>
+            {(premium || user?.profile === 'Admin_c') && <label className={fieldClass}><span className={labelClass}>Email (Premium)</span><Input type="email" value={form.email_c} onChange={(event) => change('email_c', event.target.value)} placeholder="business@example.com" /></label>}
             <label className={fieldClass}><span className={labelClass}>District *</span><select required value={form.district_c} onChange={(event) => change('district_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Select district</option>{BIHAR_DISTRICTS.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
             <label className={fieldClass}><span className={labelClass}>City / Town</span><Input value={form.city_c} onChange={(event) => change('city_c', event.target.value)} placeholder="City or town" /></label>
             <label className={fieldClass}><span className={labelClass}>Area / Locality</span><Input value={form.area_c} onChange={(event) => change('area_c', event.target.value)} placeholder="Area / mohalla" /></label>
@@ -220,13 +221,9 @@ export default function BusinessEditor({ record = null }) {
         <section className="rounded-2xl border border-border bg-card p-5 md:p-7">
           <h2 className="text-lg font-bold">Website & Social Media</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <label className={fieldClass}><span className={labelClass}>Website (Premium)</span><Input value={form.website_c} onChange={(event) => change('website_c', event.target.value)} placeholder="https://" /></label>
+            {(premium || user?.profile === 'Admin_c') && <label className={fieldClass}><span className={labelClass}>Website (Premium)</span><Input value={form.website_c} onChange={(event) => change('website_c', event.target.value)} placeholder="https://" /></label>}
             <label className={fieldClass}><span className={labelClass}>Facebook</span><Input value={form.facebook_c} onChange={(event) => change('facebook_c', event.target.value)} placeholder="Facebook profile URL" /></label>
             <label className={fieldClass}><span className={labelClass}>Instagram</span><Input value={form.instagram_c} onChange={(event) => change('instagram_c', event.target.value)} placeholder="Instagram profile URL" /></label>
-            <label className={fieldClass}><span className={labelClass}>YouTube</span><Input value={form.youtube_c} onChange={(event) => change('youtube_c', event.target.value)} placeholder="YouTube channel URL" /></label>
-            <label className={fieldClass}><span className={labelClass}>LinkedIn</span><Input value={form.linkedin_c} onChange={(event) => change('linkedin_c', event.target.value)} placeholder="LinkedIn URL" /></label>
-            <label className={fieldClass}><span className={labelClass}>X (Twitter)</span><Input value={form.x_c} onChange={(event) => change('x_c', event.target.value)} placeholder="X profile URL" /></label>
-            <label className={fieldClass}><span className={labelClass}>Telegram</span><Input value={form.telegram_c} onChange={(event) => change('telegram_c', event.target.value)} placeholder="Telegram URL" /></label>
           </div>
         </section>
 
