@@ -45,6 +45,49 @@ const ownerBusiness = {
 };
 
 describe('Firestore private business rules', () => {
+  it('lets a signed-in user create only their own Business Owner profile without granting elevated roles', async () => {
+    const db = env.authenticatedContext('owner-self', { email: 'owner@example.com' }).firestore();
+    const profileRef = doc(db, 'users/owner-self');
+    await assertSucceeds(setDoc(profileRef, {
+      uid: 'owner-self',
+      email: 'owner@example.com',
+      role: 'BusinessOwner_c',
+      profile: 'BusinessOwner_c',
+    }));
+    await assertFails(updateDoc(profileRef, { role: 'Admin_c', profile: 'Admin_c' }));
+    await assertFails(setDoc(doc(db, 'users/other-user'), {
+      uid: 'other-user',
+      email: 'owner@example.com',
+      role: 'BusinessOwner_c',
+      profile: 'BusinessOwner_c',
+    }));
+    await assertFails(setDoc(doc(db, 'users/escalated-user'), {
+      uid: 'escalated-user',
+      email: 'owner@example.com',
+      role: 'Admin_c',
+      profile: 'Admin_c',
+    }));
+  });
+
+  it('allows a self-provisioned Business Owner profile to create only a pending free listing', async () => {
+    const db = env.authenticatedContext('owner-self', { email: 'owner@example.com' }).firestore();
+    await setDoc(doc(db, 'users/owner-self'), {
+      uid: 'owner-self',
+      email: 'owner@example.com',
+      role: 'BusinessOwner_c',
+      profile: 'BusinessOwner_c',
+    });
+    await assertSucceeds(setDoc(doc(db, 'businesses/owner-self-shop'), {
+      ...ownerBusiness,
+      ownerUid: 'owner-self',
+    }));
+    await assertFails(setDoc(doc(db, 'businesses/owner-self-approved'), {
+      ...ownerBusiness,
+      ownerUid: 'owner-self',
+      status_c: 'Approved',
+    }));
+  });
+
   it('denies unauthenticated reads and writes to private business records', async () => {
     const db = env.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(db, 'businesses/demo')));
