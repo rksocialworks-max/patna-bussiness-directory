@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/firebase-integration/draft') && inputs.confirm_live_deploy == true
+    if: github.ref == 'refs/heads/main' && inputs.confirm_live_deploy == true
     runs-on: ubuntu-latest
     environment: firebase-production
     steps:
