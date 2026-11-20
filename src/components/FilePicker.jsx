@@ -116,6 +116,7 @@ export default function FilePicker({
   maxFiles,
   readOnly = false,
   disabled = false,
+  compressImages = false,
 }) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
