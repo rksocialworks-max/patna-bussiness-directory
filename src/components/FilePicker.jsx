@@ -167,7 +167,9 @@ export default function FilePicker({
       setBatchProgress(prev => ({ ...prev, current: i + 1, fileProgress: 0, fileName: originalFile.name }));
       try {
         // Compress images locally before validating and uploading; PDFs remain unchanged.
-        const file = await compressImage(originalFile, Number(config.maxValue || 0) * 1024);
+        const file = compressImages
+          ? await compressImage(originalFile, Number(config.maxValue || 0) * 1024)
+          : originalFile;
         const validation = validateUpload(file, config);
         if (!validation.valid) {
           toast.error(`${originalFile.name}: ${validation.error}`);
@@ -194,7 +196,7 @@ export default function FilePicker({
     setUploading(false);
     setBatchProgress({ current: 0, total: 0, fileProgress: 0, fileName: '' });
     if (inputRef.current) inputRef.current.value = '';
-  }, [canAdd, uploading, effectiveMaxFiles, config, onChange]);
+  }, [canAdd, uploading, effectiveMaxFiles, config, onChange, compressImages]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
