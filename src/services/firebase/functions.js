@@ -60,6 +60,14 @@ export async function backfillPublicDirectory() {
 }
 
 
+/** Return branch IDs assigned to the signed-in Branch Manager. */
+export async function getManagedBranches() {
+  const callable = httpsCallable(requireFunctions(), 'getManagedBranches');
+  const result = await callable({});
+  return result.data.branchIds || [];
+}
+
+
 /** Return only eligible branch manager accounts for branch assignment. */
 export async function listBranchManagers() {
   const callable = httpsCallable(requireFunctions(), 'listBranchManagers');

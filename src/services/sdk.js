@@ -13,6 +13,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
+import { getManagedBranches } from '@/services/firebase/functions';
 
 // Compatibility facade for older screens. All data now uses Firebase Firestore.
 const TABLES = Object.freeze({
@@ -103,18 +104,8 @@ async function getCallerScope() {
   }
 
   if (role === 'BranchManager_c') {
-    const assigned = await getDocs(query(
-      collection(database, 'branches'),
-      where('manager_c', 'array-contains', { User: user.uid }),
-      firestoreLimit(100),
-    ));
-    const branches = assigned.docs.map((item) => ({ id: item.id, ...item.data() }));
-    return {
-      role,
-      uid: user.uid,
-      businessIds: [],
-      branchIds: branches.map((item) => item.id),
-    };
+    const branchIds = await getManagedBranches();
+    return { role, uid: user.uid, businessIds: [], branchIds };
   }
 
   return { role, uid: user.uid, businessIds: [], branchIds: [] };

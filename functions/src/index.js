@@ -651,6 +651,34 @@ exports.backfillPublicDirectory = onCall(
 );
 
 
+// Return only branch IDs assigned to the caller. Filtering happens on the trusted server,
+// because Firestore array-contains cannot query the nested manager_c map reliably.
+exports.getManagedBranches = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in first.');
+    const role = request.auth.token.role || request.auth.token.profile;
+    if (role !== 'BranchManager_c') {
+      throw new HttpsError('permission-denied', 'Only Branch Managers can retrieve assigned branches.');
+    }
+    const uid = request.auth.uid;
+    const branchIds = [];
+    let cursor = null;
+    do {
+      let pageQuery = db.collection('branches').orderBy('__name__').limit(500);
+      if (cursor) pageQuery = pageQuery.startAfter(cursor);
+      const snapshot = await pageQuery.get();
+      snapshot.docs.forEach((branch) => {
+        const managers = Array.isArray(branch.data().manager_c) ? branch.data().manager_c : [];
+        if (managers.some((entry) => entry?.User?.Id === uid)) branchIds.push(branch.id);
+      });
+      cursor = snapshot.docs.length === 500 ? snapshot.docs[snapshot.docs.length - 1] : null;
+    } while (cursor);
+    return { branchIds };
+  },
+);
+
+
 // Expose only the names of eligible Branch Manager accounts to an authenticated
 // business owner or Super Admin, so branches can be assigned without exposing
 // the full user directory.
