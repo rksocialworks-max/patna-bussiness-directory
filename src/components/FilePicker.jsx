@@ -10,7 +10,7 @@ const DEFAULT_CONFIG = {
   supportedExtensions: '',
   supportMultipleValues: true,
   minValue: 0,
-  maxValue: 10240,
+  maxValue: 500,
 };
 
 function normalizeConfig(raw) {
