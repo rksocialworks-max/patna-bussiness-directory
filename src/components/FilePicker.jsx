@@ -6,8 +6,6 @@ import ApperIcon from '@/components/ApperIcon';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { cn } from '@/lib/utils';
 
-const FILE_UPLOADS_ENABLED = false;
-
 const DEFAULT_CONFIG = {
   supportedExtensions: '',
   supportMultipleValues: true,
@@ -131,7 +129,7 @@ export default function FilePicker({
   const config = normalizeConfig(fieldConfig);
   const multiple = config.supportMultipleValues;
   const effectiveMaxFiles = maxFiles ?? (multiple ? Infinity : 1);
-  const canAdd = FILE_UPLOADS_ENABLED && !readOnly && !disabled && files.length < effectiveMaxFiles;
+  const canAdd = uploadsEnabled && !readOnly && !disabled && files.length < effectiveMaxFiles;
 
   const openFilePicker = useCallback(() => {
     if (!canAdd || uploading) return;
@@ -260,12 +258,12 @@ export default function FilePicker({
   return (
     <div className="space-y-3">
       {/* Drop zone — hidden in readOnly mode */}
-      {!readOnly && !FILE_UPLOADS_ENABLED && (
+      {!readOnly && !uploadsEnabled && (
         <p className="text-xs text-muted-foreground" role="status">
           File uploads are temporarily unavailable. Existing attachments remain visible.
         </p>
       )}
-      {!readOnly && FILE_UPLOADS_ENABLED && (
+      {!readOnly && uploadsEnabled && (
         <div
           role="button"
           tabIndex={canAdd ? 0 : -1}
