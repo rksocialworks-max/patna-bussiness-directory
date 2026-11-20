@@ -9,13 +9,19 @@ service cloud.firestore {
     function isAdmin() {
       return signedIn() && (
         (request.auth.token.keys().hasAny(['superAdmin']) && request.auth.token.superAdmin == true)
-        || request.auth.token.role == 'Admin_c'
-        || request.auth.token.profile == 'Admin_c'
+        || (request.auth.token.keys().hasAny(['role']) && request.auth.token.role == 'Admin_c')
+        || (request.auth.token.keys().hasAny(['profile']) && request.auth.token.profile == 'Admin_c')
       );
     }
 
     function isBusinessOwner() {
-      return signedIn() && request.auth.token.role == 'BusinessOwner_c';
+      return signedIn() && (
+        request.auth.token.role == 'BusinessOwner_c'
+        || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'BusinessOwner_c'
+        )
+      );
     }
 
     function ownsBusiness(businessId) {
@@ -324,7 +330,18 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isAdmin() || (signedIn() && request.auth.uid == userId);
       allow list: if isAdmin();
-      allow create, update, delete: if false;
+      // Every authenticated user may create only their own least-privilege
+      // Business Owner profile. This never grants Admin or Branch Manager access.
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'role', 'profile', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role == 'BusinessOwner_c'
+        && request.resource.data.profile == 'BusinessOwner_c';
+      // Role/profile fields are immutable from the client. Only trusted Admin SDK
+      // operations may change account roles or delete user profile records.
+      allow update, delete: if false;
     }
 
     match /support_requests/{requestId} {

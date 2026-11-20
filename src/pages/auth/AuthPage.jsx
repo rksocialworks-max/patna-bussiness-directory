@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { signIn, signUp, sendCurrentEmailVerification } from '@/services/firebase/auth';
@@ -49,9 +51,27 @@ export default function AuthPage({ mode }) {
       if (mode === 'login') {
         const firebaseUser = await signIn(email, password);
         const token = await firebaseUser.getIdTokenResult(true);
-        const profile = token.claims.role || token.claims.profile;
+        let profile = token.claims.role || token.claims.profile;
         if (!profile) {
-          setError('Your account is awaiting role approval. Please contact the directory administrator.');
+          // Spark-plan compatible fallback: provision only the fixed,
+          // least-privilege Business Owner role in the user's own profile doc.
+          const userRef = doc(db, 'users', firebaseUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            profile = userSnap.data().role || userSnap.data().profile || '';
+          } else {
+            await setDoc(userRef, {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              role: 'BusinessOwner_c',
+              profile: 'BusinessOwner_c',
+              createdAt: serverTimestamp(),
+            });
+            profile = 'BusinessOwner_c';
+          }
+        }
+        if (!profile) {
+          setError('Your account role could not be loaded. Please contact the directory administrator.');
           return;
         }
         dispatch(setUser({
@@ -64,9 +84,16 @@ export default function AuthPage({ mode }) {
         navigate(redirectAfterAuth);
       } else {
         if (password !== confirmPassword) { setError('Passwords do not match'); return; }
-        await signUp({ email, password });
+        const newUser = await signUp({ email, password });
+        await setDoc(doc(db, 'users', newUser.uid), {
+          uid: newUser.uid,
+          email: newUser.email || email.trim(),
+          role: 'BusinessOwner_c',
+          profile: 'BusinessOwner_c',
+          createdAt: serverTimestamp(),
+        });
         await sendCurrentEmailVerification();
-        setError('Account created. Please verify your email using the link we sent. Directory access will be enabled after administrator approval.');
+        setError('Account created with Business Owner access. Please verify your email using the link we sent. Your business listing will still require Admin approval before it appears publicly.');
       }
     } catch (err) {
       setError(err?.message || 'Unexpected error');

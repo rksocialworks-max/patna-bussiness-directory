@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useCallback } from 'react';
 import { Outlet, useLocation, useMatches, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { subscribeToAuth, signOutCurrentUser } from '@/services/firebase/auth';
 import { setUser, clearUser, setInitialized } from '@/store/userSlice';
 import { verifyRouteAccess } from '@/router/route.utils';
@@ -38,7 +40,13 @@ export default function RootLayout() {
       try {
         const token = await firebaseUser.getIdTokenResult();
         if (!isMounted) return;
-        const profile = token.claims.role || token.claims.profile || '';
+        let profile = token.claims.role || token.claims.profile || '';
+        if (!profile && db) {
+          const userSnap = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userSnap.exists()) {
+            profile = userSnap.data().role || userSnap.data().profile || '';
+          }
+        }
         dispatch(setUser({
           uid: firebaseUser.uid,
           emailAddress: firebaseUser.email,

@@ -45,6 +45,37 @@ const ownerBusiness = {
 };
 
 describe('Firestore private business rules', () => {
+  it('does not allow a user to self-assign the Branch Manager role', async () => {
+    const db = env.authenticatedContext('self-assign', { email: 'manager@example.com' }).firestore();
+    await assertFails(setDoc(doc(db, 'users/self-assign'), {
+      uid: 'self-assign',
+      email: 'manager@example.com',
+      role: 'BranchManager_c',
+      profile: 'BranchManager_c',
+    }));
+  });
+
+  it('allows an already assigned Branch Manager to access only their assigned branch', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      // Branch reads also evaluate the owner path; seed the parent business
+      // so the test isolates Branch Manager assignment rather than a missing doc.
+      await setDoc(doc(context.firestore(), 'businesses/business-1'), {
+        ownerUid: 'business-owner-1',
+      });
+      await setDoc(doc(context.firestore(), 'branches/assigned-branch'), {
+        business_c: 'business-1',
+        manager_c: [{ User: 'manager-1' }],
+      });
+      await setDoc(doc(context.firestore(), 'branches/other-branch'), {
+        business_c: 'business-1',
+        manager_c: [{ User: 'manager-2' }],
+      });
+    });
+    const db = env.authenticatedContext('manager-1', { role: 'BranchManager_c' }).firestore();
+    await assertSucceeds(getDoc(doc(db, 'branches/assigned-branch')));
+    await assertFails(getDoc(doc(db, 'branches/other-branch')));
+  });
+
   it('denies unauthenticated reads and writes to private business records', async () => {
     const db = env.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(db, 'businesses/demo')));
