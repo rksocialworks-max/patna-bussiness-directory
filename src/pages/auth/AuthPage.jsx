@@ -51,27 +51,22 @@ export default function AuthPage({ mode }) {
       if (mode === 'login') {
         const firebaseUser = await signIn(email, password);
         const token = await firebaseUser.getIdTokenResult(true);
-        let profile = token.claims.role || token.claims.profile;
+        let profile = token.claims.role || token.claims.profile || (token.claims.superAdmin === true ? 'Admin_c' : '');
         if (!profile) {
-          // Spark-plan compatible fallback: provision only the fixed,
-          // least-privilege Business Owner role in the user's own profile doc.
+          // Do not auto-assign a role at login. Accounts must be provisioned
+          // through signup or an Admin-managed role assignment.
           const userRef = doc(db, 'users', firebaseUser.uid);
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
             profile = userSnap.data().role || userSnap.data().profile || '';
-          } else {
-            await setDoc(userRef, {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              role: 'BusinessOwner_c',
-              profile: 'BusinessOwner_c',
-              createdAt: serverTimestamp(),
-            });
-            profile = 'BusinessOwner_c';
           }
         }
         if (!profile) {
-          setError('Your account role could not be loaded. Please contact the directory administrator.');
+          setError('Your account role is not assigned. Please contact the directory administrator.');
+          return;
+        }
+        if (matchedProfile?.name && profile !== matchedProfile.name) {
+          setError(`This account is assigned as ${profile.replace(/_c$/, '')}. Please use the correct login portal.`);
           return;
         }
         dispatch(setUser({
