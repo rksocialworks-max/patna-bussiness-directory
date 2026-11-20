@@ -60,6 +60,43 @@ function formatSize(bytes) {
   return `${(kb / 1024).toFixed(1)} MB`;
 }
 
+async function compressImage(file, maxBytes) {
+  if (!file.type?.startsWith('image/')) return file;
+  const targetBytes = maxBytes > 0 ? Math.min(maxBytes - 16 * 1024, 950 * 1024) : 950 * 1024;
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    if (file.size <= targetBytes) return file;
+    throw new Error('This image could not be processed. Please choose another image.');
+  }
+  try {
+    const scale = Math.min(1, 1920 / Math.max(bitmap.width, bitmap.height));
+    let width = Math.max(1, Math.round(bitmap.width * scale));
+    let height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Image compression is not supported in this browser.');
+    for (let attempt = 0; attempt < 8; attempt++) {
+      canvas.width = width;
+      canvas.height = height;
+      context.clearRect(0, 0, width, height);
+      context.drawImage(bitmap, 0, 0, width, height);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', Math.max(0.5, 0.86 - attempt * 0.05)));
+      if (!blob) throw new Error('Image compression failed.');
+      if (blob.size <= targetBytes) {
+        const baseName = file.name.replace(/\.[^.]+$/, '');
+        return new File([blob], `${baseName}.webp`, { type: 'image/webp', lastModified: Date.now() });
+      }
+      width = Math.max(1, Math.round(width * 0.82));
+      height = Math.max(1, Math.round(height * 0.82));
+    }
+    throw new Error('Image is too large to compress below 1 MB. Please choose a smaller image.');
+  } finally {
+    bitmap.close?.();
+  }
+}
+
 function normalizeFile(file) {
   // Server files carry an Id (UUID on migrated backends); a falsy Id means a local, not-yet-uploaded file.
   const isServer = !!file.Id;
@@ -79,6 +116,7 @@ export default function FilePicker({
   maxFiles,
   readOnly = false,
   disabled = false,
+  compressImages = false,
 }) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -126,16 +164,18 @@ export default function FilePicker({
     const uploaded = [];
 
     for (let i = 0; i < deduped.length; i++) {
-      const file = deduped[i];
-      setBatchProgress(prev => ({ ...prev, current: i + 1, fileProgress: 0, fileName: file.name }));
-
-      const validation = validateUpload(file, config);
-      if (!validation.valid) {
-        toast.error(`${file.name}: ${validation.error}`);
-        continue;
-      }
-
+      const originalFile = deduped[i];
+      setBatchProgress(prev => ({ ...prev, current: i + 1, fileProgress: 0, fileName: originalFile.name }));
       try {
+        // Compress images locally before validating and uploading; PDFs remain unchanged.
+        const file = compressImages
+          ? await compressImage(originalFile, Number(config.maxValue || 0) * 1024)
+          : originalFile;
+        const validation = validateUpload(file, config);
+        if (!validation.valid) {
+          toast.error(`${originalFile.name}: ${validation.error}`);
+          continue;
+        }
         const result = await uploadFile(file, {
           onProgress: (p) => setBatchProgress(prev => ({ ...prev, fileProgress: p })),
         });
@@ -145,18 +185,19 @@ export default function FilePicker({
           name: result.name || file.name,
           type: result.type || file.type,
         });
+        if (file.size < originalFile.size) toast.success(`${originalFile.name} compressed to ${formatSize(file.size)}`);
       } catch (err) {
-        toast.error(`Failed to upload ${file.name}: ${err.message ?? 'Unknown error'}`);
+        toast.error(`Failed to process ${originalFile.name}: ${err.message ?? 'Unknown error'}`);
       }
     }
 
-    if (uploaded.length) {
+        if (uploaded.length) {
       onChange([...filesRef.current, ...uploaded]);
     }
     setUploading(false);
     setBatchProgress({ current: 0, total: 0, fileProgress: 0, fileName: '' });
     if (inputRef.current) inputRef.current.value = '';
-  }, [canAdd, uploading, effectiveMaxFiles, config, onChange]);
+  }, [canAdd, uploading, effectiveMaxFiles, config, onChange, compressImages]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
