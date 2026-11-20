@@ -662,11 +662,18 @@ exports.getManagedBranches = onCall(
       throw new HttpsError('permission-denied', 'Only Branch Managers can retrieve assigned branches.');
     }
     const uid = request.auth.uid;
-    const snapshot = await db.collection('branches').limit(1000).get();
-    const branchIds = snapshot.docs
-      .filter((branch) => (Array.isArray(branch.data().manager_c) ? branch.data().manager_c : [])
-        .some((entry) => entry?.User?.Id === uid))
-      .map((branch) => branch.id);
+    const branchIds = [];
+    let cursor = null;
+    do {
+      let pageQuery = db.collection('branches').orderBy('__name__').limit(500);
+      if (cursor) pageQuery = pageQuery.startAfter(cursor);
+      const snapshot = await pageQuery.get();
+      snapshot.docs.forEach((branch) => {
+        const managers = Array.isArray(branch.data().manager_c) ? branch.data().manager_c : [];
+        if (managers.some((entry) => entry?.User?.Id === uid)) branchIds.push(branch.id);
+      });
+      cursor = snapshot.docs.length === 500 ? snapshot.docs[snapshot.docs.length - 1] : null;
+    } while (cursor);
     return { branchIds };
   },
 );
