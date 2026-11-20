@@ -33,7 +33,7 @@ service cloud.firestore {
 
     function managesBranch(branchId) {
       return signedIn()
-        && request.auth.token.role == 'BranchManager_c'
+        && (request.auth.token.role == 'BranchManager_c' || request.auth.token.profile == 'BranchManager_c')
         && branchId is string
         && exists(/databases/$(database)/documents/branches/$(branchId))
         && get(/databases/$(database)/documents/branches/$(branchId)).data.manager_c is list
