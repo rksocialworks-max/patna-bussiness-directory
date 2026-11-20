@@ -37,9 +37,8 @@ service cloud.firestore {
         && branchId is string
         && exists(/databases/$(database)/documents/branches/$(branchId))
         && get(/databases/$(database)/documents/branches/$(branchId)).data.manager_c is list
-        && get(/databases/$(database)/documents/branches/$(branchId)).data.manager_c.hasAny([
-          { User: request.auth.uid }
-        ]);
+        && get(/databases/$(database)/documents/branches/$(branchId)).data.manager_c.size() > 0
+        && get(/databases/$(database)/documents/branches/$(branchId)).data.manager_c[0].User.Id == request.auth.uid;
     }
 
     function ownerEditableFields() {
