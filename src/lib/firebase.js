@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 const requiredEnv = [
@@ -35,9 +36,11 @@ export const firebaseApp = isFirebaseConfigured
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 export const db = firebaseApp ? getFirestore(firebaseApp) : null;
 
-// Storage is intentionally not initialized. File uploads remain unavailable
-// until a separately approved Storage plan and security review are completed.
-export const storage = null;
+// Initialize Storage only when a bucket is explicitly configured. This keeps
+// uploads unavailable on deployments that have not enabled/configured Storage.
+export const storage = firebaseApp && firebaseConfig.storageBucket
+  ? getStorage(firebaseApp)
+  : null;
 
 // Firebase App Check uses the reCAPTCHA Enterprise site key registered for this Web App.
 // Leave the key unset until it is configured in the hosting environment.
