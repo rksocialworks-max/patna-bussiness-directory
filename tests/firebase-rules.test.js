@@ -302,6 +302,31 @@ describe('Storage security rules', () => {
 });
 
 describe('Branch Manager branch access rules', () => {
+  it('accepts Branch Manager profile claims when reading assigned branches', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'branches/profile-manager-branch'), {
+        Name: 'Profile Claim Branch', business_c: 'business-1',
+        manager_c: [{ User: { Id: 'profile-manager', Name: 'Profile Manager' } }],
+      });
+    });
+    const db = env.authenticatedContext('profile-manager', { profile: 'BranchManager_c' }).firestore();
+    await assertSucceeds(getDoc(doc(db, 'branches/profile-manager-branch')));
+  });
+
+  it('restricts Branch Manager branch updates to approved fields', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'branches/manager-edit-branch'), {
+        Name: 'Manager Branch', business_c: 'business-1',
+        manager_c: [{ User: { Id: 'manager-edit', Name: 'Manager Edit' } }],
+        address_c: 'Old address',
+      });
+    });
+    const db = env.authenticatedContext('manager-edit', { role: 'BranchManager_c' }).firestore();
+    const branchRef = doc(db, 'branches/manager-edit-branch');
+    await assertSucceeds(updateDoc(branchRef, { address_c: 'New address' }));
+    await assertFails(updateDoc(branchRef, { business_c: 'business-2' }));
+  });
+
   it('allows a manager to read only branches assigned to their UID', async () => {
     await env.withSecurityRulesDisabled(async (context) => {
       const db = context.firestore();
