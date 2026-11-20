@@ -344,3 +344,22 @@ describe('Branch Manager branch access rules', () => {
     await assertFails(getDoc(doc(db, 'branches/unassigned-branch')));
   });
 });
+
+
+describe('Branch Manager single-manager consistency', () => {
+  it('only grants Firestore branch access to the first manager entry', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'branches/multi-manager-branch'), {
+        Name: 'Multi Manager Branch', business_c: 'business-1',
+        manager_c: [
+          { User: { Id: 'first-manager', Name: 'First Manager' } },
+          { User: { Id: 'second-manager', Name: 'Second Manager' } },
+        ],
+      });
+    });
+    const firstDb = env.authenticatedContext('first-manager', { role: 'BranchManager_c' }).firestore();
+    const secondDb = env.authenticatedContext('second-manager', { role: 'BranchManager_c' }).firestore();
+    await assertSucceeds(getDoc(doc(firstDb, 'branches/multi-manager-branch')));
+    await assertFails(getDoc(doc(secondDb, 'branches/multi-manager-branch')));
+  });
+});
