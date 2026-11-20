@@ -28,13 +28,13 @@ service firebase.storage {
     match /users/{uid}/uploads/{fileName} {
       allow read: if isOwner(uid) || isAdmin();
 
-      // Business images are limited to 1 MB. Verification PDFs retain a 10 MB limit.
+      // Business images are limited to 1 MB. Verification PDFs are limited to 500 KB.
       allow create, update: if isOwner(uid)
         && allowedUploadType()
         && ((request.resource.contentType.matches('image/(jpeg|png|webp)')
               && request.resource.size <= 1 * 1024 * 1024)
             || (request.resource.contentType == 'application/pdf'
-              && request.resource.size <= 10 * 1024 * 1024));
+              && request.resource.size <= 500 * 1024));
 
       allow delete: if isOwner(uid) || isAdmin();
     }
