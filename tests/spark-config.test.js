@@ -6,19 +6,19 @@ const firebaseConfig = readFileSync(new URL('../src/lib/firebase.js', import.met
 const filePicker = readFileSync(new URL('../src/components/FilePicker.jsx', import.meta.url), 'utf8');
 const hostingWorkflow = readFileSync(new URL('../.github/workflows/firebase-hosting-deploy.yml', import.meta.url), 'utf8');
 
-test('Spark frontend does not initialize Firebase Storage', () => {
-  assert.doesNotMatch(firebaseConfig, /getStorage\s*\(/);
-  assert.match(firebaseConfig, /export const storage = null;/);
-  assert.doesNotMatch(firebaseConfig, /'VITE_FIREBASE_STORAGE_BUCKET',/);
+test('Firebase Storage initializes only when a bucket is configured', () => {
+  assert.match(firebaseConfig, /import \{ getStorage \} from 'firebase\/storage'/);
+  assert.match(firebaseConfig, /firebaseApp && firebaseConfig\.storageBucket/);
+  assert.match(firebaseConfig, /: null;/);
 });
 
-test('file upload controls remain disabled while Storage is inactive', () => {
-  assert.match(filePicker, /const FILE_UPLOADS_ENABLED = false;/);
-  assert.match(filePicker, /FILE_UPLOADS_ENABLED && !readOnly/);
+test('file uploads are opt-in and respect the parent Storage availability flag', () => {
+  assert.match(filePicker, /uploadsEnabled = false/);
+  assert.match(filePicker, /const canAdd = uploadsEnabled && !readOnly && !disabled/);
   assert.match(filePicker, /File uploads are temporarily unavailable/);
+  assert.doesNotMatch(filePicker, /FILE_UPLOADS_ENABLED/);
 });
 
-test('production Hosting workflow does not require a Storage bucket and is main-only', () => {
-  assert.doesNotMatch(hostingWorkflow, /VITE_FIREBASE_STORAGE_BUCKET/);
+test('production Hosting workflow remains main-only and requires explicit live confirmation', () => {
   assert.match(hostingWorkflow, /if: github\.ref == 'refs\/heads\/main' && inputs\.confirm_live_deploy == true/);
 });

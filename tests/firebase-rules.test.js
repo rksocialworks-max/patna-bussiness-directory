@@ -264,11 +264,18 @@ describe('Storage security rules', () => {
     await assertSucceeds(uploadBytes(object, new Uint8Array([37, 80, 68, 70]), { contentType: 'application/pdf' }));
   });
 
-  it('rejects uploads larger than the 10 MB limit', async () => {
-    const storage = env.authenticatedContext('owner-large').storage();
-    const object = ref(storage, 'users/owner-large/uploads/oversized.png');
-    const oversizedFile = new Uint8Array(10 * 1024 * 1024 + 1);
-    await assertFails(uploadBytes(object, oversizedFile, { contentType: 'image/png' }));
+  it('accepts an image at the 1 MB limit and rejects one byte over', async () => {
+    const storage = env.authenticatedContext('owner-image-limit').storage();
+    const accepted = ref(storage, 'users/owner-image-limit/uploads/at-limit.png');
+    const rejected = ref(storage, 'users/owner-image-limit/uploads/over-limit.png');
+    await assertSucceeds(uploadBytes(accepted, new Uint8Array(1024 * 1024), { contentType: 'image/png' }));
+    await assertFails(uploadBytes(rejected, new Uint8Array(1024 * 1024 + 1), { contentType: 'image/png' }));
+  });
+
+  it('rejects PDF files larger than the 500 KB limit', async () => {
+    const storage = env.authenticatedContext('owner-pdf-large').storage();
+    const object = ref(storage, 'users/owner-pdf-large/uploads/oversized.pdf');
+    await assertFails(uploadBytes(object, new Uint8Array(500 * 1024 + 1), { contentType: 'application/pdf' }));
   });
 
   it('allows the uploader to read their own uploaded object', async () => {
