@@ -40,7 +40,7 @@ export default function RootLayout() {
       try {
         // Simple Owner/Manager portal login: avoid claims/profile Firestore lookup
         // while the user is signing in through these portals.
-        const portalMatch = window.location.pathname.match(/^\\/(owner|manager)\\/(login|signup)$/);
+        const portalMatch = window.location.pathname.match(/^\/(owner|manager)\/(login|signup)$/);
         let profile = portalMatch?.[1] === 'owner' ? 'BusinessOwner_c'
           : portalMatch?.[1] === 'manager' ? 'BranchManager_c' : '';
         if (!profile) {
