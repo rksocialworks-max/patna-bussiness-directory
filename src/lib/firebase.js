@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
@@ -34,7 +34,13 @@ export const firebaseApp = isFirebaseConfigured
   : null;
 
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
-export const db = firebaseApp ? getFirestore(firebaseApp) : null;
+
+// Use Firestore long-polling auto-detection to support networks/proxies that
+// interfere with the default transport. This is especially important for role
+// lookups during Owner/Manager sign-in, which need a Firestore read.
+export const db = firebaseApp
+  ? initializeFirestore(firebaseApp, { experimentalAutoDetectLongPolling: true })
+  : null;
 
 // Initialize Storage only when a bucket is explicitly configured. This keeps
 // uploads unavailable on deployments that have not enabled/configured Storage.
