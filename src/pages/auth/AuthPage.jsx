@@ -50,7 +50,7 @@ export default function AuthPage({ mode }) {
     try {
       if (mode === 'login') {
         const firebaseUser = await signIn(email, password);
-        if (!firebaseUser.emailVerified) {
+        if (!firebaseUser.emailVerified && !['owner', 'manager'].includes(matchedProfile?.key)) {
           let verificationSent = false;
           try {
             await sendCurrentEmailVerification();
@@ -64,28 +64,28 @@ export default function AuthPage({ mode }) {
             : 'Your email is not verified. Please verify it using your earlier email link, or try again to resend it.');
           return;
         }
-        const token = await firebaseUser.getIdTokenResult(true);
-        let profile = token.claims.role || token.claims.profile || (token.claims.superAdmin === true ? 'Admin_c' : '');
-        if (!profile) {
-          // Do not auto-assign a role at login. Accounts must be provisioned
-          // through signup or an Admin-managed role assignment.
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            profile = userSnap.data().role || userSnap.data().profile || '';
+        // Simple portal login: Owner and Manager use Firebase Authentication only.
+        // Role/profile lookup is temporarily bypassed for these portals.
+        let profile = '';
+        if (matchedProfile?.key === 'owner' || matchedProfile?.key === 'manager') {
+          profile = matchedProfile.name;
+        } else {
+          const token = await firebaseUser.getIdTokenResult(true);
+          profile = token.claims.role || token.claims.profile || (token.claims.superAdmin === true ? 'Admin_c' : '');
+          if (!profile) {
+            const userRef = doc(db, 'users', firebaseUser.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) profile = userSnap.data().role || userSnap.data().profile || '';
           }
-        }
-        if (!profile) {
-          setError('Your account role is not assigned. Please contact the directory administrator.');
-          return;
-        }
-        if (matchedProfile?.name && profile !== matchedProfile.name) {
-          // A portal mismatch must not leave an authenticated session active. The
-          // RootLayout auth listener would otherwise redirect away from this login
-          // screen and hide the mismatch message.
-          await signOutCurrentUser();
-          setError(`This account is assigned as ${profile.replace(/_c$/, '')}. Please use the correct login portal.`);
-          return;
+          if (!profile) {
+            setError('Your account role is not assigned. Please contact the directory administrator.');
+            return;
+          }
+          if (matchedProfile?.name && profile !== matchedProfile.name) {
+            await signOutCurrentUser();
+            setError(`This account is assigned as ${profile.replace(/_c$/, '')}. Please use the correct login portal.`);
+            return;
+          }
         }
         dispatch(setUser({
           uid: firebaseUser.uid,
