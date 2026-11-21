@@ -130,7 +130,7 @@ export default function BusinessEditor({ record = null }) {
           delete payload.cover_c;
           delete payload.photos_c;
         }
-        await updateDocument(COLLECTIONS.businesses, record.id ?? record.Id, payload);
+        await updateDocument(COLLECTIONS.businesses, record.id ?? record.Id, payload, { skipRead: true });
       } else {
         // Keep the initial owner submission aligned with the strict Firestore
         // create allowlist. Premium fields and admin-controlled fields are added later.
