@@ -38,7 +38,9 @@ export default function RootLayout() {
         return;
       }
       try {
-        const token = await firebaseUser.getIdTokenResult();
+        // Refresh claims once when the auth listener initializes so role assignment
+        // changes are reflected consistently with the login page.
+        const token = await firebaseUser.getIdTokenResult(true);
         if (!isMounted) return;
         let profile = token.claims.role || token.claims.profile || '';
         if (!profile && db) {
