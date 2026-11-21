@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { signIn, signUp, sendCurrentEmailVerification } from '@/services/firebase/auth';
+import { signIn, signUp, sendCurrentEmailVerification, signOutCurrentUser } from '@/services/firebase/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import { setUser } from '@/store/userSlice';
 import { AUTH_PROFILES, GENERIC_AUTH } from '@/config/app.config';
@@ -66,6 +66,10 @@ export default function AuthPage({ mode }) {
           return;
         }
         if (matchedProfile?.name && profile !== matchedProfile.name) {
+          // A portal mismatch must not leave an authenticated session active. The
+          // RootLayout auth listener would otherwise redirect away from this login
+          // screen and hide the mismatch message.
+          await signOutCurrentUser();
           setError(`This account is assigned as ${profile.replace(/_c$/, '')}. Please use the correct login portal.`);
           return;
         }
