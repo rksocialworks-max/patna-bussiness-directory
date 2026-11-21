@@ -366,6 +366,33 @@ exports.syncCouponPublic = onDocumentWritten(
 );
 
 
+// Lightweight fixed-window abuse protection for public callable submissions.
+// Store only a SHA-256 digest of the client IP; never persist the raw address.
+async function enforceSubmissionRateLimit(request, action, limit, windowMs) {
+  const ip = request.rawRequest?.ip;
+  if (typeof ip !== 'string' || !ip.trim()) {
+    throw new HttpsError('unavailable', 'Submission protection is temporarily unavailable. Please try again later.');
+  }
+  const now = Date.now();
+  const windowStart = Math.floor(now / windowMs) * windowMs;
+  const key = createHash('sha256').update(action + ':' + ip).digest('hex');
+  const ref = db.collection('submission_rate_limits').doc(key);
+  await db.runTransaction(async (transaction) => {
+    const snap = await transaction.get(ref);
+    const data = snap.exists ? snap.data() : {};
+    const count = data.windowStart === windowStart ? Number(data.count || 0) : 0;
+    if (count >= limit) {
+      throw new HttpsError('resource-exhausted', 'Too many submissions. Please wait and try again.');
+    }
+    transaction.set(ref, {
+      action,
+      windowStart,
+      count: count + 1,
+      expiresAt: new Date(windowStart + windowMs * 2),
+    });
+  });
+}
+
 function validateCustomerSubmission(data, maxMessageLength = 2000) {
   const customerName = typeof data?.customerName === 'string' ? data.customerName.trim() : '';
   const mobile = typeof data?.mobile === 'string' ? data.mobile.replace(/\D/g, '') : '';
@@ -396,6 +423,7 @@ async function requirePublicBusiness(businessId) {
 exports.submitPublicReview = onCall(
   { region: REGION, enforceAppCheck: true },
   async (request) => {
+    await enforceSubmissionRateLimit(request, 'review', 1, 60 * 60 * 1000);
     const { customerName, mobile, message } = validateCustomerSubmission(request.data, 1500);
     const businessId = request.data?.businessId;
     const business = await requirePublicBusiness(businessId);
@@ -432,6 +460,7 @@ exports.submitPublicReview = onCall(
 exports.submitPublicEnquiry = onCall(
   { region: REGION, enforceAppCheck: true },
   async (request) => {
+    await enforceSubmissionRateLimit(request, 'enquiry', 5, 10 * 60 * 1000);
     const { customerName, mobile, message } = validateCustomerSubmission(request.data, 2000);
     const businessId = request.data?.businessId;
     await requirePublicBusiness(businessId);
@@ -470,6 +499,7 @@ exports.submitPublicEnquiry = onCall(
 exports.submitBusinessReport = onCall(
   { region: REGION, enforceAppCheck: true },
   async (request) => {
+    await enforceSubmissionRateLimit(request, 'report', 1, 60 * 60 * 1000);
     const businessId = request.data?.businessId;
     const business = await requirePublicBusiness(businessId);
     const allowedReasons = new Set(['Incorrect Info', 'Spam', 'Closed', 'Other']);
