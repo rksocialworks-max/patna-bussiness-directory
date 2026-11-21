@@ -47,7 +47,7 @@ jobs:
           VITE_FIREBASE_APPCHECK_SITE_KEY: ${{ vars.VITE_FIREBASE_APPCHECK_SITE_KEY }}
         run: |
           set -euo pipefail
-          for name in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID VITE_FIREBASE_APPCHECK_SITE_KEY; do
+          for name in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID; do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing GitHub Actions repository variable: $name"
               exit 1
@@ -82,5 +82,5 @@ jobs:
       - name: Install Firebase CLI
         run: npm install --global firebase-tools
 
-      - name: Deploy Hosting and Firestore rules
-        run: firebase deploy --only hosting,firestore:rules --project patnabiz-b2fcb --non-interactive
+      - name: Deploy Hosting, Firestore rules, and Storage rules
+        run: firebase deploy --only hosting,firestore:rules,storage --project patnabiz-b2fcb --non-interactive
