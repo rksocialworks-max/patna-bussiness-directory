@@ -62,6 +62,10 @@ export default function BusinessEditor({ record = null }) {
   const { data: categoryRows } = useFetch(async () => {
     return listDocuments(COLLECTIONS.categoriesPublic, { pageSize: 100 });
   }, []);
+  // Keep registration usable if the public Firestore category collection is empty or unavailable.
+  const categoryOptions = categoryRows?.length
+    ? categoryRows
+    : CATEGORIES.map((category) => ({ id: category.name, Name: category.name }));
   const { data: siteSettings } = useFetch(async () => {
     return listDocuments(COLLECTIONS.siteSettingsPublic, { pageSize: 100 });
   }, []);
@@ -181,7 +185,7 @@ export default function BusinessEditor({ record = null }) {
           <div className="mb-5"><h2 className="text-lg font-bold">Business Information</h2><p className="mt-1 text-xs text-muted-foreground">Required fields पर * लगा है। Registration बिल्कुल Free है।</p></div>
           <div className="grid gap-4 md:grid-cols-2">
             <label className={fieldClass}><span className={labelClass}>Business Name *</span><Input required value={form.Name} onChange={(event) => change('Name', event.target.value)} placeholder="जैसे Sharma Sweets" /></label>
-            <label className={fieldClass}><span className={labelClass}>Category *</span><select required value={form.category_c} onChange={(event) => change('category_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Select category</option>{(categoryRows ?? []).map((item) => <option key={item.id ?? item.Id} value={item.Name}>{item.Name}</option>) }</select></label>
+            <label className={fieldClass}><span className={labelClass}>Category *</span><select required value={form.category_c} onChange={(event) => change('category_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option value="">Select category</option>{categoryOptions.map((item) => <option key={item.id ?? item.Id ?? item.Name} value={item.Name}>{item.Name}</option>) }</select></label>
             <label className={fieldClass}><span className={labelClass}>Subcategory</span><Input value={form.subcategory_c} onChange={(event) => change('subcategory_c', event.target.value)} placeholder="Subcategory" /></label>
             <label className={fieldClass}><span className={labelClass}>Business Type</span><select value={form.business_type_c} onChange={(event) => change('business_type_c', event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm"><option>Physical Store / Shop</option><option>Multiple Branch Business</option></select></label>
             <label className={fieldClass}><span className={labelClass}>Owner Name *</span><Input required value={form.owner_name_c} onChange={(event) => change('owner_name_c', event.target.value)} placeholder="Owner full name" /></label>
