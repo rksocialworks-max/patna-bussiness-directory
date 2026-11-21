@@ -64,11 +64,11 @@ describe('Firestore private business rules', () => {
       });
       await setDoc(doc(context.firestore(), 'branches/assigned-branch'), {
         business_c: 'business-1',
-        manager_c: [{ User: 'manager-1' }],
+        manager_c: [{ User: { Id: 'manager-1', Name: 'Assigned Manager' } }],
       });
       await setDoc(doc(context.firestore(), 'branches/other-branch'), {
         business_c: 'business-1',
-        manager_c: [{ User: 'manager-2' }],
+        manager_c: [{ User: { Id: 'manager-2', Name: 'Other Manager' } }],
       });
     });
     const db = env.authenticatedContext('manager-1', { role: 'BranchManager_c' }).firestore();
