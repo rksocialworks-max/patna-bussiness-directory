@@ -57,6 +57,7 @@ export default function BusinessEditor({ record = null }) {
   const { user } = useAuth();
   const [form, setForm] = useState(blank);
   const [saving, setSaving] = useState(false);
+  const [saveSlow, setSaveSlow] = useState(false);
   const [preview, setPreview] = useState(false);
   const premium = Boolean(record?.is_premium_c) && (!record?.premium_expiry_c || record.premium_expiry_c >= new Date().toISOString().slice(0, 10));
   const { data: categoryRows } = useFetch(async () => {
@@ -93,6 +94,9 @@ export default function BusinessEditor({ record = null }) {
   async function submit(event) {
     event.preventDefault();
     setSaving(true);
+    setSaveSlow(false);
+    const slowTimer = window.setTimeout(() => setSaveSlow(true), 15000);
+    const saveStartedAt = Date.now();
     try {
       const payload = {};
       editableFields.forEach((field) => {
@@ -159,11 +163,15 @@ export default function BusinessEditor({ record = null }) {
         await createDocument(COLLECTIONS.businesses, createPayload, { skipRead: true });
       }
 
+      console.info('[BusinessEditor] Save completed', { mode: record ? 'update' : 'create', durationMs: Date.now() - saveStartedAt });
       toast.success(record ? 'Business profile updated.' : 'Business submitted for Admin approval.');
       navigate('/owner/businesses');
     } catch (error) {
-      toast.error(error.message || 'Unable to save business.');
+      console.error('[BusinessEditor] Save failed', { mode: record ? 'update' : 'create', durationMs: Date.now() - saveStartedAt, code: error?.code, message: error?.message, error });
+      toast.error(`${error?.code ? `${error.code}: ` : ''}${error.message || 'Unable to save business.'}`);
     } finally {
+      window.clearTimeout(slowTimer);
+      setSaveSlow(false);
       setSaving(false);
     }
   }
@@ -240,6 +248,7 @@ export default function BusinessEditor({ record = null }) {
           </div>
         </section>
 
+        {saving && saveSlow && <p role="status" className="text-sm text-amber-600">Save अभी भी चल रहा है (15 सेकंड से अधिक)। Firebase request की जाँच के लिए Console में [BusinessEditor] log देखें।</p>}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => navigate('/owner/businesses')}>Cancel</Button>
           <Button type="submit" disabled={saving}>{saving ? 'Saving…' : record ? 'Save Changes' : 'Submit for Approval'} <ApperIcon name="ArrowRight" size={15} /></Button>
