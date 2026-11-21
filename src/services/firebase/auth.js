@@ -32,12 +32,6 @@ export function subscribeToAuth(callback) {
 export async function signIn(email, password) {
   const activeAuth = requireAuth();
   const credential = await signInWithEmailAndPassword(activeAuth, email.trim(), password);
-  if (!credential.user.emailVerified) {
-    // Do not keep an unverified account signed in; role-based access starts only
-    // after the account owner confirms control of the email address.
-    await signOut(activeAuth);
-    throw new Error('Please verify your email using the link we sent before signing in.');
-  }
   return credential.user;
 }
 
