@@ -85,15 +85,17 @@ export async function listDocuments(collectionName, options = {}) {
   return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
 }
 
-export async function createDocument(collectionName, data) {
+export async function createDocument(collectionName, data, options = {}) {
   const now = serverTimestamp();
   const ref = await addDoc(collectionRef(collectionName), {
     ...cleanData(data),
     CreatedOn: now,
     ModifiedOn: now,
   });
+  if (options.skipRead) return { id: ref.id };
   return getDocument(collectionName, ref.id);
 }
+
 
 export async function updateDocument(collectionName, id, data, options = {}) {
   await updateDoc(doc(collectionRef(collectionName), id), {
