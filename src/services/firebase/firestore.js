@@ -95,11 +95,14 @@ export async function createDocument(collectionName, data) {
   return getDocument(collectionName, ref.id);
 }
 
-export async function updateDocument(collectionName, id, data) {
+export async function updateDocument(collectionName, id, data, options = {}) {
   await updateDoc(doc(collectionRef(collectionName), id), {
     ...cleanData(data),
     ModifiedOn: serverTimestamp(),
   });
+  // Avoid a redundant read after a successful write when the caller only needs
+  // confirmation. This prevents saves from waiting on a separate read request.
+  if (options.skipRead) return { id };
   return getDocument(collectionName, id);
 }
 
