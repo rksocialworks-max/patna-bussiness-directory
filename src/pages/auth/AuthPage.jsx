@@ -50,7 +50,7 @@ export default function AuthPage({ mode }) {
     try {
       if (mode === 'login') {
         const firebaseUser = await signIn(email, password);
-        if (!firebaseUser.emailVerified) {
+        if (!firebaseUser.emailVerified && !['owner', 'manager'].includes(matchedProfile?.key)) {
           let verificationSent = false;
           try {
             await sendCurrentEmailVerification();
