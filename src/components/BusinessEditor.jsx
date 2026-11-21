@@ -156,7 +156,7 @@ export default function BusinessEditor({ record = null }) {
           reviews_count_c: 0,
           featured_order_c: 99,
         });
-        await createDocument(COLLECTIONS.businesses, createPayload);
+        await createDocument(COLLECTIONS.businesses, createPayload, { skipRead: true });
       }
 
       toast.success(record ? 'Business profile updated.' : 'Business submitted for Admin approval.');
