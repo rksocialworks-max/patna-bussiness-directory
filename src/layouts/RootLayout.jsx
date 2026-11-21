@@ -38,15 +38,18 @@ export default function RootLayout() {
         return;
       }
       try {
-        // Refresh claims once when the auth listener initializes so role assignment
-        // changes are reflected consistently with the login page.
-        const token = await firebaseUser.getIdTokenResult(true);
-        if (!isMounted) return;
-        let profile = token.claims.role || token.claims.profile || '';
-        if (!profile && db) {
-          const userSnap = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (userSnap.exists()) {
-            profile = userSnap.data().role || userSnap.data().profile || '';
+        // Simple Owner/Manager portal login: avoid claims/profile Firestore lookup
+        // while the user is signing in through these portals.
+        const portalMatch = window.location.pathname.match(/^\\/(owner|manager)\\/(login|signup)$/);
+        let profile = portalMatch?.[1] === 'owner' ? 'BusinessOwner_c'
+          : portalMatch?.[1] === 'manager' ? 'BranchManager_c' : '';
+        if (!profile) {
+          const token = await firebaseUser.getIdTokenResult(true);
+          if (!isMounted) return;
+          profile = token.claims.role || token.claims.profile || '';
+          if (!profile && db) {
+            const userSnap = await getDoc(doc(db, 'users', firebaseUser.uid));
+            if (userSnap.exists()) profile = userSnap.data().role || userSnap.data().profile || '';
           }
         }
         dispatch(setUser({
