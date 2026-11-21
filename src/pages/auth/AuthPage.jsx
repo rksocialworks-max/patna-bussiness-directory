@@ -50,6 +50,20 @@ export default function AuthPage({ mode }) {
     try {
       if (mode === 'login') {
         const firebaseUser = await signIn(email, password);
+        if (!firebaseUser.emailVerified) {
+          let verificationSent = false;
+          try {
+            await sendCurrentEmailVerification();
+            verificationSent = true;
+          } catch {
+            // Keep the account signed out even if the verification email cannot be sent.
+          }
+          await signOutCurrentUser();
+          setError(verificationSent
+            ? 'Your email is not verified yet. A new verification link has been sent. Please verify your email, then sign in again.'
+            : 'Your email is not verified. Please verify it using your earlier email link, or try again to resend it.');
+          return;
+        }
         const token = await firebaseUser.getIdTokenResult(true);
         let profile = token.claims.role || token.claims.profile || (token.claims.superAdmin === true ? 'Admin_c' : '');
         if (!profile) {
