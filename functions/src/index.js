@@ -752,9 +752,7 @@ exports.listBranchManagers = onCall(
 // Premium payments — all amounts and entitlements are calculated server-side.
 // Configure RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET with Firebase Secret Manager.
 // -----------------------------------------------------------------------------
-const { defineSecret } = require('firebase-functions/params');
-const RAZORPAY_KEY_ID = defineSecret('RAZORPAY_KEY_ID');
-const RAZORPAY_KEY_SECRET = defineSecret('RAZORPAY_KEY_SECRET');
+// Razorpay online payments are temporarily disabled until credentials are configured.
 
 function requireBusinessOwner(request) {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Please sign in first.');
@@ -853,146 +851,16 @@ exports.expirePremiumListings = onSchedule(
 );
 
 exports.createPremiumPaymentOrder = onCall(
-  { region: REGION, enforceAppCheck: true, secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET] },
-  async (request) => {
-    requireBusinessOwner(request);
-    const uid = request.auth.uid;
-    const businessId = request.data?.businessId;
-    const planId = request.data?.planId;
-    const ownedBusiness = await getOwnedBusiness(businessId, uid);
-    const plan = await getActivePremiumPlan(planId);
-    const keyId = RAZORPAY_KEY_ID.value();
-    const keySecret = RAZORPAY_KEY_SECRET.value();
-    if (!keyId || !keySecret) throw new HttpsError('failed-precondition', 'Online payments are not configured yet.');
-
-    const receipt = 'pbd_' + createHash('sha256').update(uid + ':' + businessId + ':' + Date.now()).digest('hex').slice(0, 20);
-    const response = await fetch('https://api.razorpay.com/v1/orders', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Basic ' + Buffer.from(keyId + ':' + keySecret).toString('base64'),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ amount: plan.paise, currency: 'INR', receipt, notes: { businessId, planId, ownerUid: uid } }),
-    });
-    const order = await response.json().catch(() => ({}));
-    if (!response.ok || !order.id) {
-      console.error('Razorpay order creation failed', response.status, order.error?.code || 'unknown');
-      throw new HttpsError('unavailable', 'Could not create the payment order. Please try again.');
-    }
-
-    const paymentRef = db.collection('payments').doc();
-    await paymentRef.set({
-      Name: 'Premium payment - ' + plan.name,
-      ownerUid: uid,
-      business_c: businessId,
-      business_name_c: ownedBusiness.data.Name || 'Business',
-      plan_c: plan.id,
-      plan_name_c: plan.name,
-      duration_months_c: plan.months,
-      amount_c: plan.rupees,
-      amount_paise_c: plan.paise,
-      currency_c: 'INR',
-      provider_c: 'Razorpay',
-      razorpay_order_id_c: order.id,
-      status_c: 'Pending',
-      CreatedOn: FieldValue.serverTimestamp(),
-      ModifiedOn: FieldValue.serverTimestamp(),
-    });
-    return { keyId, orderId: order.id, paymentId: paymentRef.id, amount: plan.paise, currency: 'INR', businessName: 'Patna Business Directory' };
+  { region: REGION, enforceAppCheck: true },
+  async () => {
+    throw new HttpsError('unavailable', 'Online Premium payments are temporarily disabled. Please use manual payment or try later.');
   },
 );
 
 exports.verifyPremiumPayment = onCall(
-  { region: REGION, enforceAppCheck: true, secrets: [RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET] },
-  async (request) => {
-    requireBusinessOwner(request);
-    const uid = request.auth.uid;
-    const paymentId = request.data?.paymentId;
-    const orderId = request.data?.razorpay_order_id;
-    const gatewayPaymentId = request.data?.razorpay_payment_id;
-    const signature = request.data?.razorpay_signature;
-    if (![paymentId, orderId, gatewayPaymentId, signature].every((v) => typeof v === 'string' && v.length > 0 && v.length < 256)) {
-      throw new HttpsError('invalid-argument', 'Payment verification details are incomplete.');
-    }
-
-    const paymentRef = db.collection('payments').doc(paymentId);
-    const paymentSnap = await paymentRef.get();
-    if (!paymentSnap.exists) throw new HttpsError('not-found', 'Payment record was not found.');
-    const payment = paymentSnap.data();
-    if (payment.ownerUid !== uid || payment.razorpay_order_id_c !== orderId) {
-      throw new HttpsError('permission-denied', 'Payment does not belong to this account.');
-    }
-    if (payment.status_c === 'Paid') return { success: true, status: 'Paid' };
-
-    const secret = RAZORPAY_KEY_SECRET.value();
-    const expected = require('crypto')
-      .createHmac('sha256', secret).update(orderId + '|' + gatewayPaymentId).digest('hex');
-    const expectedBuffer = Buffer.from(expected, 'hex');
-    const suppliedBuffer = Buffer.from(signature, 'hex');
-    if (expectedBuffer.length !== suppliedBuffer.length || !require('crypto').timingSafeEqual(expectedBuffer, suppliedBuffer)) {
-      throw new HttpsError('permission-denied', 'Payment signature verification failed.');
-    }
-
-    const response = await fetch('https://api.razorpay.com/v1/payments/' + encodeURIComponent(gatewayPaymentId), {
-      headers: { Authorization: 'Basic ' + Buffer.from(RAZORPAY_KEY_ID.value() + ':' + secret).toString('base64') },
-    });
-    const gatewayPayment = await response.json().catch(() => ({}));
-    if (!response.ok || gatewayPayment.status !== 'captured'
-      || gatewayPayment.order_id !== orderId
-      || Number(gatewayPayment.amount) !== Number(payment.amount_paise_c)
-      || gatewayPayment.currency !== 'INR') {
-      throw new HttpsError('failed-precondition', 'Payment could not be confirmed as captured by Razorpay.');
-    }
-
-    const businessRef = db.collection('businesses').doc(payment.business_c);
-    const now = new Date();
-    const receiptNumber = 'PBD-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + paymentId.slice(-6).toUpperCase();
-    const result = await db.runTransaction(async (transaction) => {
-      const [latest, businessSnap] = await Promise.all([
-        transaction.get(paymentRef),
-        transaction.get(businessRef),
-      ]);
-      if (!latest.exists) throw new HttpsError('not-found', 'Payment record was not found.');
-      if (latest.data().ownerUid !== uid || latest.data().razorpay_order_id_c !== orderId) {
-        throw new HttpsError('permission-denied', 'Payment record changed during verification.');
-      }
-      if (latest.data().status_c === 'Paid') {
-        return {
-          success: true,
-          status: 'Paid',
-          receiptNumber: latest.data().receipt_number_c || null,
-          premiumExpiry: latest.data().premium_expiry_c || null,
-        };
-      }
-      if (latest.data().status_c !== 'Pending') {
-        throw new HttpsError('failed-precondition', 'This payment is no longer pending.');
-      }
-      if (!businessSnap.exists || businessSnap.data().ownerUid !== uid || businessSnap.data().status_c !== 'Approved') {
-        throw new HttpsError('failed-precondition', 'The linked business is no longer eligible for Premium.');
-      }
-      const business = businessSnap.data();
-      const currentExpiry = business.is_premium_c === true && business.premium_expiry_c
-        ? new Date(business.premium_expiry_c + 'T23:59:59.999Z') : null;
-      const start = currentExpiry && currentExpiry > now ? currentExpiry : now;
-      const expiryDate = addCalendarMonths(start, Number(latest.data().duration_months_c) || ({ 30: 1, 90: 3, 365: 12 }[Number(latest.data().duration_days_c)]))
-        .toISOString().slice(0, 10);
-      transaction.update(paymentRef, {
-        status_c: 'Paid',
-        razorpay_payment_id_c: gatewayPaymentId,
-        receipt_number_c: receiptNumber,
-        paid_at_c: FieldValue.serverTimestamp(),
-        premium_expiry_c: expiryDate,
-        ModifiedOn: FieldValue.serverTimestamp(),
-      });
-      transaction.update(businessRef, {
-        is_premium_c: true,
-        listing_type_c: 'Premium',
-        premium_expiry_c: expiryDate,
-        ModifiedOn: FieldValue.serverTimestamp(),
-      });
-      return { success: true, status: 'Paid', receiptNumber, premiumExpiry: expiryDate };
-    });
-    return result;
+  { region: REGION, enforceAppCheck: true },
+  async () => {
+    throw new HttpsError('unavailable', 'Razorpay payment verification is temporarily disabled.');
   },
 );
 
