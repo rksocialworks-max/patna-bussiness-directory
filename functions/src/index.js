@@ -136,7 +136,7 @@ const BUSINESS_PUBLIC_FIELDS = [
   'CreatedOn',
 ];
 
-exports.syncBusinessPublic = onDocumentWritten(
+exports.syncBusinessPublicV2 = onDocumentWritten(
   { document: 'businesses/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
