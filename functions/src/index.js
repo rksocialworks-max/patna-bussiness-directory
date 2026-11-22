@@ -136,7 +136,7 @@ const BUSINESS_PUBLIC_FIELDS = [
   'CreatedOn',
 ];
 
-exports.syncBusinessPublicV2 = onDocumentWritten(
+exports.syncBusinessPublic = onDocumentWritten(
   { document: 'businesses/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -165,7 +165,7 @@ exports.syncBusinessPublicV2 = onDocumentWritten(
   },
 );
 
-exports.syncCategoryPublicV2 = onDocumentWritten(
+exports.syncCategoryPublic = onDocumentWritten(
   { document: 'categories/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'categories_public',
@@ -174,7 +174,7 @@ exports.syncCategoryPublicV2 = onDocumentWritten(
   ),
 );
 
-exports.syncBranchPublicV2 = onDocumentWritten(
+exports.syncBranchPublic = onDocumentWritten(
   { document: 'branches/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -193,7 +193,7 @@ exports.syncBranchPublicV2 = onDocumentWritten(
   },
 );
 
-exports.syncProductServicePublicV2 = onDocumentWritten(
+exports.syncProductServicePublic = onDocumentWritten(
   { document: 'products_services/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -212,7 +212,7 @@ exports.syncProductServicePublicV2 = onDocumentWritten(
   },
 );
 
-exports.syncReviewPublicV2 = onDocumentWritten(
+exports.syncReviewPublic = onDocumentWritten(
   { document: 'reviews/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -231,7 +231,7 @@ exports.syncReviewPublicV2 = onDocumentWritten(
   },
 );
 
-exports.syncOfferPublicV2 = onDocumentWritten(
+exports.syncOfferPublic = onDocumentWritten(
   { document: 'offers/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -250,7 +250,7 @@ exports.syncOfferPublicV2 = onDocumentWritten(
   },
 );
 
-exports.syncHomepageBannerPublicV2 = onDocumentWritten(
+exports.syncHomepageBannerPublic = onDocumentWritten(
   { document: 'homepage_banners/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'homepage_banners_public',
@@ -265,7 +265,7 @@ const PUBLIC_SETTING_KEYS = new Set([
   'product_image_max_kb', 'business_description_word_limit',
 ]);
 
-exports.syncSiteSettingPublicV2 = onDocumentWritten(
+exports.syncSiteSettingPublic = onDocumentWritten(
   { document: 'site_settings/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'site_settings_public',
@@ -274,7 +274,7 @@ exports.syncSiteSettingPublicV2 = onDocumentWritten(
   ),
 );
 
-exports.syncContentPagePublicV2 = onDocumentWritten(
+exports.syncContentPagePublic = onDocumentWritten(
   { document: 'content_pages/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'content_pages_public',
@@ -283,7 +283,7 @@ exports.syncContentPagePublicV2 = onDocumentWritten(
   ),
 );
 
-exports.syncPremiumPlanPublicV2 = onDocumentWritten(
+exports.syncPremiumPlanPublic = onDocumentWritten(
   { document: 'premium_plans/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'premium_plans_public',
@@ -346,7 +346,7 @@ async function removeRelatedPublicMirrors(businessId) {
 }
 
 
-exports.syncCouponPublicV2 = onDocumentWritten(
+exports.syncCouponPublic = onDocumentWritten(
   { document: 'coupons/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -521,7 +521,7 @@ exports.submitBusinessReport = onCall(
   },
 );
 
-exports.cleanupOldEnquiriesV2 = onSchedule(
+exports.cleanupOldEnquiries = onSchedule(
   { schedule: 'every day 03:00', timeZone: 'Asia/Kolkata', region: REGION },
   async () => {
     const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -809,7 +809,7 @@ async function getActivePremiumPlan(planId) {
 }
 
 // Downgrade expired Premium listings daily; public mirrors are refreshed by the business trigger.
-exports.expirePremiumListingsV2 = onSchedule(
+exports.expirePremiumListings = onSchedule(
   { schedule: 'every day 01:15', timeZone: 'Asia/Kolkata', region: REGION },
   async () => {
     // Compare calendar dates in the configured business timezone.
