@@ -521,7 +521,7 @@ exports.submitBusinessReport = onCall(
   },
 );
 
-exports.cleanupOldEnquiries = onSchedule(
+exports.cleanupOldEnquiriesV2 = onSchedule(
   { schedule: 'every day 03:00', timeZone: 'Asia/Kolkata', region: REGION },
   async () => {
     const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -809,7 +809,7 @@ async function getActivePremiumPlan(planId) {
 }
 
 // Downgrade expired Premium listings daily; public mirrors are refreshed by the business trigger.
-exports.expirePremiumListings = onSchedule(
+exports.expirePremiumListingsV2 = onSchedule(
   { schedule: 'every day 01:15', timeZone: 'Asia/Kolkata', region: REGION },
   async () => {
     // Compare calendar dates in the configured business timezone.
