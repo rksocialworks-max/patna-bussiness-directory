@@ -165,7 +165,7 @@ exports.syncBusinessPublicV2 = onDocumentWritten(
   },
 );
 
-exports.syncCategoryPublic = onDocumentWritten(
+exports.syncCategoryPublicV2 = onDocumentWritten(
   { document: 'categories/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'categories_public',
