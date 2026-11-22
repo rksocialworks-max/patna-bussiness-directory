@@ -174,7 +174,7 @@ exports.syncCategoryPublicV2 = onDocumentWritten(
   ),
 );
 
-exports.syncBranchPublic = onDocumentWritten(
+exports.syncBranchPublicV2 = onDocumentWritten(
   { document: 'branches/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -193,7 +193,7 @@ exports.syncBranchPublic = onDocumentWritten(
   },
 );
 
-exports.syncProductServicePublic = onDocumentWritten(
+exports.syncProductServicePublicV2 = onDocumentWritten(
   { document: 'products_services/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -212,7 +212,7 @@ exports.syncProductServicePublic = onDocumentWritten(
   },
 );
 
-exports.syncReviewPublic = onDocumentWritten(
+exports.syncReviewPublicV2 = onDocumentWritten(
   { document: 'reviews/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -231,7 +231,7 @@ exports.syncReviewPublic = onDocumentWritten(
   },
 );
 
-exports.syncOfferPublic = onDocumentWritten(
+exports.syncOfferPublicV2 = onDocumentWritten(
   { document: 'offers/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
@@ -250,7 +250,7 @@ exports.syncOfferPublic = onDocumentWritten(
   },
 );
 
-exports.syncHomepageBannerPublic = onDocumentWritten(
+exports.syncHomepageBannerPublicV2 = onDocumentWritten(
   { document: 'homepage_banners/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'homepage_banners_public',
@@ -265,7 +265,7 @@ const PUBLIC_SETTING_KEYS = new Set([
   'product_image_max_kb', 'business_description_word_limit',
 ]);
 
-exports.syncSiteSettingPublic = onDocumentWritten(
+exports.syncSiteSettingPublicV2 = onDocumentWritten(
   { document: 'site_settings/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'site_settings_public',
@@ -274,7 +274,7 @@ exports.syncSiteSettingPublic = onDocumentWritten(
   ),
 );
 
-exports.syncContentPagePublic = onDocumentWritten(
+exports.syncContentPagePublicV2 = onDocumentWritten(
   { document: 'content_pages/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'content_pages_public',
@@ -283,7 +283,7 @@ exports.syncContentPagePublic = onDocumentWritten(
   ),
 );
 
-exports.syncPremiumPlanPublic = onDocumentWritten(
+exports.syncPremiumPlanPublicV2 = onDocumentWritten(
   { document: 'premium_plans/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'premium_plans_public',
@@ -346,7 +346,7 @@ async function removeRelatedPublicMirrors(businessId) {
 }
 
 
-exports.syncCouponPublic = onDocumentWritten(
+exports.syncCouponPublicV2 = onDocumentWritten(
   { document: 'coupons/{docId}', region: REGION },
   async (event) => {
     const after = event.data?.after;
