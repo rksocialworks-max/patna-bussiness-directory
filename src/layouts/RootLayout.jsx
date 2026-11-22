@@ -38,19 +38,15 @@ export default function RootLayout() {
         return;
       }
       try {
-        // Simple Owner/Manager portal login: avoid claims/profile Firestore lookup
-        // while the user is signing in through these portals.
-        const portalMatch = window.location.pathname.match(/^\/(owner|manager)\/(login|signup)$/);
-        let profile = portalMatch?.[1] === 'owner' ? 'BusinessOwner_c'
-          : portalMatch?.[1] === 'manager' ? 'BranchManager_c' : '';
-        if (!profile) {
-          const token = await firebaseUser.getIdTokenResult(true);
+        // Resolve the actual role from trusted Firebase claims or the user's Firestore profile.
+        // The portal URL is never allowed to grant a role.
+        const token = await firebaseUser.getIdTokenResult(true);
+        if (!isMounted) return;
+        let profile = token.claims.role || token.claims.profile || (token.claims.superAdmin === true ? 'Admin_c' : '');
+        if (!profile && db) {
+          const userSnap = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (!isMounted) return;
-          profile = token.claims.role || token.claims.profile || '';
-          if (!profile && db) {
-            const userSnap = await getDoc(doc(db, 'users', firebaseUser.uid));
-            if (userSnap.exists()) profile = userSnap.data().role || userSnap.data().profile || '';
-          }
+          if (userSnap.exists()) profile = userSnap.data().role || userSnap.data().profile || '';
         }
         dispatch(setUser({
           uid: firebaseUser.uid,
@@ -59,7 +55,7 @@ export default function RootLayout() {
           lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
           profile,
         }));
-        if (profile) handlePostAuthNavigation();
+        if (profile) handlePostAuthNavigation(profile);
       } catch {
         if (isMounted) dispatch(setInitialized());
       }
@@ -72,7 +68,7 @@ export default function RootLayout() {
     };
   }, [dispatch]);
 
-  function handlePostAuthNavigation() {
+  function handlePostAuthNavigation(profile) {
     const params = new URLSearchParams(window.location.search);
     const redirectPath = params.get('redirect');
     if (redirectPath) {
@@ -82,8 +78,7 @@ export default function RootLayout() {
     const pathname = window.location.pathname;
     const authMatch = pathname.match(AUTH_PAGE_PATTERN);
     if (authMatch) {
-      const profileKey = authMatch[2];
-      const matched = profileKey && AUTH_PROFILES?.find(p => p.key === profileKey);
+      const matched = AUTH_PROFILES?.find(p => p.name === profile);
       const target = matched?.redirectAfterAuth ?? GENERIC_AUTH?.redirectAfterAuth ?? '/';
       navigateRef.current(target, { replace: true });
     }
