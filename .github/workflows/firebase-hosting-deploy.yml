@@ -86,4 +86,4 @@ jobs:
         run: npm install --prefix functions --omit=dev
 
       - name: Deploy Hosting, Firestore rules, Storage rules, and Cloud Functions
-        run: firebase deploy --only hosting,firestore:rules,storage,functions --project patnabiz-b2fcb --non-interactive
+        run: firebase deploy --only hosting,firestore:rules,storage,functions --project patnabiz-b2fcb --non-interactive --force
