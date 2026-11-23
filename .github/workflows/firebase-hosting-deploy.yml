@@ -1,10 +1,10 @@
-name: Deploy Firebase Hosting
+name: Deploy Firebase Hosting and Rules
 
 on:
   workflow_dispatch:
     inputs:
       confirm_live_deploy:
-        description: "Enable only when you intentionally approve publishing this branch to Firebase Hosting"
+        description: "Confirm production deployment of Hosting and Firebase rules"
         required: true
         type: boolean
         default: false
@@ -82,8 +82,5 @@ jobs:
       - name: Install Firebase CLI
         run: npm install --global firebase-tools
 
-      - name: Install Cloud Functions dependencies
-        run: npm install --prefix functions --omit=dev
-
-      - name: Deploy Hosting, Firestore rules, Storage rules, and Cloud Functions
-        run: firebase deploy --only hosting,firestore:rules,storage,functions --project patnabiz-b2fcb --non-interactive --force
+      - name: Deploy Hosting and Firestore/Storage rules only
+        run: firebase deploy --only hosting,firestore:rules,storage --project patnabiz-b2fcb --non-interactive
