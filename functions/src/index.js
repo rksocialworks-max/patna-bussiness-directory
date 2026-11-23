@@ -179,7 +179,7 @@ exports.syncBusinessPublic = onCall(
 );
 
 exports.syncBusinessPublicOnWrite = onDocumentWritten(
-  { document: 'businesses/{docId}', region: REGION },
+  { document: 'businesses/{docId}', region: REGION, retry: true },
   (event) => syncBusinessPublicRecord(event.params.docId),
 );
 
