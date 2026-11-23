@@ -136,8 +136,33 @@ const BUSINESS_PUBLIC_FIELDS = [
   'CreatedOn',
 ];
 
-// HTTPS callable public business sync: preserves the deployed HTTPS function type.
-// Admin moderation calls this after changing a business status or public-facing fields.
+// Shared server-side publisher for approved business records.
+async function syncBusinessPublicRecord(businessId) {
+  const sourceRef = db.collection('businesses').doc(businessId);
+  const snapshot = await sourceRef.get();
+  const publicRef = db.collection('business_public').doc(businessId);
+  if (!snapshot.exists || snapshot.data().status_c !== 'Approved') {
+    await publicRef.delete();
+    await removeRelatedPublicMirrors(businessId);
+    return { success: true, published: false };
+  }
+  const source = snapshot.data();
+  const safe = pickFields(source, BUSINESS_PUBLIC_FIELDS);
+  const premiumActive = source.is_premium_c === true
+    && (!source.premium_expiry_c || source.premium_expiry_c >= new Date().toISOString().slice(0, 10));
+  if (premiumActive) {
+    Object.assign(safe, pickFields(source, [
+      'website_c', 'email_c', 'facebook_c', 'instagram_c',
+      'youtube_c', 'linkedin_c', 'x_c', 'telegram_c', 'cover_c', 'photos_c',
+    ]));
+  }
+  await publicRef.set({ id: businessId, ...safe });
+  await refreshRelatedPublicMirrors(businessId);
+  return { success: true, published: true };
+}
+
+// Callable remains for Admin actions; Firestore trigger makes publishing resilient
+// even if the Admin client call is missed or interrupted.
 exports.syncBusinessPublic = onCall(
   { region: REGION, enforceAppCheck: true },
   async (request) => {
@@ -149,29 +174,14 @@ exports.syncBusinessPublic = onCall(
     if (!businessId || businessId.length > 128) {
       throw new HttpsError('invalid-argument', 'A valid business ID is required.');
     }
-    const sourceRef = db.collection('businesses').doc(businessId);
-    const snapshot = await sourceRef.get();
-    if (!snapshot.exists || snapshot.data().status_c !== 'Approved') {
-      await db.collection('business_public').doc(businessId).delete();
-      await removeRelatedPublicMirrors(businessId);
-      return { success: true, published: false };
-    }
-    const source = snapshot.data();
-    const safe = pickFields(source, BUSINESS_PUBLIC_FIELDS);
-    const premiumActive = source.is_premium_c === true
-      && (!source.premium_expiry_c || source.premium_expiry_c >= new Date().toISOString().slice(0, 10));
-    if (premiumActive) {
-      Object.assign(safe, pickFields(source, [
-        'website_c', 'email_c', 'facebook_c', 'instagram_c',
-        'youtube_c', 'linkedin_c', 'x_c', 'telegram_c', 'cover_c', 'photos_c',
-      ]));
-    }
-    await db.collection('business_public').doc(businessId).set({ id: businessId, ...safe });
-    await refreshRelatedPublicMirrors(businessId);
-    return { success: true, published: true };
+    return syncBusinessPublicRecord(businessId);
   },
 );
 
+exports.syncBusinessPublicOnWrite = onDocumentWritten(
+  { document: 'businesses/{docId}', region: REGION },
+  (event) => syncBusinessPublicRecord(event.params.docId),
+);
 
 exports.syncCategoryPublic = onDocumentWritten(
   { document: 'categories/{docId}', region: REGION },
