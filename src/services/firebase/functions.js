@@ -76,6 +76,15 @@ export async function listBranchManagers() {
 }
 
 
+/** Admin-only backend sync for approved/rejected business listing changes. */
+export async function syncBusinessPublic({ businessId }) {
+  if (!businessId || typeof businessId !== 'string') throw new Error('A valid business ID is required.');
+  const callable = httpsCallable(requireFunctions(), 'syncBusinessPublic');
+  const result = await callable({ businessId });
+  return result.data;
+}
+
+
 /** Create a server-priced Razorpay order for an owned, approved business. */
 export async function createPremiumPaymentOrder({ businessId, planId }) {
   const callable = httpsCallable(requireFunctions(), 'createPremiumPaymentOrder');
