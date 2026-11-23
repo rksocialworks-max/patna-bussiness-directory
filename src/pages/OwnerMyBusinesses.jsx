@@ -29,11 +29,14 @@ export default function OwnerMyBusinesses() {
     // Legacy Owner names must be linked to ownerUid by a trusted migration before appearing here.
     const result = await listDocuments(COLLECTIONS.businesses, {
       filters: [{ field: 'ownerUid', value: user.uid }],
-      sort: 'CreatedOn',
-      direction: 'desc',
       pageSize: 100,
     });
-    return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
+    return result
+      .map((row) => ({ ...row, Id: row.Id ?? row.id }))
+      .sort((a, b) => {
+        const toMillis = (value) => value?.toDate?.().getTime?.() ?? (typeof value === 'string' ? Date.parse(value) : 0);
+        return toMillis(b.CreatedOn) - toMillis(a.CreatedOn);
+      });
   }, [user?.uid]);
 
   const businesses = data ?? [];
@@ -50,12 +53,15 @@ export default function OwnerMyBusinesses() {
             अपने सभी registered businesses और उनकी listing स्थिति देखें।
           </p>
         </div>
-        <Button asChild>
-          <Link to="/owner/businesses/new">
-            <ApperIcon name="Plus" size={16} />
-            Add New Business
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={run} disabled={loading}>Refresh</Button>
+          <Button asChild>
+            <Link to="/owner/businesses/new">
+              <ApperIcon name="Plus" size={16} />
+              Add New Business
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-7 grid gap-3 sm:grid-cols-3">
@@ -75,7 +81,7 @@ export default function OwnerMyBusinesses() {
 
       {error && (
         <div className="mt-6 rounded-xl border border-destructive/30 p-4 text-sm text-destructive">
-          {error.message}
+          {typeof error === 'string' ? error : error.message}
           <Button variant="link" onClick={run}>Retry</Button>
         </div>
       )}
