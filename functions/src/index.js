@@ -136,34 +136,42 @@ const BUSINESS_PUBLIC_FIELDS = [
   'CreatedOn',
 ];
 
-exports.syncBusinessPublic = onDocumentWritten(
-  { document: 'businesses/{docId}', region: REGION },
-  async (event) => {
-    const after = event.data?.after;
-    await mirrorDocument(
-      event,
-      'business_public',
-      BUSINESS_PUBLIC_FIELDS,
-      (data) => data.status_c === 'Approved',
-      (safe, source) => {
-        const premiumActive = source.is_premium_c === true
-          && (!source.premium_expiry_c || source.premium_expiry_c >= new Date().toISOString().slice(0, 10));
-        if (premiumActive) {
-          Object.assign(safe, pickFields(source, [
-            'website_c', 'email_c', 'facebook_c', 'instagram_c',
-            'youtube_c', 'linkedin_c', 'x_c', 'telegram_c', 'cover_c', 'photos_c',
-          ]));
-        }
-        return safe;
-      },
-    );
-    if (after?.exists && after.data().status_c === 'Approved') {
-      await refreshRelatedPublicMirrors(event.params.docId);
-    } else {
-      await removeRelatedPublicMirrors(event.params.docId);
+// HTTPS callable public business sync: preserves the deployed HTTPS function type.
+// Admin moderation calls this after changing a business status or public-facing fields.
+exports.syncBusinessPublic = onCall(
+  { region: REGION, enforceAppCheck: true },
+  async (request) => {
+    if (!request.auth || (request.auth.token.superAdmin !== true
+      && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c') {
+      throw new HttpsError('permission-denied', 'Only an Admin can synchronize public business listings.');
     }
+    const businessId = typeof request.data?.businessId === 'string' ? request.data.businessId.trim() : '';
+    if (!businessId || businessId.length > 128) {
+      throw new HttpsError('invalid-argument', 'A valid business ID is required.');
+    }
+    const sourceRef = db.collection('businesses').doc(businessId);
+    const snapshot = await sourceRef.get();
+    if (!snapshot.exists || snapshot.data().status_c !== 'Approved') {
+      await db.collection('business_public').doc(businessId).delete();
+      await removeRelatedPublicMirrors(businessId);
+      return { success: true, published: false };
+    }
+    const source = snapshot.data();
+    const safe = pickFields(source, BUSINESS_PUBLIC_FIELDS);
+    const premiumActive = source.is_premium_c === true
+      && (!source.premium_expiry_c || source.premium_expiry_c >= new Date().toISOString().slice(0, 10));
+    if (premiumActive) {
+      Object.assign(safe, pickFields(source, [
+        'website_c', 'email_c', 'facebook_c', 'instagram_c',
+        'youtube_c', 'linkedin_c', 'x_c', 'telegram_c', 'cover_c', 'photos_c',
+      ]));
+    }
+    await db.collection('business_public').doc(businessId).set({ id: businessId, ...safe });
+    await refreshRelatedPublicMirrors(businessId);
+    return { success: true, published: true };
   },
 );
+
 
 exports.syncCategoryPublic = onDocumentWritten(
   { document: 'categories/{docId}', region: REGION },
