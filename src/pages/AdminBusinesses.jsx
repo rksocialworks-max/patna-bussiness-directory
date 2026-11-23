@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
+import { backfillPublicDirectory } from '@/services/firebase/functions';
 
 
 export const route = { path: '/admin/businesses', layout: 'owner', access: "profile === 'Admin_c'" };
@@ -14,10 +15,25 @@ export const nav = { icon: 'ClipboardCheck', label: 'Business Listings', section
 
 export default function AdminBusinesses() {
   const [priorityDrafts, setPriorityDrafts] = useState({});
+  const [syncingPublicDirectory, setSyncingPublicDirectory] = useState(false);
   const { data, loading, error, run } = useFetch(async () => {
     const result = await listDocuments(COLLECTIONS.businesses, { sort: 'CreatedOn', direction: 'desc', pageSize: 100 });
     return result.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
+
+  async function rebuildPublicDirectory() {
+    setSyncingPublicDirectory(true);
+    try {
+      const result = await backfillPublicDirectory();
+      const businesses = result?.results?.businesses;
+      toast.success(`Public directory sync completed. ${businesses?.published ?? 0} approved businesses published.`);
+    } catch (error) {
+      toast.error(error.message || 'Public directory sync failed.');
+    } finally {
+      setSyncingPublicDirectory(false);
+    }
+  }
+
 
   async function setStatus(record, status) {
     try { await updateDocument(COLLECTIONS.businesses, record.Id, { status_c: status }); toast.success(`${record.Name}: ${status}`); run(); }
@@ -52,6 +68,9 @@ export default function AdminBusinesses() {
       <p className="mt-2 text-sm text-muted-foreground">Approve listings, review verification documents and select popular businesses for the homepage.</p>
       {error && <div className="mt-6 rounded-xl border border-destructive/30 p-4 text-sm text-destructive">{error.message}<Button variant="link" onClick={run}>Retry</Button></div>}
       {loading && <div className="mt-7 space-y-3"><div className="h-20 animate-pulse rounded-xl bg-muted" /><div className="h-20 animate-pulse rounded-xl bg-muted" /></div>}
+      <div className="mt-5 flex justify-end">
+        <Button variant="outline" disabled={syncingPublicDirectory} onClick={rebuildPublicDirectory}>{syncingPublicDirectory ? 'Syncing public directory…' : 'Rebuild Public Directory'}</Button>
+      </div>
       {!loading && data && (
         <div className="mt-7 space-y-3">
           {data.map((item) => (
