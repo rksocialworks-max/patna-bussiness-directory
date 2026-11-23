@@ -63,10 +63,10 @@ export default function AdminDashboard() {
           <h1 className="mt-2 text-3xl font-extrabold">Super Admin Dashboard</h1>
           <p className="mt-2 text-sm text-muted-foreground">Patna Business Directory का संचालन और listing moderation।</p>
         </div>
-        <Button asChild><Link to="/admin/businesses">Manage Listings <ApperIcon name="ArrowRight" size={15} /></Link></Button>
+        <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={runPublicDirectoryBackfill} disabled={backfillLoading}><ApperIcon name={backfillLoading ? 'Loader2' : 'DatabaseBackup'} size={15} /> {backfillLoading ? 'Rebuilding Public Directory…' : 'Rebuild Public Directory Data'}</Button><Button asChild><Link to="/admin/businesses">Manage Listings <ApperIcon name="ArrowRight" size={15} /></Link></Button></div>
       </div>
 
-      {error && <div className="mt-6 rounded-xl border border-destructive/30 p-4 text-sm text-destructive">{error.message}<Button variant="link" onClick={run}>Retry</Button></div>}
+      {error && <div className="mt-6 rounded-xl border border-destructive/30 p-4 text-sm text-destructive">{typeof error === 'string' ? error : error.message || 'Admin dashboard data could not be loaded.'}<Button variant="link" onClick={run}>Retry</Button></div>}
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => <Card key={item.label}><CardContent className="flex items-center gap-4 p-5"><span className={`flex size-11 items-center justify-center rounded-xl ${item.tone}`}><ApperIcon name={item.icon} size={21} /></span><span><span className="block text-xs text-muted-foreground">{item.label}</span><span className="mt-1 block text-2xl font-extrabold">{loading ? '—' : item.value}</span></span></CardContent></Card>)}
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
           <h2 className="font-bold">Quick Actions</h2>
           <div className="mt-4 space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/admin/businesses"><ApperIcon name="ClipboardCheck" size={17} /> Review Business Listings</Link></Button>
-            <Button variant="outline" className="w-full justify-start" onClick={runPublicDirectoryBackfill} disabled={backfillLoading}><ApperIcon name={backfillLoading ? 'Loader2' : 'DatabaseBackup'} size={17} /> {backfillLoading ? 'Rebuilding Public Directory…' : 'Rebuild Public Directory Data'}</Button>
+            
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/admin/operations"><ApperIcon name="SlidersHorizontal" size={17} /> All Operations & Settings</Link></Button>
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/businesses"><ApperIcon name="ExternalLink" size={17} /> View Public Directory</Link></Button>
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/"><ApperIcon name="House" size={17} /> Open Homepage</Link></Button>
