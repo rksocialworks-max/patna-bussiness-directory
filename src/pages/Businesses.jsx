@@ -169,7 +169,7 @@ export default function Businesses() {
           </div>
         </div>
 
-        {error && <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{error.message}<Button variant="link" onClick={run}>Retry</Button></div>}
+        {error && <div className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">{typeof error === 'string' ? error : error.message || 'Public business listings could not be loaded.'}<Button variant="link" onClick={run}>Retry</Button></div>}
         {loading && <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3"><div className="h-40 animate-pulse rounded-2xl bg-muted" /><div className="h-40 animate-pulse rounded-2xl bg-muted" /><div className="h-40 animate-pulse rounded-2xl bg-muted" /></div>}
         {!loading && !error && rows.length === 0 && <div className="mt-10 rounded-2xl border border-dashed border-border p-12 text-center"><ApperIcon name="SearchX" size={32} className="mx-auto text-muted-foreground" /><h2 className="mt-3 font-bold">कोई बिज़नेस नहीं मिला</h2><p className="mt-1 text-sm text-muted-foreground">अपनी Search या Filters बदलकर देखें।</p></div>}
         {!loading && !error && rows.length > 0 && <div className={view === 'grid' ? 'mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'mt-6 grid gap-3'}>{rows.slice(0, visibleCount).map((business) => <BusinessCard key={business.Id} business={business} compact={view === 'list'} />)}</div>}
