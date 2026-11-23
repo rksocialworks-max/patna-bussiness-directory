@@ -167,7 +167,7 @@ exports.syncBusinessPublic = onCall(
   { region: REGION, enforceAppCheck: true },
   async (request) => {
     if (!request.auth || (request.auth.token.superAdmin !== true
-      && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c') {
+      && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c')) {
       throw new HttpsError('permission-denied', 'Only an Admin can synchronize public business listings.');
     }
     const businessId = typeof request.data?.businessId === 'string' ? request.data.businessId.trim() : '';
