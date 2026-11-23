@@ -14,7 +14,7 @@ const ASSIGNABLE_ROLES = new Set(['BusinessOwner_c', 'BranchManager_c']);
 // Only a separately bootstrapped Super Admin may assign non-admin roles.
 // Admin privileges are intentionally never assignable through this endpoint.
 exports.assignManagedRole = onCall({ region: 'asia-south1', enforceAppCheck: true }, async (request) => {
-  if (!request.auth || request.auth.token.superAdmin !== true) {
+  if (!request.auth || (request.auth.token.superAdmin !== true && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c')) {
     throw new HttpsError('permission-denied', 'Only the Super Admin can assign account roles.');
   }
 
