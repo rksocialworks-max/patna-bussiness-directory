@@ -54,13 +54,13 @@ export default function OwnerMyBusinesses() {
           </p>
         </div>
         <div className="flex gap-2">
-        <Button variant="outline" onClick={run} disabled={loading}>Refresh</Button>
-        <Button asChild>
-          <Link to="/owner/businesses/new">
-            <ApperIcon name="Plus" size={16} />
-            Add New Business
-          </Link>
-        </Button>
+          <Button variant="outline" onClick={run} disabled={loading}>Refresh</Button>
+          <Button asChild>
+            <Link to="/owner/businesses/new">
+              <ApperIcon name="Plus" size={16} />
+              Add New Business
+            </Link>
+          </Button>
         </div>
       </div>
 
