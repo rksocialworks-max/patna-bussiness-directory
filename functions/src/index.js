@@ -601,8 +601,9 @@ async function replacePublicMirror(sourceName, targetName, project) {
 exports.backfillPublicDirectory = onCall(
   { region: REGION, enforceAppCheck: true, timeoutSeconds: 540, memory: '1GiB' },
   async (request) => {
-    if (!request.auth || request.auth.token.superAdmin !== true) {
-      throw new HttpsError('permission-denied', 'Only the Super Admin can rebuild public directory data.');
+    if (!request.auth || (request.auth.token.superAdmin !== true
+      && (request.auth.token.role || request.auth.token.profile) !== 'Admin_c') {
+      throw new HttpsError('permission-denied', 'Only an Admin can rebuild public directory data.');
     }
 
     const businessResult = await replacePublicMirror(
