@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ApperIcon from '@/components/ApperIcon';
+import { backfillPublicDirectory } from '@/services/firebase/functions';
+import { useState } from 'react';
 
 export const route = { path: '/admin', layout: 'owner', access: "profile === 'Admin_c'" };
 export const nav = { icon: 'LayoutDashboard', label: 'Admin Overview', section: 'Administration', profiles: ['Admin_c'], order: 1 };
@@ -17,6 +19,25 @@ export default function AdminDashboard() {
   }, []);
 
   const businesses = data ?? [];
+  const [backfillLoading, setBackfillLoading] = useState(false);
+
+  async function runPublicDirectoryBackfill() {
+    if (backfillLoading) return;
+    const confirmed = window.confirm('Rebuild the public directory mirrors from the existing Firestore records? This only refreshes public listing data and does not change login or authentication.');
+    if (!confirmed) return;
+    setBackfillLoading(true);
+    try {
+      const result = await backfillPublicDirectory();
+      toast.success('Public directory backfill completed successfully.');
+      console.info('Public directory backfill result:', result);
+      await run();
+    } catch (err) {
+      const message = err?.message || 'Public directory backfill failed.';
+      toast.error(message.includes('permission-denied') || message.includes('Permission') ? 'Permission denied. This action requires Super Admin access.' : message);
+    } finally {
+      setBackfillLoading(false);
+    }
+  }
   const today = new Date().toISOString().slice(0, 10);
   const pending = businesses.filter((item) => item.status_c === 'Pending Approval');
   const expiredPremiums = businesses.filter((item) => item.is_premium_c && item.premium_expiry_c && item.premium_expiry_c < today);
@@ -67,6 +88,7 @@ export default function AdminDashboard() {
           <h2 className="font-bold">Quick Actions</h2>
           <div className="mt-4 space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/admin/businesses"><ApperIcon name="ClipboardCheck" size={17} /> Review Business Listings</Link></Button>
+            <Button variant="outline" className="w-full justify-start" onClick={runPublicDirectoryBackfill} disabled={backfillLoading}><ApperIcon name={backfillLoading ? 'Loader2' : 'DatabaseBackup'} size={17} /> {backfillLoading ? 'Rebuilding Public Directory…' : 'Rebuild Public Directory Data'}</Button>
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/admin/operations"><ApperIcon name="SlidersHorizontal" size={17} /> All Operations & Settings</Link></Button>
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/businesses"><ApperIcon name="ExternalLink" size={17} /> View Public Directory</Link></Button>
             <Button variant="outline" className="w-full justify-start" asChild><Link to="/"><ApperIcon name="House" size={17} /> Open Homepage</Link></Button>
