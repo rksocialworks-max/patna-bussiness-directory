@@ -37,7 +37,8 @@ jobs:
         run: npm install
 
       - name: Install Firebase Functions dependencies
-        run: npm install --prefix functions
+        working-directory: functions
+        run: npm install
 
       - name: Verify required Firebase build variables
         shell: bash
