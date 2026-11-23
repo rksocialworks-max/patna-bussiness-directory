@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { syncBusinessPublic } from '@/services/firebase/functions';
 import { useFetch } from '@/hooks/useFetch';
 import { listDocuments, COLLECTIONS, updateDocument, deleteDocument } from '@/services/firebase/firestore';
 import { toast } from 'sonner';
@@ -21,13 +20,13 @@ export default function AdminBusinesses() {
   }, []);
 
   async function setStatus(record, status) {
-    try { await updateDocument(COLLECTIONS.businesses, record.Id, { status_c: status }); await syncBusinessPublic({ businessId: record.Id }); toast.success(`${record.Name}: ${status}`); run(); }
+    try { await updateDocument(COLLECTIONS.businesses, record.Id, { status_c: status }); toast.success(`${record.Name}: ${status}`); run(); }
     catch (error) { toast.error(error.message || 'Could not update listing status.'); }
   }
 
   async function toggleFlag(record, field, label) {
     const nextValue = !record[field];
-    try { await updateDocument(COLLECTIONS.businesses, record.Id, { [field]: nextValue }); await syncBusinessPublic({ businessId: record.Id }); toast.success(`${record.Name}: ${label} ${nextValue ? 'enabled' : 'disabled'}.`); run(); }
+    try { await updateDocument(COLLECTIONS.businesses, record.Id, { [field]: nextValue }); toast.success(`${record.Name}: ${label} ${nextValue ? 'enabled' : 'disabled'}.`); run(); }
     catch (error) { toast.error(error.message || 'Could not update listing.'); }
   }
 
@@ -37,12 +36,12 @@ export default function AdminBusinesses() {
       toast.error('Priority must be a positive number.');
       return;
     }
-    try { await updateDocument(COLLECTIONS.businesses, record.Id, { featured_order_c: value }); await syncBusinessPublic({ businessId: record.Id }); toast.success('Homepage priority saved.'); run(); }
+    try { await updateDocument(COLLECTIONS.businesses, record.Id, { featured_order_c: value }); toast.success('Homepage priority saved.'); run(); }
     catch (error) { toast.error(error.message || 'Could not save priority.'); }
   }
 
   async function deleteBusiness(record) {
-    try { await deleteDocument(COLLECTIONS.businesses, record.Id); await syncBusinessPublic({ businessId: record.Id }); toast.success(`${record.Name} deleted.`); run(); }
+    try { await deleteDocument(COLLECTIONS.businesses, record.Id); toast.success(`${record.Name} deleted.`); run(); }
     catch (error) { toast.error(error.message || 'Could not delete listing.'); }
   }
 
