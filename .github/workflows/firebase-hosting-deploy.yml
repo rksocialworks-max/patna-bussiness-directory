@@ -82,5 +82,5 @@ jobs:
       - name: Install Firebase CLI
         run: npm install --global firebase-tools
 
-      - name: Deploy Hosting and Firestore/Storage rules only
-        run: firebase deploy --only hosting,firestore:rules,storage --project patnabiz-b2fcb --non-interactive
+      - name: Deploy Hosting, Rules, and approved-business public sync
+        run: firebase deploy --only hosting,firestore:rules,storage,functions:syncBusinessPublic --project patnabiz-b2fcb --non-interactive
