@@ -127,12 +127,12 @@ export default function OwnerMyBusinesses() {
                   </p>
                 )}
               </div>
-              <div className="hidden items-center gap-2 sm:flex">
+              <div className="flex flex-wrap items-center gap-2">
                 {business.is_premium_c && (
                   <Badge className="bg-highlight text-highlight-foreground">Premium</Badge>
                 )}
                 <Badge variant={business.status_c === 'Approved' ? 'secondary' : 'outline'}>
-                  {business.status_c}
+                  {business.status_c || 'Status unavailable'}
                 </Badge>
               </div>
               <Button size="sm" variant="outline" asChild>
