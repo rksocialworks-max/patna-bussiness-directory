@@ -4,7 +4,7 @@ import { useFetch } from '@/hooks/useFetch';
 import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import BusinessCard from '@/components/BusinessCard';
 import PublicHeader from '@/components/PublicHeader';
-import { CATEGORIES, BIHAR_DISTRICTS } from '@/data/directoryOptions';
+import { CATEGORIES, BIHAR_DISTRICTS, mergeCategoryRows } from '@/data/directoryOptions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ApperIcon from '@/components/ApperIcon';
@@ -44,12 +44,13 @@ export default function Businesses() {
   const [view, setView] = useState('grid');
   const [visibleCount, setVisibleCount] = useState(12);
 
-  const { data: categoryRows } = useFetch(async () => {
+  const { data: categoryData } = useFetch(async () => {
     return listDocuments(COLLECTIONS.categoriesPublic, {
       sort: 'sort_order_c',
       pageSize: 100,
     });
   }, []);
+  const categoryRows = mergeCategoryRows(categoryData);
 
   const { data, loading, error, run } = useFetch(async () => {
     const result = await listDocuments(COLLECTIONS.businessPublic, { pageSize: 100 });

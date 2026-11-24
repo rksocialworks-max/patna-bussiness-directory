@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useFetch } from '@/hooks/useFetch';
 import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import PublicHeader from '@/components/PublicHeader';
-import { CATEGORIES } from '@/data/directoryOptions';
+import { CATEGORIES, mergeCategoryRows } from '@/data/directoryOptions';
 import ApperIcon from '@/components/ApperIcon';
 
 export const route = { path: '/categories', layout: 'public', access: 'public' };
@@ -12,7 +12,7 @@ export default function Categories() {
     const rows = await listDocuments(COLLECTIONS.categoriesPublic, { sort: 'sort_order_c', pageSize: 100 });
     return rows.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
-  const categoryRows = data ?? [];
+  const categoryRows = mergeCategoryRows(data);
 
   return (
     <div className="min-h-svh bg-background">

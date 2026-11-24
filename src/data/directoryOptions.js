@@ -13,6 +13,23 @@ export const CATEGORIES = [
   { name: 'Technology', hindi: 'टेक्नोलॉजी', icon: 'Laptop', color: 'bg-blue-50 text-blue-700' },
 ];
 
+/**
+ * Public pages read categories from the curated Firestore mirror. If that mirror
+ * is empty or unavailable (for example before the first sync), fall back to the
+ * built-in category list so browsing never shows an empty category screen.
+ * Dynamic/admin-managed categories always take priority over the static ones.
+ */
+export function mergeCategoryRows(rows = []) {
+  const dynamic = (rows ?? [])
+    .filter((row) => row?.Name)
+    .map((row) => ({ ...row, Id: row.Id ?? row.id ?? row.Name }));
+  const names = new Set(dynamic.map((row) => row.Name));
+  const fallback = CATEGORIES
+    .filter((item) => !names.has(item.name))
+    .map((item) => ({ ...item, Name: item.name, id: item.name, Id: item.name }));
+  return [...dynamic, ...fallback];
+}
+
 export const BIHAR_DISTRICTS = [
   'Araria', 'Arwal', 'Aurangabad', 'Banka', 'Begusarai', 'Bhagalpur', 'Bhojpur',
   'Buxar', 'Darbhanga', 'East Champaran', 'Gaya', 'Gopalganj', 'Jamui', 'Jehanabad',

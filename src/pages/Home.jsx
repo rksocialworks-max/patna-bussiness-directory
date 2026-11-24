@@ -5,7 +5,7 @@ import { listDocuments, COLLECTIONS } from '@/services/firebase/firestore';
 import PublicHeader from '@/components/PublicHeader';
 import HomepageBannerSlider from '@/components/HomepageBannerSlider';
 import HomepageSections from '@/components/HomepageSections';
-import { CATEGORIES, BIHAR_DISTRICTS } from '@/data/directoryOptions';
+import { CATEGORIES, BIHAR_DISTRICTS, mergeCategoryRows } from '@/data/directoryOptions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ApperIcon from '@/components/ApperIcon';
@@ -22,7 +22,7 @@ export default function Home() {
     return rows.map((row) => ({ ...row, Id: row.Id ?? row.id }));
   }, []);
 
-  const categoryCards = (categoryData ?? []).map((category) => ({
+  const categoryCards = mergeCategoryRows(categoryData).map((category) => ({
     ...category,
     ...CATEGORIES.find((item) => item.name === category.Name),
     name: category.Name,
