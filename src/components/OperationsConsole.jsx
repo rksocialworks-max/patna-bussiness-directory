@@ -14,6 +14,7 @@ import { toPeopleWrite } from '@/components/PeoplePicker';
 import BranchManagerPicker from '@/components/BranchManagerPicker';
 import FilePicker from '@/components/FilePicker';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
+import { clearBusinessCardStyleCache } from '@/hooks/useBusinessCardStyle';
 const eq = (field, value) => ({ field, op: '==', value });
 
 const CONFIG = [
@@ -164,7 +165,7 @@ const CONFIG = [
     { key: 'setting_key_c', label: 'Setting Key', type: 'Text' },
     { key: 'setting_value_c', label: 'Setting Value', type: 'MultilineText' },
     { key: 'upi_qr_c', label: 'UPI QR Code', type: 'Files' },
-    { key: 'setting_group_c', label: 'Group', type: 'Picklist', options: ['General', 'Contact', 'Payments', 'SEO', 'Homepage'] },
+    { key: 'setting_group_c', label: 'Group', type: 'Picklist', options: ['General', 'Contact', 'Payments', 'SEO', 'Homepage', 'Appearance'] },
   ] },
   { key: 'homepage_banners_c', label: 'Homepage Banners', icon: 'Images', title: 'Homepage Image Slider', fields: [
     { key: 'Name', label: 'Banner Title', type: 'Text' },
@@ -473,6 +474,45 @@ export default function OperationsConsole({ mode = 'owner' }) {
           <p className="mt-1 text-xs text-muted-foreground">UPI ID: {paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.setting_value_c || 'Please contact the Super Admin for UPI details.'}</p>
           {(() => { const qr = paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.upi_qr_c?.[0]?.url; return qr ? <img src={qr} alt="UPI payment QR code" className="mt-3 size-36 rounded-xl border border-border bg-white object-contain p-2" /> : null; })()}
           <p className="mt-1 text-xs text-muted-foreground">Razorpay checkout and UPI submission are handled through the secure payment flow. This screen shows your payment history only.</p>
+        </div>
+      )}
+      {active.key === 'site_settings_c' && isAdmin && (
+        <div className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold">Business card design</p>
+              <p className="mt-1 text-xs text-muted-foreground">Public listing cards par turant lagu hota hai. Badalne ke baad page refresh karne ki zarurat nahi.</p>
+            </div>
+            <select
+              aria-label="Business card design"
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={rows.find((row) => row.setting_key_c === 'business_card_style')?.setting_value_c || 'gradient'}
+              onChange={async (event) => {
+                const value = event.target.value;
+                const styleRow = rows.find((row) => row.setting_key_c === 'business_card_style');
+                try {
+                  const result = styleRow
+                    ? await sdk.table('site_settings_c').update({ Id: styleRow.Id, setting_value_c: value })
+                    : await sdk.table('site_settings_c').create({
+                      Name: 'Business Card Style',
+                      setting_key_c: 'business_card_style',
+                      setting_value_c: value,
+                      setting_group_c: 'Appearance',
+                    });
+                  if (result.success === false) throw new Error(result.message || 'Could not save the style.');
+                  clearBusinessCardStyleCache();
+                  run();
+                  toast.success('Business card design updated.');
+                } catch (error) {
+                  toast.error(error.message || 'Could not update the design.');
+                }
+              }}
+            >
+              <option value="gradient">Signature Gradient</option>
+              <option value="editorial">Editorial Luxe</option>
+              <option value="vibrant">Category Vibrant</option>
+            </select>
+          </div>
         </div>
       )}
       {showCreate && canCreate && active.key !== 'payments_c' && (

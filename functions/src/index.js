@@ -280,7 +280,7 @@ exports.syncHomepageBannerPublic = onDocumentWritten(
 const PUBLIC_SETTING_KEYS = new Set([
   'homepage_section_order', 'support_whatsapp', 'support_email',
   'logo_max_kb', 'cover_max_kb', 'gallery_max_kb', 'gallery_max_files',
-  'product_image_max_kb', 'business_description_word_limit',
+  'product_image_max_kb', 'business_description_word_limit', 'business_card_style',
 ]);
 
 exports.syncSiteSettingPublic = onDocumentWritten(
