@@ -86,6 +86,35 @@ firebase deploy --only firestore:rules
 
 Do not deploy Storage or Cloud Functions as part of the Spark-only release. Storage uploads are disabled in the frontend. Cloud Functions are required by some protected workflows (including server-side review/enquiry submissions and premium payment processing); those workflows are not production-operational until Functions are deployed on a compatible billing plan and their required secrets, App Check, and payment settings are configured. Review current Firebase pricing and project billing before enabling them.
 
+## 5a. Cloud Functions runtime permissions (public directory)
+
+Public pages read curated mirrors such as `business_public`, never the private
+`businesses` collection. The `syncBusinessPublicOnWrite` Firestore trigger copies
+approved listings into those mirrors. The trigger runs as the function's runtime
+service account, which needs Firestore read/write access (`roles/datastore.user`).
+Without that role every write fails with `PERMISSION_DENIED`, and approved
+businesses never appear on the public directory even though Admin shows them as
+Approved.
+
+For this project the runtime account is the default compute service account
+`607401339320-compute@developer.gserviceaccount.com`. Verify and grant the role
+with the Google Cloud CLI (a project Owner is required):
+
+```bash
+gcloud projects get-iam-policy patnabiz-b2fcb --format=json \
+  | jq '.bindings[] | select(.role == "roles/datastore.user")'
+
+gcloud projects add-iam-policy-binding patnabiz-b2fcb \
+  --member='serviceAccount:607401339320-compute@developer.gserviceaccount.com' \
+  --role='roles/datastore.user'
+```
+
+The deploy service account only needs `roles/datastore.viewer` to deploy; do not
+confuse it with the runtime account above. After granting the role, failed
+trigger deliveries are retried automatically. An Admin can also use
+**Rebuild Public Directory** on `/admin/businesses` to republish existing
+approved listings immediately.
+
 ## 6. Build and host the frontend
 
 Set the same `VITE_FIREBASE_*` values in the hosting provider's build environment, including `VITE_FIREBASE_APPCHECK_SITE_KEY`. Then:

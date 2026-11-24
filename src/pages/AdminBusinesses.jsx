@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
-import { backfillPublicDirectory } from '@/services/firebase/functions';
+import { backfillPublicDirectory, syncBusinessPublic } from '@/services/firebase/functions';
 
 
 export const route = { path: '/admin/businesses', layout: 'owner', access: "profile === 'Admin_c'" };
@@ -36,8 +36,18 @@ export default function AdminBusinesses() {
 
 
   async function setStatus(record, status) {
-    try { await updateDocument(COLLECTIONS.businesses, record.Id, { status_c: status }); toast.success(`${record.Name}: ${status}`); run(); }
-    catch (error) { toast.error(error.message || 'Could not update listing status.'); }
+    try {
+      await updateDocument(COLLECTIONS.businesses, record.Id, { status_c: status });
+      let syncNote = '';
+      try {
+        // Publish/unpublish immediately; the Firestore trigger remains the safety net.
+        await syncBusinessPublic({ businessId: record.Id });
+      } catch {
+        syncNote = ' Public listing sync is pending and will retry automatically.';
+      }
+      toast.success(`${record.Name}: ${status}.${syncNote}`);
+      run();
+    } catch (error) { toast.error(error.message || 'Could not update listing status.'); }
   }
 
   async function toggleFlag(record, field, label) {
