@@ -287,7 +287,7 @@ exports.syncSiteSettingPublic = onDocumentWritten(
   { document: 'site_settings/{docId}', region: REGION },
   (event) => mirrorDocument(
     event, 'site_settings_public',
-    ['setting_key_c', 'setting_value_c', 'setting_group_c'],
+    ['setting_key_c', 'setting_value_c', 'setting_group_c', 'upi_qr_c'],
     (data) => PUBLIC_SETTING_KEYS.has(data.setting_key_c),
   ),
 );
