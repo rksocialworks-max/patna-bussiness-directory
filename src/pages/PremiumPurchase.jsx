@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 export const route = { path: '/owner/premium', layout: 'owner', access: "profile === 'BusinessOwner_c'" };
 export const nav = { icon: 'Crown', label: 'Upgrade to Premium', section: 'Workspace', profiles: ['BusinessOwner_c'], order: 30 };
 
+const DEFAULT_UPI_ID = 'rksocialworks@oksbi';
+
 function loadRazorpay() {
   return new Promise((resolve, reject) => {
     if (window.Razorpay) return resolve(true);
@@ -40,8 +42,16 @@ export default function PremiumPurchase() {
     return (result.data || []).filter((plan) => ['Active', 'Approved'].includes(plan.status_c) && ([1, 3, 12].includes(Number(plan.duration_months_c)) || [30, 90, 365].includes(Number(plan.duration_days_c))));
   }, []);
 
+  const { data: settings = [] } = useFetch(async () => {
+    const result = await sdk.table('site_settings_c').select(['setting_key_c', 'setting_value_c']).fetch();
+    if (!result.success) throw new Error(result.message);
+    return result.data || [];
+  }, []);
+
   const eligibleBusinesses = useMemo(() => businesses.filter((item) => item.status_c === 'Approved'), [businesses]);
   const selectedPlan = plans.find((item) => item.Id === planId);
+  const upiId = settings.find((item) => item.setting_key_c === 'upi_id')?.setting_value_c || DEFAULT_UPI_ID;
+  const upiQr = settings.find((item) => item.setting_key_c === 'upi_qr')?.setting_value_c || '/upi-qr.webp';
 
   async function payOnline() {
     if (!businessId || !planId) return toast.error('पहले Business और Premium Plan चुनें।');
@@ -129,12 +139,14 @@ export default function PremiumPurchase() {
       <section className="grid gap-5 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="font-bold">2. Pay Online with Razorpay</h2>
-          <p className="mt-2 text-sm text-muted-foreground">UPI, card और Razorpay में उपलब्ध payment methods का उपयोग करें। Premium केवल server verification के बाद activate होगा।</p>
-          <Button className="mt-5 w-full" onClick={payOnline} disabled={busy || !businessId || !planId || !eligibleBusinesses.length}>Pay ₹{Number(selectedPlan?.price_c || 0).toLocaleString('en-IN')} with Razorpay</Button>
+          <p className="mt-2 text-sm text-muted-foreground">Razorpay live keys configure होने पर card/UPI checkout यहाँ activate होगा। अभी Manual UPI payment उपलब्ध है।</p>
+          <Button className="mt-5 w-full" onClick={payOnline} disabled>Razorpay setup pending</Button>
         </div>
         <form onSubmit={submitUpi} className="rounded-2xl border border-border bg-card p-5">
           <h2 className="font-bold">3. Manual UPI Payment</h2>
-          <p className="mt-2 text-sm text-muted-foreground">UPI से भुगतान करने के बाद अपना UTR / Transaction Reference दर्ज करें। Admin पुष्टि करेगा।</p>
+          <p className="mt-2 text-sm text-muted-foreground">इस UPI ID पर payment करें, फिर नीचे UTR / Transaction Reference दर्ज करें। Admin पुष्टि के बाद Premium सक्रिय होगा।</p>
+          <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-sm font-semibold">{upiId}</p>
+          {upiQr && <img src={upiQr} alt="UPI payment QR code" className="mt-3 size-32 rounded-xl border border-border bg-white object-contain p-2" />}
           <label className="mt-4 block space-y-2 text-sm font-medium">UPI UTR / Reference
             <input value={utr} onChange={(event) => setUtr(event.target.value)} minLength={8} maxLength={30} required pattern="[A-Za-z0-9-]{8,30}" className="h-11 w-full rounded-md border border-input bg-background px-3" placeholder="Enter transaction reference" />
           </label>

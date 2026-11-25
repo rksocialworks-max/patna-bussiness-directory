@@ -17,6 +17,8 @@ import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import { clearBusinessCardStyleCache } from '@/hooks/useBusinessCardStyle';
 const eq = (field, value) => ({ field, op: '==', value });
 
+const DEFAULT_UPI_ID = 'rksocialworks@oksbi';
+
 const CONFIG = [
   { key: 'branches_c', label: 'Branches', icon: 'Building2', title: 'Branch Management', fields: [
     { key: 'business_c', label: 'Main Business', type: 'Lookup', lookup: 'businesses_c' },
@@ -235,6 +237,8 @@ export default function OperationsConsole({ mode = 'owner' }) {
   const [enquiryReplyDrafts, setEnquiryReplyDrafts] = useState({});
   const [editingId, setEditingId] = useState('');
   const [editForm, setEditForm] = useState({});
+  const [upiForm, setUpiForm] = useState({ id: '', qr: '' });
+  const [savingUpi, setSavingUpi] = useState(false);
   const active = available.find((item) => item.key === activeKey) ?? available[0];
 
   const { data: rowsData, loading, error, run } = useFetch(async () => {
@@ -273,6 +277,56 @@ export default function OperationsConsole({ mode = 'owner' }) {
   }, [activeKey]);
 
   const rows = rowsData ?? [];
+
+  useEffect(() => {
+    if (!isAdmin || activeKey !== 'site_settings_c') return;
+    setUpiForm((current) => ({
+      id: current.id || rows.find((row) => row.setting_key_c === 'upi_id')?.setting_value_c || DEFAULT_UPI_ID,
+      qr: current.qr || rows.find((row) => row.setting_key_c === 'upi_qr')?.setting_value_c || '/upi-qr.webp',
+    }));
+  }, [isAdmin, activeKey, rows]);
+
+  function readQrFile(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast.error('Sirf image file chuniye.');
+    if (file.size > 700 * 1024) return toast.error('QR image 700 KB se chhoti honi chahiye.');
+    const reader = new FileReader();
+    reader.onload = () => setUpiForm((current) => ({ ...current, qr: String(reader.result || '') }));
+    reader.onerror = () => toast.error('QR file read नहीं हो सका।');
+    reader.readAsDataURL(file);
+  }
+
+  async function saveUpiDetails() {
+    if (!/^[\w.\-]+@[\w.\-]+$/.test(upiForm.id.trim())) return toast.error('Valid UPI ID (VPA) daaliye, jaise name@bank.');
+    if (!upiForm.qr.trim()) return toast.error('QR image chuniye.');
+    setSavingUpi(true);
+    try {
+      const entries = [
+        { key: 'upi_id', name: 'UPI ID', value: upiForm.id.trim() },
+        { key: 'upi_qr', name: 'UPI QR Code', value: upiForm.qr.trim() },
+      ];
+      for (const entry of entries) {
+        const row = rows.find((item) => item.setting_key_c === entry.key);
+        const result = row
+          ? await sdk.table('site_settings_c').update({ Id: row.Id, setting_value_c: entry.value })
+          : await sdk.table('site_settings_c').create({
+            Name: entry.name,
+            setting_key_c: entry.key,
+            setting_value_c: entry.value,
+            setting_group_c: 'Payments',
+          });
+        if (result.success === false) throw new Error(result.message || `Could not save ${entry.name}.`);
+      }
+      await run();
+      toast.success('UPI payment details updated.');
+    } catch (error) {
+      toast.error(error.message || 'Could not update UPI payment details.');
+    } finally {
+      setSavingUpi(false);
+    }
+  }
+
   const createFields = active.fields.filter((field) => isAdmin || !((field.key === 'status_c' && ['offers_c', 'coupons_c', 'payments_c', 'advertisements_c', 'business_documents_c', 'categories_c', 'privacy_requests_c'].includes(active.key)) || field.key === 'is_homepage_featured_c'));
   const editFields = isManager && active.key === 'branches_c'
     ? active.fields.filter((field) => ['Name', 'address_c', 'district_c', 'city_c', 'phone_c', 'map_url_c', 'hours_c', 'photos_c'].includes(field.key))
@@ -471,9 +525,19 @@ export default function OperationsConsole({ mode = 'owner' }) {
       {active.key === 'payments_c' && !isAdmin && (
         <div className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
           <p className="font-semibold">Premium Payment Instructions</p>
-          <p className="mt-1 text-xs text-muted-foreground">UPI ID: {paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.setting_value_c || 'Please contact the Super Admin for UPI details.'}</p>
-          {(() => { const qr = paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.upi_qr_c?.[0]?.url; return qr ? <img src={qr} alt="UPI payment QR code" className="mt-3 size-36 rounded-xl border border-border bg-white object-contain p-2" /> : null; })()}
-          <p className="mt-1 text-xs text-muted-foreground">Razorpay checkout and UPI submission are handled through the secure payment flow. This screen shows your payment history only.</p>
+          {(() => {
+            const upiId = paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.setting_value_c || DEFAULT_UPI_ID;
+            const qr = paymentSettings?.find((item) => item.setting_key_c === 'upi_qr')?.setting_value_c
+              || paymentSettings?.find((item) => item.setting_key_c === 'upi_id')?.upi_qr_c?.[0]?.url
+              || '/upi-qr.webp';
+            return (
+              <>
+                <p className="mt-1 text-xs text-muted-foreground">UPI ID: {upiId}</p>
+                {qr && <img src={qr} alt="UPI payment QR code" className="mt-3 size-36 rounded-xl border border-border bg-white object-contain p-2" />}
+              </>
+            );
+          })()}
+          <p className="mt-1 text-xs text-muted-foreground">UPI se payment karke UTR Premium Purchase page par submit karein. Razorpay online payment keys configure hone par activate hoga.</p>
         </div>
       )}
       {active.key === 'site_settings_c' && isAdmin && (
@@ -512,6 +576,26 @@ export default function OperationsConsole({ mode = 'owner' }) {
               <option value="editorial">Editorial Luxe</option>
               <option value="vibrant">Category Vibrant</option>
             </select>
+          </div>
+          <div className="mt-5 border-t border-primary/15 pt-5">
+            <div>
+              <p className="font-semibold">Manual UPI payment</p>
+              <p className="mt-1 text-xs text-muted-foreground">UPI ID aur QR owners ko payment page par dikhaya jayega. QR image seedha site setting me save hoti hai (Storage billing ki zarurat nahi).</p>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="space-y-1.5 text-xs font-semibold">
+                UPI ID (VPA)
+                <Input value={upiForm.id} onChange={(event) => setUpiForm((current) => ({ ...current, id: event.target.value }))} placeholder="name@bank" />
+              </label>
+              <label className="space-y-1.5 text-xs font-semibold">
+                UPI QR image
+                <input type="file" accept="image/*" onChange={readQrFile} className="block w-full text-xs file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-2 file:text-primary-foreground" />
+              </label>
+            </div>
+            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
+              {upiForm.qr && <img src={upiForm.qr} alt="UPI QR preview" className="size-28 rounded-xl border border-border bg-white object-contain p-2" />}
+              <Button size="sm" onClick={saveUpiDetails} disabled={savingUpi}>{savingUpi ? 'Saving…' : 'Save UPI details'}</Button>
+            </div>
           </div>
         </div>
       )}
