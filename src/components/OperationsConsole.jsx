@@ -13,6 +13,7 @@ import ApperIcon from '@/components/ApperIcon';
 import { toPeopleWrite } from '@/components/PeoplePicker';
 import BranchManagerPicker from '@/components/BranchManagerPicker';
 import FilePicker from '@/components/FilePicker';
+import { uploadFile } from '@/services/firebase/storage';
 import ConfirmDeleteButton from '@/components/ConfirmDeleteButton';
 import { clearBusinessCardStyleCache } from '@/hooks/useBusinessCardStyle';
 const eq = (field, value) => ({ field, op: '==', value });
@@ -239,6 +240,7 @@ export default function OperationsConsole({ mode = 'owner' }) {
   const [editForm, setEditForm] = useState({});
   const [upiForm, setUpiForm] = useState({ id: '', qr: '' });
   const [savingUpi, setSavingUpi] = useState(false);
+  const [uploadingQr, setUploadingQr] = useState(false);
   const active = available.find((item) => item.key === activeKey) ?? available[0];
 
   const { data: rowsData, loading, error, run } = useFetch(async () => {
@@ -286,15 +288,22 @@ export default function OperationsConsole({ mode = 'owner' }) {
     }));
   }, [isAdmin, activeKey, rows]);
 
-  function readQrFile(event) {
+  async function readQrFile(event) {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) return toast.error('Sirf image file chuniye.');
     if (file.size > 700 * 1024) return toast.error('QR image 700 KB se chhoti honi chahiye.');
-    const reader = new FileReader();
-    reader.onload = () => setUpiForm((current) => ({ ...current, qr: String(reader.result || '') }));
-    reader.onerror = () => toast.error('QR file read नहीं हो सका।');
-    reader.readAsDataURL(file);
+    setUploadingQr(true);
+    try {
+      const uploaded = await uploadFile(file);
+      setUpiForm((current) => ({ ...current, qr: uploaded.url }));
+      toast.success('QR upload ho gaya. Ab "Save UPI details" dabayein.');
+    } catch (error) {
+      toast.error(error.message || 'QR upload नहीं हो सका।');
+    } finally {
+      setUploadingQr(false);
+      if (event.target) event.target.value = '';
+    }
   }
 
   async function saveUpiDetails() {
@@ -580,7 +589,7 @@ export default function OperationsConsole({ mode = 'owner' }) {
           <div className="mt-5 border-t border-primary/15 pt-5">
             <div>
               <p className="font-semibold">Manual UPI payment</p>
-              <p className="mt-1 text-xs text-muted-foreground">UPI ID aur QR owners ko payment page par dikhaya jayega. QR image seedha site setting me save hoti hai (Storage billing ki zarurat nahi).</p>
+              <p className="mt-1 text-xs text-muted-foreground">UPI ID aur QR owners ko payment page par dikhaya jayega. QR Firebase Storage me upload hota hai aur setting me sirf chhota URL save hota hai.</p>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="space-y-1.5 text-xs font-semibold">
@@ -594,7 +603,7 @@ export default function OperationsConsole({ mode = 'owner' }) {
             </div>
             <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
               {upiForm.qr && <img src={upiForm.qr} alt="UPI QR preview" className="size-28 rounded-xl border border-border bg-white object-contain p-2" />}
-              <Button size="sm" onClick={saveUpiDetails} disabled={savingUpi}>{savingUpi ? 'Saving…' : 'Save UPI details'}</Button>
+              <Button size="sm" onClick={saveUpiDetails} disabled={savingUpi || uploadingQr}>{uploadingQr ? 'Uploading QR…' : savingUpi ? 'Saving…' : 'Save UPI details'}</Button>
             </div>
           </div>
         </div>
