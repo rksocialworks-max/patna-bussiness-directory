@@ -5,7 +5,9 @@ const COLORS = {
   bihar: 'text-[#168A63]',       // green
 };
 
-export default function BrandName({ variant = 'stacked', className = '' }) {
+export default function BrandName({ variant = 'stacked', size = 'normal', className = '' }) {
+  const large = size === 'large';
+
   if (variant === 'inline') {
     return (
       <span className={`inline-flex flex-wrap items-baseline gap-x-1.5 ${className}`}>
@@ -19,11 +21,11 @@ export default function BrandName({ variant = 'stacked', className = '' }) {
 
   return (
     <span className={`inline-flex flex-col leading-tight ${className}`}>
-      <span className="whitespace-nowrap text-sm font-extrabold tracking-tight md:text-[15px]">
+      <span className={`whitespace-nowrap font-extrabold tracking-tight ${large ? 'text-base md:text-lg' : 'text-sm md:text-[15px]'}`}>
         <span className={COLORS.patna}>Patna</span>{' '}
         <span className={COLORS.business}>Business</span>
       </span>
-      <span className="text-[11px] font-bold uppercase tracking-[0.14em]">
+      <span className={`font-bold uppercase tracking-[0.14em] ${large ? 'text-xs md:text-sm' : 'text-[11px]'}`}>
         <span className={COLORS.directory}>Directory</span>
         <span className="px-1 text-[#E59700]/60">•</span>
         <span className={COLORS.bihar}>Bihar</span>
