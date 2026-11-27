@@ -28,9 +28,8 @@ export default function OwnerLayout() {
   return (
     <div className="min-h-svh bg-background text-foreground md:grid md:grid-cols-[248px_minmax(0,1fr)]">
       <aside className="hidden min-h-svh flex-col bg-sidebar px-4 py-5 text-sidebar-foreground md:flex">
-        <Link to={homeRoute} className="flex items-center gap-3 px-2">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground"><ApperIcon name="Store" size={21} /></span>
-          <span><span className="block text-sm font-bold leading-tight">Patna Business</span><span className="block text-xs text-sidebar-foreground/60">Directory</span></span>
+        <Link to={homeRoute} className="flex items-center px-2">
+          <span className="inline-flex rounded-lg bg-white p-1 shadow-sm"><img src="/brand-logo.jpeg" alt="Patna Business Directory" className="h-9 w-auto" /></span>
         </Link>
         <div className="mt-9 flex-1 space-y-5">{nav}</div>
         <div className="mt-8 rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-3"><p className="text-xs font-semibold">Bihar Business Network</p><p className="mt-1 text-[11px] leading-relaxed text-sidebar-foreground/60">Discover, connect and grow local businesses.</p></div>

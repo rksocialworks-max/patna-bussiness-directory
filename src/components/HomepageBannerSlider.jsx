@@ -26,20 +26,21 @@ export default function HomepageBannerSlider() {
 
   return (
     <section className="relative mx-auto max-w-7xl px-4 pt-4 md:px-8">
-      <div className="relative min-h-36 overflow-hidden rounded-2xl bg-primary text-primary-foreground md:min-h-44">
-        {image && <img src={image} alt={banner.Name} className="absolute inset-0 size-full object-cover opacity-35" />}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/50" />
+      <div className="relative min-h-36 overflow-hidden rounded-2xl border border-[#F3D9B1] bg-[#F8F3E9] text-[#304878] md:min-h-44">
+        {image && <img src={image} alt={banner.Name} className="absolute inset-0 size-full object-cover opacity-20" />}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#F8F3E9] via-[#F8F3E9]/95 to-[#FDE7C7]/70" />
+        <div className="absolute -right-10 -top-16 size-56 rounded-full border-[36px] border-[#F07830]/10" />
         <div className="relative flex min-h-36 items-center justify-between gap-4 p-5 md:min-h-44 md:px-10">
           <div className="max-w-2xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground/70">Featured • Bihar</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#E59700]">Featured • Bihar</p>
             <h2 className="mt-2 text-xl font-extrabold md:text-3xl">{banner.Name}</h2>
-            <p className="mt-1 text-sm text-primary-foreground/75">{banner.caption_c}</p>
-            <Button size="sm" variant="secondary" asChild className="mt-3"><Link to={banner.link_url_c || '/businesses'}>Explore <ApperIcon name="ArrowRight" size={14} /></Link></Button>
+            <p className="mt-1 text-sm text-[#304878]/70">{banner.caption_c}</p>
+            <Button size="sm" asChild className="mt-3 bg-[#304878] text-white hover:bg-[#24365e]"><Link to={banner.link_url_c || '/businesses'}>Explore <ApperIcon name="ArrowRight" size={14} /></Link></Button>
           </div>
-          {banners.length > 1 && <div className="flex shrink-0 gap-2"><Button size="icon" variant="secondary" onClick={() => move(-1)} aria-label="Previous banner"><ApperIcon name="ChevronLeft" size={18} /></Button><Button size="icon" variant="secondary" onClick={() => move(1)} aria-label="Next banner"><ApperIcon name="ChevronRight" size={18} /></Button></div>}
+          {banners.length > 1 && <div className="flex shrink-0 gap-2"><Button size="icon" variant="outline" onClick={() => move(-1)} aria-label="Previous banner" className="border-[#F3D9B1] bg-white/80 text-[#304878] hover:bg-white"><ApperIcon name="ChevronLeft" size={18} /></Button><Button size="icon" variant="outline" onClick={() => move(1)} aria-label="Next banner" className="border-[#F3D9B1] bg-white/80 text-[#304878] hover:bg-white"><ApperIcon name="ChevronRight" size={18} /></Button></div>}
         </div>
       </div>
-      {banners.length > 1 && <div className="mt-2 flex justify-center gap-1.5">{banners.map((item, i) => <button key={item.Id} aria-label={`Go to banner ${i+1}`} onClick={() => setIndex(i)} className={`h-1.5 rounded-full transition-all ${i === index ? 'w-7 bg-primary' : 'w-2 bg-muted-foreground/30'}`} />)}</div>}
+      {banners.length > 1 && <div className="mt-2 flex justify-center gap-1.5">{banners.map((item, i) => <button key={item.Id} aria-label={`Go to banner ${i+1}`} onClick={() => setIndex(i)} className={`h-1.5 rounded-full transition-all ${i === index ? 'w-7 bg-[#F07830]' : 'w-2 bg-[#304878]/20'}`} />)}</div>}
     </section>
   );
 }

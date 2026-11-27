@@ -19,9 +19,8 @@ export default function PublicHeader() {
     <>
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-4 md:px-8">
-        <Link to="/" className="flex shrink-0 items-center gap-2.5">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground"><ApperIcon name="Store" size={21} /></span>
-          <span><span className="block text-sm font-extrabold leading-tight tracking-tight">Patna Business</span><span className="block text-[11px] font-medium text-muted-foreground">DIRECTORY • BIHAR</span></span>
+        <Link to="/" className="flex shrink-0 items-center" aria-label="Patna Business Directory — होम">
+          <img src="/brand-logo.jpeg" alt="Patna Business Directory" className="h-11 w-auto rounded-lg" />
         </Link>
         <nav className="ml-auto hidden items-center gap-1 xl:flex">
           {links.map((item) => <NavLink key={item.to} to={item.to} end={item.to === '/'} className={({ isActive }) => `rounded-lg px-2 py-2 text-xs font-medium transition-colors ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}>{item.label}</NavLink>)}
